@@ -1,0 +1,19 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/head
+  body 
+    include ../includes/navigation
+    
+    h1.heading Добавьте товары в свою корзину
+    if hasProducts
+      .box-container 
+        each product in products
+          .box
+            h3 #{product.title} 
+            img(src=product.imageUrl)
+            p.description #{product.description} 
+            p.weight #{product.weight} 
+            p.price #{product.price}
+    else 
+      p.nothing Товары не обнаружены 

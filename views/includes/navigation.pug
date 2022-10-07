@@ -1,0 +1,28 @@
+header.site-header 
+  .flex
+    h3.site-logo 
+      a(href="/admin")
+        | Groco
+        span .
+    nav.site-nav 
+      a(href="/") Главная
+      a(href="/products") Каталог
+      a(href="/admin/orders") Заказы
+      a(href="/about") О нас
+      a(href="/contact") Контакты
+    .site-icons
+      .fa-solid.fa-bars#menu-btn 
+      .fa-solid.fa-user#user-btn
+      a.fa-solid.fa-magnifying-glass(href="/search")
+      a(href="/admin/wishlist")
+        i.fa-solid.fa-heart
+      a(href="/cart")
+        i.fa-solid.fa-cart-shopping
+    .profile 
+      img(src="", alt="")
+      p 
+      a.btn(href="/admin/user-profile-update") Обновить
+      a.delete-btn(href="/auth/logout") Выйти из профиля
+      .flex-btn
+        a.option-btn(href="/auth/login") Войти
+        a.option-btn(href="/auth/register") Регистрация

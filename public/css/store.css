@@ -1,0 +1,15 @@
+.box-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: 1.5rem;
+}
+
+.box-container .box {
+  border: var(--border);
+  align-items: center;
+  justify-content: center;
+}
+
+.box-container .box img {
+  width: 80%;
+}
