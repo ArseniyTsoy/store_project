@@ -1,0 +1,40 @@
+doctype html
+html(lang="ru")
+  head
+    include ../includes/head
+  body
+    include ../includes/navigation
+
+    section.placed-orders
+
+      if hasOrders
+
+        h1.title Текущие заказы
+        .box-container
+        
+          each order in orders
+
+            .box
+              p Дата заказа : 
+                span #{order.placed_on}
+              p Name : 
+                span #{order.name}
+              p Number : 
+                span #{order.number}
+              p Email : 
+                span #{order.email}
+              p Address : 
+                span #{order.address}
+              p Payment method : 
+                span #{order.method}
+              p Your orders : 
+                span #{order.total_products}
+              p Total price : 
+                span #{order.total_price}
+              p Payment status : 
+                span(style="color:" + (order.payment_status == 'pending') ? "red" : "green") #{order.payment_status}
+      else
+        p.empty No orders placed yet!
+
+    include ../includes/footer.pug
+    script(src="js/script.js")

@@ -1,0 +1,44 @@
+doctype html
+html(lang="ru")
+   head
+      include ../includes/head
+   body
+      include ../includes/navigation
+
+      section.wishlist
+         
+         if hasItems
+
+            h1.title Список желаемого
+            div.box-container
+
+               each item in wishlist
+
+                  div.box
+
+                     form(action="/user/wishlist-delete", method="POST")
+                        input(type="hidden", name="itemId", value=item.id)
+                        button(href="/user/wishlist-delete", onclick="return confirm('Удалить товар из списка?');")
+                           i.fas.fa-times
+                     a.fas.fa-eye(href="/show-product/" + item.product_id)
+                     img(src="/" + item.product_imageUrl, alt=item.product_title)
+                     div.name #{item.product_title}
+                     div.price #{item.product_price}
+
+                     form(action="/user/cart-add", method="POST")
+                        input.qty(type="number", min="1", value="1", name="qty")
+                        input(type="hidden", name="productId", value=item.product_id)
+                        input.btn(type="submit", value="В корзину")
+               
+            div.wishlist-total
+   
+               p Итого: 
+                  span
+               a.option-btn(href="/catalog") Продолжить покупки
+               //- Удаление предмета из корзины, если число меньше единицы
+               a.delete-btn(href="/user/wishlist-clean") Очистить список
+         else
+            p.empty Ваш список желаемого пуст
+
+      include ../includes/footer
+      script(src="js/script.js")

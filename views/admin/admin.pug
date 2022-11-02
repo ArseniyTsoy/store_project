@@ -1,0 +1,44 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+
+    section.dashboard
+      h1.title Dashboard
+      .box-container
+        .box
+          h3 #{total_pendings}
+          p Total pendings
+          a.btn(href="/admin/orders") See orders
+        .box
+          h3 #{total_completed}
+          p Completed orders
+          a.btn(href="/admin/orders") See orders
+        .box
+          h3 #{number_of_orders}
+          p Orders placed
+          a.btn(href="/admin/orders") See orders
+        .box
+          h3 #{number_of_products}
+          p Products added
+          a.btn(href="/admin/products") See products
+        .box
+          h3 #{number_of_users}
+          p Total users
+          a.btn(href="/admin/users") See accounts
+        .box
+          h3 #{number_of_admins}
+          p Total admins
+          a.btn(href="/admin/users") See accounts
+        .box
+          h3 #{number_of_accounts}
+          p Total accounts
+          a.btn(href="/admin/users") See accounts
+        .box
+          h3 #{number_of_messages}
+          p Total messages
+          a.btn(href="/admin/users") See messages
+
+    script(src="js/script.js")

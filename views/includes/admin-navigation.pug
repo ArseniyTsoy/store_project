@@ -1,0 +1,23 @@
+header.header
+  .flex
+    a.logo(href="/admin") 
+      | Admin
+      span 
+        | Panel
+    nav.navbar
+      a(href="/admin") Главная
+      a(href="/admin/products") Каталог
+      a(href="/admin/orders") Заказы
+      a(href="/admin/users") Пользователи
+      a(href="/admin/contacts") Сообщения
+    .icons
+      .fas.fa-bars#menu-btn
+      .fas.fa-user#user-btn    
+    .profile
+      img(src="", alt="")
+      p  
+      a.btn(href="/admin/update-profile")
+      a.delete-btn(href="/logout") Выйти
+      .flex-btn
+        a.option-btn(href="/login") Логин
+        a.option-btn(href="/register") Регистрация

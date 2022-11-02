@@ -1,0 +1,33 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/head
+  body 
+    include ../includes/navigation
+    
+    section.products
+      h1.title #{categoryTitle}
+
+      if hasProducts
+
+        div.box-container
+
+          each product in products
+
+            form.box(action="", method="POST")
+              div.price 
+                span #{product.price} руб.
+              a.fas.fa-eye(href="/show-product/" + product.id)
+              img(src="/" + product.imageUrl, alt="")
+              .name #{product.title}
+              input(type="hidden", name="pid", value=`${product.id}`)
+              input(type="hidden", name="p_name", value=`${product.name}`)
+              input(type="hidden", name="p_price", value=`${product.price}`)
+              input(type="hidden", name="p_image", value="/" + product.imageUrl)
+              input.qty(type="number", min="1", value="1", name="p_qty")
+              input.option-btn(type="submit", value="В список желаемого", name="add_to_wishlist")
+              input.btn(type="submit", value="В корзину", name="add_to_cart")
+      else 
+        p Товары не обнаружены
+    include ../includes/footer.pug
+    script(src="js/script.js")

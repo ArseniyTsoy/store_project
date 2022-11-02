@@ -1,0 +1,29 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+   
+    section.user-accounts
+
+      if hasUsers
+
+        h1.title Зарегистрированные пользователи
+        .box-container
+          each user in users
+
+            .box(style=(user.id == admin_id) ? "display:none" : "")
+              img(src=user.imageUrl, alt=user.name)
+              p ID пользователя: 
+                span #{user.id}
+              p Имя: 
+                span #{user.name}
+              p Email: 
+                span #{user.email}
+              p Тип пользователя: 
+                span(style="color:" + (user.type == "admin") ? "orange" : "green") #{user.type}
+              //- Переделать
+              a.delete-btn(href="/admin-users?delete=" + user.id, onclick="return confirm('Удалить пользователя?');") Удалить профиль
+    
+    script(src="js/script.js")

@@ -4,16 +4,55 @@ html(lang="ru")
     include ../includes/head
   body 
     include ../includes/navigation
-    
-    h1.heading Добавьте товары в свою корзину
-    if hasProducts
-      .box-container 
-        each product in products
-          .box
-            h3 #{product.title} 
-            img(src=product.imageUrl)
-            p.description #{product.description} 
-            p.weight #{product.weight} 
-            p.price #{product.price}
-    else 
-      p.nothing Товары не обнаружены 
+    .home-bg
+      section.home
+        .content
+          span 
+            | Мы - это то, что мы едим
+          h3 Укрепите свое здоровье при помощи натуральных продуктов
+          p Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto natus culpa officia quasi, accusantium explicabo?
+          a.btn(href="/about") Узнать больше
+    section.home-category
+      h1.title Выберите категорию
+      .box-container
+        .box
+          img(src="images/service/cat-1.png", alt="")         
+          h3 Фрукты         
+          p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat.
+          a.btn(href="/category?category=fruits&title=Фрукты") Товары
+        .box
+          img(src="images/service/cat-2.png", alt="")         
+          h3 Мясные товары         
+          p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat.
+          a.btn(href="/category?category=meat&title=Мясо") Товары
+        .box
+          img(src="images/service/cat-3.png", alt="")         
+          h3 Овощи         
+          p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat.
+          a.btn(href="/category?category=vegitables&title=Овощи") Товары
+        .box
+          img(src="images/service/cat-4.png", alt="")         
+          h3 Рыбные товары         
+          p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat.
+          a.btn(href="/category?category=fish&title=Рыба") Товары
+    section.products
+      if hasProducts
+        h1.title Свежие продукты
+        div.box-container
+          each product in products
+            .box
+              .price 
+                span #{product.price} руб.
+              a.fas.fa-eye(href="/show-product/" + product.id)
+              img(src=product.imageUrl, alt=product.title)
+              .name #{product.title}
+              form(action="/user/cart-add", method="POST")
+                input(type="hidden", name="productId", value=product.id)
+                input.qty(type="number", min="1", value="1", name="qty")
+                input.btn(type="submit", value="В корзину")
+              form(action="/user/wishlist-add", method="POST")
+                input(type="hidden", name="productId", value=product.id)
+                input.option-btn(type="submit", value="В список желаемого")
+                
+    include ../includes/footer.pug
+    script(src="js/script.js") 

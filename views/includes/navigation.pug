@@ -1,28 +1,37 @@
-header.site-header 
-  .flex
-    h3.site-logo 
-      a(href="/admin")
+header.header 
+  div.flex
+    h3.logo 
+      a(href="/")
         | Groco
         span .
-    nav.site-nav 
+    nav.nav 
       a(href="/") Главная
-      a(href="/products") Каталог
-      a(href="/admin/orders") Заказы
+      a(href="/catalog") Каталог
+      if isAuthenticated
+        a(href="/user/orders") Заказы
       a(href="/about") О нас
       a(href="/contact") Контакты
-    .site-icons
-      .fa-solid.fa-bars#menu-btn 
-      .fa-solid.fa-user#user-btn
-      a.fa-solid.fa-magnifying-glass(href="/search")
-      a(href="/admin/wishlist")
-        i.fa-solid.fa-heart
-      a(href="/cart")
-        i.fa-solid.fa-cart-shopping
-    .profile 
-      img(src="", alt="")
-      p 
-      a.btn(href="/admin/user-profile-update") Обновить
-      a.delete-btn(href="/auth/logout") Выйти из профиля
-      .flex-btn
+    if isAuthenticated
+      div.icons
+        div.fa-solid.fa-bars#menu-btn
+        div.fa-solid.fa-user#user-btn
+        a.fa-solid.fa-magnifying-glass(href="/search")
+        a(href="/user/wishlist")
+          i.fa-solid.fa-heart
+            span (#{wishlistItems})
+        a(href="/user/cart")
+          i.fa-solid.fa-cart-shopping
+            span (#{cartItems}) 
+      div.profile
+        img(src=user.imageUrl, alt=user.name)
+        p #{user.name}
+        a.btn(href="/user/edit-profile/" + user.id) Обновить
+        form(action="/auth/logout", method="POST")
+          button.delete-btn(type="submit") Выйти из профиля
+    else
+      div.icons
+        div.fa-solid.fa-bars#menu-btn
+        a.fa-solid.fa-magnifying-glass(href="/search")
+      div.flex-btn
         a.option-btn(href="/auth/login") Войти
-        a.option-btn(href="/auth/register") Регистрация
+        a.option-btn(href="/auth/signup") Регистрация

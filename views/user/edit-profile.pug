@@ -1,0 +1,37 @@
+doctype html
+html(lang="ru")
+  head
+    include ../includes/head
+  body
+    include ../includes/navigation
+
+    section.update-profile
+
+      h1.title Редактировать профиль
+      form(action="/user/edit-profile/" + user.id, method="POST", enctype="multipart/form-data")
+        img(src="/" + user.imageUrl, alt=user.name)
+        div.flex
+          div.inputBox
+            span Ваше имя:
+            input.box(type="text", name="name", value=user.name, placeholder=user.name, required)
+            span Ваш Email:
+            input.box(type="email", name="email", value=user.email, placeholder=user.email, required)
+            span Фото профиля:
+            input.box(type="file", name="image")
+            input(type="hidden", name="oldImage", value=user.imageUrl)
+
+          div.inputBox
+            input(type="hidden", name="old_pass", value=user.password)
+            span Старый пароль:
+            input.box(type="password", name="update_pass", placeholder="Введите ваш старый пароль")
+            span Новый пароль:
+            input.box(type="password", name="new_pass", placeholder="Введите новый пароль")
+            span Подтверждение пароля:
+            input.box(type="password", name="confirm_pass", placeholder="Введите новый пароль еще раз")
+            
+        div.flex-btn
+          input.btn(type="submit", value="Сохранить" name="update_profile")
+          a.option-btn(href="/") На главную
+
+    include ../includes/footer.pug
+    script(src="js/script.js")

@@ -1,0 +1,44 @@
+doctype html
+html(lang="ru")
+  head
+    include ../includes/head
+  body
+    include ../includes/navigation
+
+    section.shopping-cart
+
+      if hasCart
+
+        h1.title Товары в корзине
+        div.box-container
+
+          each item in cart
+
+            div.box
+
+              a.fas.fa-eye(href="/show-product/" + item.product_id)
+              img(src="/" + item.product_imageUrl, alt=item.product_name)
+              div.name #{item.product_name}
+              div.price Цена: #{item.product_price}
+              
+              form(action="/user/cart-delete", method="POST")
+                input(type="hidden", name="itemId", value=item.id)
+                button(type="submit", onclick="return confirm('Удалить товар из корзины?');")
+                  i.fas.fa-times
+              //- input(type="hidden", name="cart_id", value="<?= $fetch_cart['id']; ?>")
+              .flex-btn
+                form(action="", method="POST")
+                  input.qty(type="number", min="1", value=item.quantity, name="qty")
+                  input.option-btn(type="submit", value="Пересчитать", name="update_qty")
+              div.sub-total Итого: #{item.quantity * item.product_price}
+
+        div.cart-total
+          p Стоимость всех товаров:
+          a.option-btn(href="/catalog") Продолжить покупки
+          a.delete-btn(href="/user/cart-clean") Очистить корзину
+          a.btn(href="/user/checkout") Оформить заказ
+      else 
+        p.empty Ваша корзина пуста!
+
+    include ../includes/footer
+    script(src="js/script.js")

@@ -1,19 +1,19 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 let _pool;
 
 async function poolConnect(cb) {
   try {
     const newPool = await mysql.createPool({
-      host: "localhost",
-      user: "root",
-      database: "grocery_store",
-      password: "RhfqPrincess3081<",
+      host: process.env.HOST,
+      user: process.env.DB_USER,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
     });
-    _pool = newPool.promise();
     console.log("Pool is ready!");
+    _pool = newPool;
     cb();
   } catch(err) {
     throw new Error(err);

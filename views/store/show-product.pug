@@ -1,0 +1,34 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/head
+  body 
+    include ../includes/navigation
+
+    section.quick-view
+      
+      if productIsFound
+
+        h1.title Быстрый просмотр
+
+        .box
+          .price 
+            span #{product.price}
+          img(src="/" + product.imageUrl, alt="")
+          .name #{product.title}
+          .details #{product.description}
+          form(action="/user/cart-add", method="POST")
+            input.qty(type="number", min="1", value="1", name="qty")
+            input(type="hidden", name="productId", value=product.id)
+            input.btn(type="submit", value="В корзину", name="add_to_cart")
+          form(action="/user/wishlist-add", method="POST")
+            input(type="hidden", name="productId", value=product.id)
+            //- input(type="hidden", name="p_name", value=`${product.title}`)
+            //- input(type="hidden", name="p_price", value=`${product.price}`)
+            //- input(type="hidden", name="p_image" value=`${product.imageUrl}`)
+            input.option-btn(type="submit", value="В список желаемого", name="add_to_wishlist")
+      else 
+        p Товар не обнаружен
+
+    include ../includes/footer.pug
+    script(src="js/script.js")
