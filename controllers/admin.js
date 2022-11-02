@@ -17,6 +17,7 @@ async function postCreateProduct(req, res) {
 
   try {
     const newProduct = new Product(
+      null,
       title,
       category,
       price,

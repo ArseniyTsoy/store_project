@@ -32,10 +32,10 @@ async function postEditProfile(req, res) {
 
 // Cart
 async function getCart(req, res) {
-  const userId = req.session.user.id;
+  const currentUser = new User(req.session.user.id);
 
   try {
-    const rawCartData = await User.getCart(userId);
+    const rawCartData = await currentUser.getCart();
     const cart = rawCartData[0];
 
     const hasCart = (cart && cart.length > 0) ? true : false;
@@ -62,9 +62,10 @@ async function postAddToCart(req, res) {
       throw new Error("Product isn't found!");
     }
 
-    const processedProduct = rawProduct[0][0];
+    const { id, title, price, imageUrl } = rawProduct[0][0];
+    const processedProduct = new Product(id, title, price, imageUrl);
 
-    const newItemAdded = await User.addToCart(processedProduct, quantity, userId);
+    const newItemAdded = await processedProduct.addToCart(quantity, userId);
 
     if (newItemAdded) {
       ++req.session.cartItems;
@@ -91,10 +92,11 @@ async function postDeleteFromCart(req, res) {
 }
 
 async function getCleanCart(req, res) {
-  const userId = req.session.user.id;
+  const currentUser = new User(req.session.user.id);
 
   try {
-    await User.cleanCart(userId);
+    // Проверку на очистку
+    await currentUser.cleanCart();
     
     req.session.cartItems = 0;
 
@@ -106,11 +108,10 @@ async function getCleanCart(req, res) {
 
 // Wishlist
 async function getWishlist(req, res) {
-
-  const userId = req.session.user.id;
+  const currentUser = new User(req.session.user.id);
 
   try {
-    const rawListData = await User.getWishlist(userId);
+    const rawListData = await currentUser.getWishlist();
     const wishlist = rawListData[0];
 
     const hasItems = (wishlist && wishlist.length > 0) ? true : false;
@@ -136,9 +137,10 @@ async function postAddToWishlist(req, res) {
       throw new Error("Product isn't found!");
     }
 
-    const processedProduct = rawProduct[0][0];
+    const { id, title, price, imageUrl } = rawProduct[0][0];
+    const processedProduct = new Product(id, title, price, imageUrl);
 
-    const newItemAdded = await User.addToWishlist(processedProduct, userId);
+    const newItemAdded = await processedProduct.addToWishlist(userId);
 
     if (newItemAdded) {
       ++req.session.wishlistItems;
@@ -165,10 +167,11 @@ async function postDeleteFromWishlist(req, res) {
 }
 
 async function getCleanWishlist(req, res) {
-  const userId = req.session.user.id;
+  const currentUser = new User(req.session.user.id);
 
   try {
-    await User.cleanWishlist(userId);
+    // Проверку на очистку
+    await currentUser.cleanWishlist();
     
     req.session.wishlistItems = 0;
 

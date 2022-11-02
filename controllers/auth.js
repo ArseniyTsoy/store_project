@@ -27,9 +27,9 @@ async function postSignup(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const newUser = new User(name, email, hashedPassword, imageUrl);
+    const newUser = new User(null, name, email, imageUrl, hashedPassword);
     
-    await newUser.save();
+    await newUser.create();
     return res.redirect("/auth/login");
   } catch(err) {
     throw new Error(err);
@@ -64,16 +64,17 @@ async function postLogin(req, res) {
       throw new Error("Неверный пароль");
     }
 
-    // To the local variables of the req-res cycle
     req.session.isAuthenticated = true;
     req.session.user = {
       id: processedUser.id,
-      name: processedUser.name,
-      imageUrl: processedUser.imageUrl
+      name: processedUser.name, 
+      email: processedUser.email, 
+      imageUrl: processedUser.imageUrl,
+      password: processedUser.password
     };
     req.session.cartItems = 0;
     req.session.wishlistItems = 0;
-    
+
     return res.redirect("/");
   } catch(err) {
     throw new Error(err);
@@ -82,6 +83,10 @@ async function postLogin(req, res) {
 
 // Logout
 function postLogout(req, res) {
+  const currentUser = new User(req.session.user.id);
+  currentUser.cleanCart();
+  currentUser.cleanWishlist();
+
   return req.session.destroy(err => {
     console.log(err);
     res.redirect("/");
