@@ -8,8 +8,8 @@ html(lang="ru")
     section.add-products
       h1.title Добавьте новый товар
       form(action="/admin/create-product", method="POST", enctype="multipart/form-data")
-        .flex
-          .inputBox
+        div.flex
+          div.inputBox
             input.box(type="text", name="title", required, placeholder="Наименование товара")
             select.box(name="category", required)
               option(value="", selected, disabled) Выберите категорию
@@ -17,7 +17,7 @@ html(lang="ru")
               option(value="fruits") Фрукты
               option(value="meat") Мясо
               option(value="fish") Рыба
-          .inputBox
+          div.inputBox
             input.box(type="number", min="0", name="price", required, placeholder="Стоимость товара")
             input.box(type="file", name="image", required)
         textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10")

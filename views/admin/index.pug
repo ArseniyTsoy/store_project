@@ -6,37 +6,37 @@ html(lang="ru")
     include ../includes/admin-navigation
 
     section.dashboard
-      h1.title Dashboard
-      .box-container
-        .box
+      h1.title Панель управления
+      div.box-container
+        div.box
           h3 #{total_pendings}
-          p Total pendings
-          a.btn(href="/admin/orders") See orders
-        .box
+          p Текущие заказы
+          a.btn(href="/admin/orders") Смотреть
+        div.box
           h3 #{total_completed}
-          p Completed orders
-          a.btn(href="/admin/orders") See orders
-        .box
+          p Выполненные заказы
+          a.btn(href="/admin/orders") Смотреть
+        div.box
           h3 #{number_of_orders}
           p Orders placed
           a.btn(href="/admin/orders") See orders
-        .box
+        div.box
           h3 #{number_of_products}
-          p Products added
-          a.btn(href="/admin/products") See products
-        .box
+          p Товары
+          a.btn(href="/admin/products") Смотреть
+        div.box
           h3 #{number_of_users}
-          p Total users
-          a.btn(href="/admin/users") See accounts
-        .box
+          p Пользователи
+          a.btn(href="/admin/users") Смотреть
+        div.box
           h3 #{number_of_admins}
           p Total admins
           a.btn(href="/admin/users") See accounts
-        .box
+        div.box
           h3 #{number_of_accounts}
           p Total accounts
           a.btn(href="/admin/users") See accounts
-        .box
+        div.box
           h3 #{number_of_messages}
           p Total messages
           a.btn(href="/admin/users") See messages

@@ -9,7 +9,7 @@ module.exports = class Product {
     this.description = description;
   }
 
-  async save() {
+  async create() {
     try {
       const pool = await getPool();
 

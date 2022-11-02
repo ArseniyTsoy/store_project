@@ -10,11 +10,11 @@ html(lang="ru")
       if hasUsers
 
         h1.title Зарегистрированные пользователи
-        .box-container
+        div.box-container
           each user in users
 
-            .box(style=(user.id == admin_id) ? "display:none" : "")
-              img(src=user.imageUrl, alt=user.name)
+            div.box(style=(user.id == admin_id) ? "display:none" : "")
+              img(src="/" + user.imageUrl, alt=user.name)
               p ID пользователя: 
                 span #{user.id}
               p Имя: 
@@ -23,7 +23,8 @@ html(lang="ru")
                 span #{user.email}
               p Тип пользователя: 
                 span(style="color:" + (user.type == "admin") ? "orange" : "green") #{user.type}
-              //- Переделать
-              a.delete-btn(href="/admin-users?delete=" + user.id, onclick="return confirm('Удалить пользователя?');") Удалить профиль
+              form(action="/admin/user-delete", method="POST")
+                input(type="hidden", name="userId", value=user.id)
+                button.delete-btn(type="submit", onclick="return confirm('Нажав это кнопку, вы удаляете профиль навсегда. Нажать?');") Удалить профиль
     
     script(src="js/script.js")

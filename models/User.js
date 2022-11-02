@@ -49,6 +49,26 @@ module.exports = class User {
     }
   }
 
+  static async deleteById(userId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("DELETE FROM users WHERE id = ?", [userId]); 
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async findAll() {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("SELECT * FROM users");
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
   static async getCart(userId) {
     try {
       const pool = await getPool();
