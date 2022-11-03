@@ -243,13 +243,13 @@ section {
   color: var(--green);
 }
 
-.header .flex .nav a {
+.header .flex .navbar a {
   margin: 0 1rem;
   font-size: 2rem;
   color: var(--light-color);
 }
 
-.header .flex .nav a:hover {
+.header .flex .navbar a:hover {
   text-decoration: underline;
   color: var(--green);
 }

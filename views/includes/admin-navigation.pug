@@ -1,5 +1,5 @@
 header.header
-  .flex
+  div.flex
     a.logo(href="/admin") 
       | Admin
       span 
@@ -10,14 +10,14 @@ header.header
       a(href="/admin/orders") Заказы
       a(href="/admin/users") Пользователи
       a(href="/admin/contacts") Сообщения
-    .icons
-      .fas.fa-bars#menu-btn
-      .fas.fa-user#user-btn    
-    .profile
-      img(src="", alt="")
-      p  
-      a.btn(href="/admin/update-profile")
+    div.icons
+      div.fas.fa-bars#menu-btn
+      div.fas.fa-user#user-btn    
+    div.profile
+      img(src="/" + user.imageUrl, alt=user.name)
+      p #{user.name}
+      a.btn(href="/admin/update-profile") Update profile
       a.delete-btn(href="/logout") Выйти
-      .flex-btn
+      div.flex-btn
         a.option-btn(href="/login") Логин
         a.option-btn(href="/register") Регистрация

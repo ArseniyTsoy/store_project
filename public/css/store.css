@@ -675,7 +675,7 @@
    background-color: var(--light-bg);
 }
 
-.checkout-orders form .flex .inputBox span{
+.checkout-orders form .flex .inputBox label{
    font-size: 1.8rem;
    color:var(--light-color);
 }
@@ -706,14 +706,6 @@
 .placed-orders .box-container .box p span{
    color:var(--green);
 }
-
-
-
-
-
-
-
-
 
 @media (max-width:768px){
 

@@ -12,26 +12,26 @@ html(lang="ru")
         img(src="/" + user.imageUrl, alt=user.name)
         div.flex
           div.inputBox
-            span Ваше имя:
-            input.box(type="text", name="name", value=user.name, placeholder=user.name, required)
-            span Ваш Email:
-            input.box(type="email", name="email", value=user.email, placeholder=user.email, required)
-            span Фото профиля:
-            input.box(type="file", name="image")
+            label(for="name") Ваше имя:
+            input.box(type="text", name="name", value=user.name, placeholder=user.name, required)#name
+            label(for="email") Ваш Email:
+            input.box(type="email", name="email", value=user.email, placeholder=user.email, required)#email
+            label(for="image") Фото профиля:
+            input.box(type="file", name="image")#image
             input(type="hidden", name="oldImage", value=user.imageUrl)
 
           div.inputBox
             input(type="hidden", name="old_pass", value=user.password)
-            span Старый пароль:
-            input.box(type="password", name="update_pass", placeholder="Введите ваш старый пароль")
-            span Новый пароль:
-            input.box(type="password", name="new_pass", placeholder="Введите новый пароль")
-            span Подтверждение пароля:
-            input.box(type="password", name="confirm_pass", placeholder="Введите новый пароль еще раз")
+            label(for="update_pass") Старый пароль:
+            input.box(type="password", name="update_pass", placeholder="Введите ваш старый пароль")#update_pass
+            label(for="new_pass") Новый пароль:
+            input.box(type="password", name="new_pass", placeholder="Введите новый пароль")#new_pass
+            label(for="confirm_pass") Подтверждение пароля:
+            input.box(type="password", name="confirm_pass", placeholder="Введите новый пароль еще раз")#confirm_pass
             
         div.flex-btn
           input.btn(type="submit", value="Сохранить" name="update_profile")
           a.option-btn(href="/") На главную
 
     include ../includes/footer.pug
-    script(src="js/script.js")
+    script(src="/js/script.js")

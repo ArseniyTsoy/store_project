@@ -35,12 +35,9 @@ html(lang="ru")
                   input.qty(type="number", min="1", value="1", name="qty")
                   input(type="hidden", name="productId", value=product.id)
                   input.btn(type="submit", value="В корзину")
-                  //- input(type="hidden", name="p_name", value="<?= $fetch_products['name']; ?>")
-                  //- input(type="hidden", name="p_price", value="<?= $fetch_products['price']; ?>")
-                  //- input(type="hidden", name="p_image", value="<?= $fetch_products['image']; ?>")
                 form(action="/user/wishlist-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
                   input.option-btn(type="submit", value="В список желаемого")
           
     include ../includes/footer.pug
-    script(src="js/script.js")
+    script(src="/js/script.js")

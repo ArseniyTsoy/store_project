@@ -4,7 +4,7 @@ header.header
       a(href="/")
         | Groco
         span .
-    nav.nav 
+    nav.navbar 
       a(href="/") Главная
       a(href="/catalog") Каталог
       if isAuthenticated
@@ -23,7 +23,7 @@ header.header
           i.fa-solid.fa-cart-shopping
             span (#{cartItems}) 
       div.profile
-        img(src=user.imageUrl, alt=user.name)
+        img(src="/" + user.imageUrl, alt=user.name)
         p #{user.name}
         a.btn(href="/user/edit-profile/" + user.id) Обновить
         form(action="/auth/logout", method="POST")

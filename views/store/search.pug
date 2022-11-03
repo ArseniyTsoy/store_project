@@ -38,8 +38,9 @@ html(lang="ru")
                 form(action="/user/wishlist-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
                   input.option-btn(type="submit", value="В список желаемого")
+                  
       else 
         p.empty Товары не найдены:(
 
     include ../includes/footer.pug
-    script(src="js/script.js")
+    script(src="/js/script.js")

@@ -19,40 +19,40 @@ html(lang="ru")
         h3 Оформите заказ
         div.flex
           div.inputBox
-            span Ваше имя:
-            input.box(type="text", name="name", placeholder="например Евгений Лукашин", required)
+            label(for="name") Ваше имя:
+            input.box(type="text", name="name", placeholder="например Евгений Лукашин", required)#name
           div.inputBox
-            span Ваш телефон:
-            input.box(type="number", name="phone", placeholder="например +7 111 222 333", required)
+            label(for="phone") Ваш телефон:
+            input.box(type="tel", name="phone", placeholder="например +7-111-222-333", required)#phone
           div.inputBox
-            span Ваш E-Mail:
-            input.box(type="email", name="email", placeholder="например fateirony@mail.ru", required)
+            label(for="email") Ваш E-Mail:
+            input.box(type="email", name="email", placeholder="например fateirony@mail.ru", required)#email
           div.inputBox
-            span Способ оплаты:
-            select.box(name="method", required)
+            label(for="method") Способ оплаты:
+            select.box(name="method", required)#method
               option(value="Наличные") Наличными при получении
               option(value="Банковская карта") Банковской картой
           div.inputBox
-            span Страна:
-            input.box(type="text", name="country", placeholder="например Россия", required)
+            label(for="country") Страна:
+            input.box(type="text", name="country", placeholder="например Россия", required)#country
           div.inputBox
-            span Ваш город:
-            input.box(type="text", name="city" placeholder="например Санкт-Петербург", required)
+            label(for="city") Ваш город:
+            input.box(type="text", name="city" placeholder="например Санкт-Петербург", required)#city
           div.inputBox
-            span Улица:
-            input.box(type="text", name="street", placeholder="например 3-я Строителей", required)
+            label(for="street") Улица:
+            input.box(type="text", name="street", placeholder="например 3-я Строителей", required)#street
           div.inputBox
-            span Номер дома:
-            input.box(type="text", name="house" placeholder="например 25", required)
+            label(for="house") Номер дома:
+            input.box(type="text", name="house" placeholder="например 25", required)#house
           div.inputBox
-            span Номер квартиры:
-            input.box(type="text", name="appartment", placeholder="например 12", required)
+            label(for="flat") Номер квартиры:
+            input.box(type="text", name="appartment", placeholder="например 12", required)#flat
           div.inputBox
-            span Почтовый индекс:
-            input.box(type="number", min="0", name="postalCode", placeholder="например 123456", required)
+            label(for="postalCode") Почтовый индекс:
+            input.box(type="number", min="0", name="postalCode", placeholder="например 123456", required)#postalCode
         input(type="hidden", name="content", value=orderContent)
         input(type="hidden", name="total_price", value=totalPrice)
         input(type="submit", name="order", class=("btn" + ((totalPrice > 0) ? "" : " disabled")), value="Заказать")
 
     include ../includes/footer.pug
-    script(src="js/script.js")
+    script(src="/js/script.js")
