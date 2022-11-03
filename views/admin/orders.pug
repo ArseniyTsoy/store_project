@@ -1,0 +1,52 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+    section.placed-orders 
+      if hasOrders
+        h1.title Заказы
+        div.box-container
+          each order in orders
+            div.box
+              p 
+                | ID пользователя: 
+                span #{order.user_id}
+              p 
+                | Дата заказа: 
+                span #{order.placed_on}
+              p 
+                | Имя: 
+                span #{order.name}
+              p 
+                | E-Mail: 
+                span #{order.email}
+              p 
+                | Телефон: 
+                span #{order.phone}
+              p 
+                | Адрес: 
+                span #{order.address}
+              p 
+                | Состав заказа: 
+                span #{order.content}
+              p 
+                | Итоговая цена: 
+                span #{order.total_price}
+              p 
+                | Способ оплаты: 
+                span #{order.method}
+              form(action="", method="POST")
+                input(type="hidden", name="orderId", value=order.id)
+                select.drop-down(name="updatePayment")
+                  //- Должен показывать текущий статус
+                  option(value="", selected, disabled) Статус заказа
+                  option(value="В обработке") В обработке
+                  option(value="Выполнен") Выполнен
+                div.flex-btn
+                  input.option-btn(type="submit", value="Редактировать")
+              form(action="", method="POST")
+                button.delete-btn(type="submit", onclick="return confirm('Вы действительно желаете удалить этот заказ?');") Удалить
+
+    script(src="js/script.js")

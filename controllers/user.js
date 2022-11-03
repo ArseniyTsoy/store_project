@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 
 // User profile
 async function getEditProfile(req, res) {
@@ -181,6 +182,77 @@ async function getCleanWishlist(req, res) {
   }
 }
 
+// Orders
+async function getCheckout(req, res) {
+  const currentUser = new User(req.session.user.id);
+
+  try {
+    const cart = await currentUser.getCart();
+    const processedCart = cart[0];
+    let cartHasItems = false;
+    let orderContent = "";
+    let totalPrice = 0;
+
+    if (processedCart && processedCart.length > 0) {
+      cartHasItems = true;
+
+      for(item of processedCart) {
+        orderContent += `${item.product_title} (${item.quantity}) `;
+        totalPrice += item.quantity * item.product_price;
+      }
+    } else {
+      cartHasItems = false;
+    }
+
+    return res.render("user/checkout", {
+      cartHasItems,
+      cart: processedCart,
+      orderContent: orderContent.trimEnd(),
+      totalPrice
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function postCheckout(req, res) {
+  const userId = req.session.user.id;
+  const { name, phone, email, method, content, total_price  } = req.body;
+  const { country, city, street, house, appartment, postalCode } = req.body;
+  const address = `${country}, ${city}, ул. ${street} ${house}, дом ${appartment}. Почтовый индекс: ${postalCode}.`;
+  const placed_on = (new Date()).toLocaleDateString();
+  
+
+  const newOrder = new Order(null, userId, name, phone, email, method, address, content, total_price, placed_on);
+
+  try {
+    // Добавить проверку
+    await newOrder.create();
+    return res.redirect("/user/orders");
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function getUserOrders(req, res) {
+  const userId = req.session.user.id;
+
+  try {
+    const rawOrdersData = await Order.findByUser(userId);
+    const orders = rawOrdersData[0];
+
+    const hasOrders = (orders && orders.length > 0) ? true : false;
+
+    return res.render("user/orders", {
+      pageTitle: "Ваши заказы",
+      hasOrders,
+      orders
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
 module.exports = {
   getEditProfile,
   getCart,
@@ -190,5 +262,8 @@ module.exports = {
   getWishlist,
   postAddToWishlist,
   postDeleteFromWishlist,
-  getCleanWishlist
+  getCleanWishlist,
+  getCheckout,
+  postCheckout,
+  getUserOrders
 };

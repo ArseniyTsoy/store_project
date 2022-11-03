@@ -24,4 +24,11 @@ router.post("/wishlist-delete", isAuth, userController.postDeleteFromWishlist);
 
 router.get("/wishlist-clean", isAuth, userController.getCleanWishlist);
 
+// Orders
+router.get("/checkout", isAuth, userController.getCheckout);
+
+router.post("/checkout", isAuth, userController.postCheckout);
+
+router.get("/orders", isAuth, userController.getUserOrders);
+
 module.exports = router;

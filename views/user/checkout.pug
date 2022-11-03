@@ -1,0 +1,58 @@
+doctype html
+html(lang="ru")
+  head
+    include ../includes/head
+  body
+    include ../includes/navigation
+    section.display-orders
+      if cartHasItems
+        each item in cart
+          p #{item.product_title}:  
+            span #{item.product_price} руб. / #{item.quantity} шт.
+      else
+        p.empty Ваша корзина пуста
+      div.grand-total Итого: 
+        span #{totalPrice} руб.
+
+    section.checkout-orders
+      form(action="/user/checkout", method="POST")
+        h3 Оформите заказ
+        div.flex
+          div.inputBox
+            span Ваше имя:
+            input.box(type="text", name="name", placeholder="например Евгений Лукашин", required)
+          div.inputBox
+            span Ваш телефон:
+            input.box(type="number", name="phone", placeholder="например +7 111 222 333", required)
+          div.inputBox
+            span Ваш E-Mail:
+            input.box(type="email", name="email", placeholder="например fateirony@mail.ru", required)
+          div.inputBox
+            span Способ оплаты:
+            select.box(name="method", required)
+              option(value="Наличные") Наличными при получении
+              option(value="Банковская карта") Банковской картой
+          div.inputBox
+            span Страна:
+            input.box(type="text", name="country", placeholder="например Россия", required)
+          div.inputBox
+            span Ваш город:
+            input.box(type="text", name="city" placeholder="например Санкт-Петербург", required)
+          div.inputBox
+            span Улица:
+            input.box(type="text", name="street", placeholder="например 3-я Строителей", required)
+          div.inputBox
+            span Номер дома:
+            input.box(type="text", name="house" placeholder="например 25", required)
+          div.inputBox
+            span Номер квартиры:
+            input.box(type="text", name="appartment", placeholder="например 12", required)
+          div.inputBox
+            span Почтовый индекс:
+            input.box(type="number", min="0", name="postalCode", placeholder="например 123456", required)
+        input(type="hidden", name="content", value=orderContent)
+        input(type="hidden", name="total_price", value=totalPrice)
+        input(type="submit", name="order", class=("btn" + ((totalPrice > 0) ? "" : " disabled")), value="Заказать")
+
+    include ../includes/footer.pug
+    script(src="js/script.js")

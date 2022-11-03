@@ -12,6 +12,9 @@ router.get("/users", adminController.getUsers);
 
 router.post("/user-delete", adminController.postDeleteUser);
 
+// Orders
+router.get("/orders", adminController.getOrders);
+
 // Dashboard
 router.get("/", adminController.getDashboard);
 

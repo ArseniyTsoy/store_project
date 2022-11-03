@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const User = require("../models/User");
+const Order = require("../models/Order");
 
 // Create product
 function getCreateProduct(_, res) {
@@ -66,6 +67,23 @@ async function postDeleteUser(req, res) {
   }
 }
 
+// Admin orders
+async function getOrders(req, res) {
+  try {
+    const rawOrdersData = await Order.findAll();
+    const orders = rawOrdersData[0];
+
+    const hasOrders = (orders && orders.length > 0) ? true : false;
+
+    return res.render("admin/orders", {
+      hasOrders,
+      orders
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
 // Admin dashboard
 function getDashboard(_, res) {
   return res.render("admin/index", {
@@ -78,5 +96,6 @@ module.exports = {
   postCreateProduct,
   getUsers,
   postDeleteUser,
+  getOrders,
   getDashboard
 };

@@ -4,37 +4,32 @@ html(lang="ru")
     include ../includes/head
   body
     include ../includes/navigation
-
     section.placed-orders
-
       if hasOrders
-
-        h1.title Текущие заказы
-        .box-container
-        
+        h1.title Ваши заказы
+        div.box-container
           each order in orders
-
-            .box
-              p Дата заказа : 
+            div.box
+              p Дата заказа: 
                 span #{order.placed_on}
-              p Name : 
+              p На кого сделан заказ: 
                 span #{order.name}
-              p Number : 
-                span #{order.number}
-              p Email : 
+              p Номер телефона: 
+                span #{order.phone}
+              p E-Mail: 
                 span #{order.email}
-              p Address : 
+              p Адрес: 
                 span #{order.address}
-              p Payment method : 
+              p Способ оплаты: 
                 span #{order.method}
-              p Your orders : 
-                span #{order.total_products}
-              p Total price : 
+              p Перечень товаров: 
+                span #{order.content}
+              p Итоговая цена: 
                 span #{order.total_price}
-              p Payment status : 
-                span(style="color:" + (order.payment_status == 'pending') ? "red" : "green") #{order.payment_status}
+              p Статус заказа: 
+                span(style="color:" + ((order.status == 'В обработке') ? "red" : "green")) #{order.status}
       else
-        p.empty No orders placed yet!
+        p.empty У вас нет заказов
 
     include ../includes/footer.pug
     script(src="js/script.js")
