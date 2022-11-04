@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const transporter = require("../util/mailer");
 
 // Signup
 function getSignup(_, res) {
@@ -33,7 +34,23 @@ async function postSignup(req, res) {
 
     const newUser = new User(null, name, email, imageUrl, hashedPassword);
     
-    await newUser.create();
+    const result = await newUser.create();
+
+    if (!result) {
+      throw new Error("Failed to create a new account!");
+    }
+
+    await transporter.sendMail({
+      from: process.env.MAIL_ADDR,
+      to: email,
+      subject: "Signup Succeeded! Регистрация прошла успешно!",
+      // Сверстать темплате и сунуть в public
+      html: `<h1>Congratulations!</h1>
+        <p>You have successfully signed up!</p>
+        <h1>Поздравляем!</h2>
+        <p>Ваш аккаунт был успешно зарегистрирован!</p>`
+    });
+
     return res.redirect("/auth/login");
   } catch(err) {
     throw new Error(err);

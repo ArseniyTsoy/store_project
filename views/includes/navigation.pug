@@ -26,6 +26,7 @@ header.header
         p #{user.name}
         a.btn(href="/user/edit-profile/" + user.id) Обновить
         form(action="/auth/logout", method="POST")
+          input(type="hidden", name="_csrf", value=csrfToken)
           button.delete-btn(type="submit") Выйти из профиля
     else
       div.icons
