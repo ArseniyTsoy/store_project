@@ -68,12 +68,16 @@ async function postLogin(req, res) {
     req.session.user = {
       id: processedUser.id,
       name: processedUser.name, 
-      email: processedUser.email, 
-      imageUrl: processedUser.imageUrl,
-      password: processedUser.password
+      // email: processedUser.email, 
+      imageUrl: processedUser.imageUrl
+      // password: processedUser.password
     };
-    req.session.cartItems = 0;
-    req.session.wishlistItems = 0;
+
+    const userForCounts = new User(processedUser.id);
+    const cartItems = await userForCounts.countCart();
+    req.session.cartItems = (cartItems[0][0])["COUNT (*)"];
+    const wishlistItems = await userForCounts.countWishlist();
+    req.session.wishlistItems = (wishlistItems[0][0])["COUNT (*)"];
 
     return res.redirect("/");
   } catch(err) {
@@ -83,10 +87,6 @@ async function postLogin(req, res) {
 
 // Logout
 function postLogout(req, res) {
-  const currentUser = new User(req.session.user.id);
-  currentUser.cleanCart();
-  currentUser.cleanWishlist();
-
   return req.session.destroy(err => {
     console.log(err);
     res.redirect("/");

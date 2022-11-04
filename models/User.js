@@ -79,6 +79,16 @@ module.exports = class User {
     }
   }
 
+  async countCart() {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("SELECT COUNT (*) FROM cart WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
   static async deleteFromCart(itemId) {
     try {
       const pool = await getPool();
@@ -105,6 +115,17 @@ module.exports = class User {
 
       return pool.execute("SELECT * FROM wishlist WHERE user_id = ?", [this.id]);
       
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async countWishlist() {
+    try {
+      const pool = await getPool();
+
+      const result = await pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
+      return result;
     } catch(err) {
       throw new Error(err);
     }
