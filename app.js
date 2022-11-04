@@ -72,7 +72,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.set("view engine", "pug");
 app.set("views", "views");
 
-// Parser
+// Request body parser
 app.use(express.urlencoded({ extended: false }));
 
 // CSRF tokens

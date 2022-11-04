@@ -216,18 +216,22 @@ async function getCheckout(req, res) {
 }
 
 async function postCheckout(req, res) {
-  const userId = req.session.user.id;
+  const currentUser = new User(req.session.user.id);
   const { name, phone, email, method, content, total_price  } = req.body;
   const { country, city, street, house, appartment, postalCode } = req.body;
   const address = `${country}, ${city}, ул. ${street} ${house}, дом ${appartment}. Почтовый индекс: ${postalCode}.`;
   const placed_on = (new Date()).toLocaleDateString();
   
 
-  const newOrder = new Order(null, userId, name, phone, email, method, address, content, total_price, placed_on);
+  const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, content, total_price, placed_on);
 
   try {
     // Добавить проверку
     await newOrder.create();
+
+    await currentUser.cleanCart();
+    req.session.cartItems = 0;
+    
     return res.redirect("/user/orders");
   } catch(err) {
     throw new Error(err);

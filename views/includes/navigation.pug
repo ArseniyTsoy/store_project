@@ -21,6 +21,8 @@ header.header
         a(href="/user/cart")
           i.fa-solid.fa-cart-shopping
             span (#{cartItems})
+      div.admin
+        a.delete-btn(href="/admin") Админ
       div.profile
         img(src="/" + user.imageUrl, alt=user.name)
         p #{user.name}
