@@ -13,6 +13,7 @@ html(lang="ru")
           name="enteredString", 
           placeholder=(searchString ? searchString : "Что будем искать?")
         )
+        input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Найти")
 
     if searchPerformed
@@ -33,10 +34,12 @@ html(lang="ru")
                 div.name product.title
                 form(action="/user/cart-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
+                  input(type="hidden", name="_csrf", value=csrfToken)
                   input.qty(type="number", min="1", value="1", name="qty")
                   input.btn(type="submit", value="В корзину")
                 form(action="/user/wishlist-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
+                  input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="В список желаемого")
                   
       else 

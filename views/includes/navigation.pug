@@ -7,8 +7,7 @@ header.header
     nav.navbar 
       a(href="/") Главная
       a(href="/catalog") Каталог
-      if isAuthenticated
-        a(href="/user/orders") Заказы
+      a(href="/user/orders") Заказы
       a(href="/about") О нас
       a(href="/contact") Контакты
     if isAuthenticated
@@ -21,7 +20,7 @@ header.header
             span (#{wishlistItems})
         a(href="/user/cart")
           i.fa-solid.fa-cart-shopping
-            span (#{cartItems}) 
+            span (#{cartItems})
       div.profile
         img(src="/" + user.imageUrl, alt=user.name)
         p #{user.name}
@@ -31,7 +30,13 @@ header.header
     else
       div.icons
         div.fa-solid.fa-bars#menu-btn
+        a(href="/auth/login") 
+          i.fa-solid.fa-user
         a.fa-solid.fa-magnifying-glass(href="/search")
+        a(href="/auth/login")
+          i.fa-solid.fa-heart
+        a(href="/auth/login")
+          i.fa-solid.fa-cart-shopping
       div.flex-btn
         a.option-btn(href="/auth/login") Войти
         a.option-btn(href="/auth/signup") Регистрация

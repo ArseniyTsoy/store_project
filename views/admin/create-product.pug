@@ -21,6 +21,7 @@ html(lang="ru")
             input.box(type="number", min="0", name="price", required, placeholder="Стоимость товара")
             input.box(type="file", name="image", required)
         textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10")
+        input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Создать")
 
     //- section.show-products

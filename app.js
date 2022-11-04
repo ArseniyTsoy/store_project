@@ -8,6 +8,8 @@ const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const storeRoutes = require("./routes/store");
 const userRoutes = require("./routes/user");
+const csrf = require("csurf");
+const csrfProtection = csrf();
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
@@ -73,8 +75,12 @@ app.set("views", "views");
 // Parser
 app.use(express.urlencoded({ extended: false }));
 
+// CSRF tokens
+app.use(csrfProtection);
+
 // res.locals
 app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
   res.locals.isAuthenticated = req.session.isAuthenticated;
   res.locals.user = req.session.user;
   res.locals.cartItems = req.session.cartItems;

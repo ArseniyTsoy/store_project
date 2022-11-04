@@ -114,7 +114,6 @@ module.exports = class User {
       const pool = await getPool();
 
       return pool.execute("SELECT * FROM wishlist WHERE user_id = ?", [this.id]);
-      
     } catch(err) {
       throw new Error(err);
     }
@@ -124,8 +123,7 @@ module.exports = class User {
     try {
       const pool = await getPool();
 
-      const result = await pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
-      return result;
+      return pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
     } catch(err) {
       throw new Error(err);
     }

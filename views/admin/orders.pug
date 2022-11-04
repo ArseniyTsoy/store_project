@@ -39,6 +39,7 @@ html(lang="ru")
                 span #{order.method}
               form(action="", method="POST")
                 input(type="hidden", name="orderId", value=order.id)
+                input(type="hidden", name="_csrf", value=csrfToken)
                 select.drop-down(name="updatePayment")
                   //- Должен показывать текущий статус
                   option(value="", selected, disabled) Статус заказа
@@ -47,6 +48,7 @@ html(lang="ru")
                 div.flex-btn
                   input.option-btn(type="submit", value="Редактировать")
               form(action="", method="POST")
+                input(type="hidden", name="_csrf", value=csrfToken)
                 button.delete-btn(type="submit", onclick="return confirm('Вы действительно желаете удалить этот заказ?');") Удалить
 
     script(src="/js/script.js")

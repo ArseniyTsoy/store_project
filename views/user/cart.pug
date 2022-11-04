@@ -24,12 +24,14 @@ html(lang="ru")
               
               form(action="/user/cart-delete", method="POST")
                 input(type="hidden", name="itemId", value=item.id)
+                input(type="hidden", name="_csrf", value=csrfToken)
                 button(type="submit", onclick="return confirm('Удалить товар из корзины?');")
                   i.fas.fa-times
 
               div.flex-btn
                 form(action="", method="POST")
                   input.qty(type="number", min="1", value=item.quantity, name="qty")
+                  input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="Пересчитать", name="update_qty")
 
               div.sub-total Итого: #{item.quantity * item.product_price}

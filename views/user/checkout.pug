@@ -52,6 +52,7 @@ html(lang="ru")
             input.box(type="number", min="0", name="postalCode", placeholder="например 123456", required)#postalCode
         input(type="hidden", name="content", value=orderContent)
         input(type="hidden", name="total_price", value=totalPrice)
+        input(type="hidden", name="_csrf", value=csrfToken)
         input(type="submit", name="order", class=("btn" + ((totalPrice > 0) ? "" : " disabled")), value="Заказать")
 
     include ../includes/footer.pug

@@ -19,9 +19,13 @@ async function postSignup(req, res) {
     const confirmPassword = req.body.confirmPassword;
     const imageUrl = req.file.path;
 
+    const emailCheck = await User.findOne("email", email);
+
+    if (emailCheck[0][0]) {
+      throw new Error("E-Mail уже зарегистрирован! <a href='/user/password-reset'>Забыли пароль?</a>");
+    }
+
     if (password !== confirmPassword) {
-      // Without return, the script execution will continue.
-      // return res.redirect("/");
       throw new Error("Passwords don't match!");
     }
 
@@ -51,12 +55,11 @@ async function postLogin(req, res) {
     const email = req.body.email;
     const providedPassword = req.body.password;
     const rawUser = await User.findOne("email", email);
+    const processedUser = rawUser[0][0];
 
-    if (!rawUser) {
+    if (!processedUser) {
       throw new Error("Пользователь с таким E-Mail не обнаружен");
     }
-
-    const processedUser = rawUser[0][0];
 
     const compareResult = await bcrypt.compare(providedPassword, processedUser.password);
 
