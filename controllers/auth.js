@@ -113,6 +113,9 @@ function postLogout(req, res) {
   });
 }
 
+// Reset password
+
+
 module.exports = {
   getSignup,
   postSignup,

@@ -52,21 +52,18 @@ async function getCart(req, res) {
 }
 
 async function postAddToCart(req, res) {
+  const userId = req.session.user.id;
   const productId = req.body.productId;
   const quantity = +req.body.qty;
-  const userId = req.session.user.id;
 
   try {
-    const rawProduct = await Product.findById(productId);
+    const productCheck = await Product.findById(productId);
 
-    if (!rawProduct) {
+    if (!productCheck) {
       throw new Error("Product isn't found!");
     }
 
-    const { id, title, price, imageUrl } = rawProduct[0][0];
-    const processedProduct = new Product(id, title, price, imageUrl);
-
-    const newItemAdded = await processedProduct.addToCart(quantity, userId);
+    const newItemAdded = await User.addToCart(userId, productId, quantity);
 
     if (newItemAdded) {
       ++req.session.cartItems;
@@ -128,20 +125,17 @@ async function getWishlist(req, res) {
 }
 
 async function postAddToWishlist(req, res) {
-  const productId = req.body.productId;
   const userId = req.session.user.id;
+  const productId = req.body.productId;
 
   try {
-    const rawProduct = await Product.findById(productId);
+    const productCheck = await Product.findById(productId);
 
-    if (!rawProduct) {
+    if (!productCheck) {
       throw new Error("Product isn't found!");
     }
 
-    const { id, title, price, imageUrl } = rawProduct[0][0];
-    const processedProduct = new Product(id, title, price, imageUrl);
-
-    const newItemAdded = await processedProduct.addToWishlist(userId);
+    const newItemAdded = await User.addToWishlist(userId, productId);
 
     if (newItemAdded) {
       ++req.session.wishlistItems;
@@ -197,8 +191,8 @@ async function getCheckout(req, res) {
       cartHasItems = true;
 
       for(item of processedCart) {
-        orderContent += `${item.product_title} (${item.quantity}) `;
-        totalPrice += item.quantity * item.product_price;
+        orderContent += `${item.title} (${item.quantity}) `;
+        totalPrice += item.quantity * item.price;
       }
     } else {
       cartHasItems = false;

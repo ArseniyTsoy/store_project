@@ -7,8 +7,8 @@ html(lang="ru")
     section.display-orders
       if cartHasItems
         each item in cart
-          p #{item.product_title}:  
-            span #{item.product_price} руб. / #{item.quantity} шт.
+          p #{item.title}:  
+            span #{item.price} руб. / #{item.quantity} шт.
       else
         p.empty Ваша корзина пуста
       div.grand-total Итого: 

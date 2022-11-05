@@ -18,9 +18,9 @@ html(lang="ru")
             div.box
 
               a.fas.fa-eye(href="/show-product/" + item.product_id)
-              img(src="/" + item.product_imageUrl, alt=item.product_name)
-              div.name #{item.product_name}
-              div.price Цена: #{item.product_price}
+              img(src="/" + item.imageUrl, alt=item.title)
+              div.name #{item.title}
+              div.price Цена: #{item.price}
               
               form(action="/user/cart-delete", method="POST")
                 input(type="hidden", name="itemId", value=item.id)
@@ -32,9 +32,9 @@ html(lang="ru")
                 form(action="", method="POST")
                   input.qty(type="number", min="1", value=item.quantity, name="qty")
                   input(type="hidden", name="_csrf", value=csrfToken)
-                  input.option-btn(type="submit", value="Пересчитать", name="update_qty")
+                  input.option-btn(type="submit", value="Пересчитать")
 
-              div.sub-total Итого: #{item.quantity * item.product_price}
+              div.sub-total Итого: #{item.quantity * item.price}
 
         div.cart-total
         

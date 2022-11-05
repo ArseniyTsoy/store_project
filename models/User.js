@@ -73,7 +73,19 @@ module.exports = class User {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM cart WHERE user_id = ?", [this.id]);
+      const sql = `SELECT 
+          cart.id,
+          cart.user_id, 
+          cart.product_id, 
+          p.title, 
+          p.price, 
+          cart.quantity, 
+          p.imageUrl 
+        FROM cart INNER JOIN products p 
+        ON cart.product_id = p.id  
+        WHERE cart.user_id = ?`;
+
+      return pool.execute(sql, [this.id]);
     } catch(err) {
       throw new Error(err);
     }
@@ -84,6 +96,51 @@ module.exports = class User {
       const pool = await getPool();
 
       return pool.execute("SELECT COUNT (*) FROM cart WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async addToCart(userId, productId, quantity) {
+    try {
+      const pool = await getPool();
+      let sql;
+      let values;
+      let newItemAdded;
+
+      let alreadyInCart = await pool.execute("SELECT * FROM cart WHERE user_id = ? AND product_id = ?", [userId, productId]);
+
+      alreadyInCart = alreadyInCart[0][0];
+
+      if (!alreadyInCart) {
+        sql = `INSERT INTO cart (
+          user_id, 
+          product_id, 
+          quantity
+          ) VALUES (?, ?, ?)`;
+
+        values = [
+          userId, 
+          productId, 
+          quantity
+        ];
+
+        newItemAdded = true;
+      } else {
+        const newQuantity = alreadyInCart.quantity + quantity;
+
+        sql = "UPDATE cart SET quantity = ? WHERE id = ?";
+
+        values = [
+          newQuantity, 
+          alreadyInCart.id
+        ];
+
+        newItemAdded = false;
+      }
+
+      await pool.execute(sql, values);
+      return newItemAdded;
     } catch(err) {
       throw new Error(err);
     }
@@ -112,8 +169,19 @@ module.exports = class User {
   async getWishlist() {
     try {
       const pool = await getPool();
+      
+      const sql = `SELECT 
+          w.id,
+          w.user_id,
+          w.product_id,
+          p.title,
+          p.price,
+          p.imageUrl
+        FROM wishlist w INNER JOIN products p
+        ON w.product_id = p.id
+        WHERE w.user_id = ?`;
 
-      return pool.execute("SELECT * FROM wishlist WHERE user_id = ?", [this.id]);
+      return pool.execute(sql, [this.id]);
     } catch(err) {
       throw new Error(err);
     }
@@ -124,6 +192,42 @@ module.exports = class User {
       const pool = await getPool();
 
       return pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async addToWishlist(userId, productId) {
+    try {
+      const pool = await getPool();
+      let sql;
+      let values;
+      let newItemAdded;
+
+      let alreadyInWishlist = await pool.execute("SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?", [userId, productId]);
+      
+      alreadyInWishlist = alreadyInWishlist[0][0];
+      
+      if (!alreadyInWishlist) {
+        sql = `INSERT INTO wishlist (
+          user_id, 
+          product_id
+        ) VALUES (?, ?)`;
+
+        values = [
+          userId, 
+          productId
+        ];
+
+        await pool.execute(sql, values);
+
+        newItemAdded = true;
+        return newItemAdded;
+      } else {
+        console.log("Already in wishlist");
+        newItemAdded = false;
+        return newItemAdded;
+      }
     } catch(err) {
       throw new Error(err);
     }
