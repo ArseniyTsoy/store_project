@@ -7,6 +7,11 @@ router.get("/create-product", adminController.getCreateProduct);
 
 router.post("/create-product", adminController.postCreateProduct);
 
+// Create new category
+router.get("/create-category", adminController.getCreateCategory);
+
+router.post("/create-category", adminController.postCreateCategory);
+
 // Users
 router.get("/users", adminController.getUsers);
 

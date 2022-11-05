@@ -14,6 +14,6 @@ router.post("/search", storeController.postSearch);
 
 router.get("/show-product/:id", storeController.getSingleProduct);
 
-router.get("/", storeController.getAllProducts);
+router.get("/", storeController.getIndex);
 
 export default router;

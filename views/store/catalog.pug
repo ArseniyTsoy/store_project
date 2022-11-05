@@ -6,15 +6,19 @@ html(lang="ru")
     include ../includes/navigation
     
     section.p-category
-      a(href="/category?category=fruits&title=Фрукты") Фрукты
-      a(href="/category?category=vegitables&title=Овощи") Овощи
-      a(href="/category?category=fish&title=Рыба") Рыба
-      a(href="/category?category=meat&title=Мясо") Мясо
+
+      if hasCategories
+
+        each cat in categories
+          a(href=`/catalog?catId=${cat.id}`) #{cat.title}
+          
+      else 
+        p.empty Категории не обнаружены
     
     //- Add pagination
-    if hasProducts 
+    section.products
 
-      section.products
+      if hasProducts 
 
         h1.title Свежие продукты
         div.box-container
@@ -24,7 +28,7 @@ html(lang="ru")
             div.box
 
               div.price 
-                  span #{product.price}
+                  span #{product.price} руб.
               a.fa-solid.fa-eye(href="/show-product/" + product.id)
               img(src="/" + product.imageUrl, alt=product.title)
               div.name #{product.title}
@@ -40,6 +44,8 @@ html(lang="ru")
                   input(type="hidden", name="productId", value=product.id)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="В список желаемого")
+      else 
+        p.empty Товары не обнаружены
           
     include ../includes/footer.pug
     script(src="/js/script.js")

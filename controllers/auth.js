@@ -67,7 +67,7 @@ function getLogin(_, res) {
   });
 }
 
-async function postLogin(req, res) {
+async function postLogin(req, res, next) {
   try {
     const email = req.body.email;
     const providedPassword = req.body.password;
@@ -101,7 +101,7 @@ async function postLogin(req, res) {
 
     return res.redirect("/");
   } catch(err) {
-    throw new Error(err);
+    return next(err);
   }
 }
 

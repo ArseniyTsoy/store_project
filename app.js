@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import storeRoutes from "./routes/store.js";
 import userRoutes from "./routes/user.js";
+import errorController from "./middleware/errors.js";
 
 const MySQLStore = expressSession(session);
 
@@ -101,6 +102,15 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use(storeRoutes);
+
+// Error handling
+app.use("/500", errorController.get500);
+app.use(errorController.get404);
+
+app.use((error, req, res, next) => {
+  console.log(error);
+  return res.redirect("/500");
+});
 
 // Launching the server
 const MODE = process.env.NODE_ENV;

@@ -17,7 +17,9 @@ header.header
       img(src="/" + user.imageUrl, alt=user.name)
       p #{user.name}
       a.btn(href="/admin/update-profile") Update profile
-      a.delete-btn(href="/logout") Выйти
+      form(action="/auth/logout", method="POST")
+        input(type="hidden", name="_csrf", value=csrfToken)
+        button.delete-btn(type="submit") Выйти
       div.flex-btn
         a.option-btn(href="/login") Логин
         a.option-btn(href="/register") Регистрация

@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Category from "../models/Category.js";
 
 async function getSingleProduct(req, res) {
   const id = req.params.id;
@@ -19,38 +20,63 @@ async function getSingleProduct(req, res) {
   }
 }
 
-async function getAllProducts(req, res) {
+async function getIndex(req, res) {
   try {
-    const products = await Product.findAll();
+    const rawProductsData = await Product.findAll();
+    const products = rawProductsData[0];
 
-    const hasProducts = products && products.length > 0 ? true : false;
+    const hasProducts = (products && products.length > 0) ? true : false;
+
+    const rawCategoriesData = await Category.findAll();
+    const categories = rawCategoriesData[0];
+
+    const hasCategories = (categories && categories.length > 0) ? true : false;
 
     return res.render("store/index", {
       pageTitle: "Главная",
-      hasProducts: hasProducts,
-      products: products[0],
+      hasProducts,
+      hasCategories,
+      products,
+      categories
     });
   } catch (err) {
     throw new Error(err);
   }
 }
 
-function getAbout(_, res) {
+function getAbout(req, res) {
   return res.render("store/about", {
     pageTitle: "О нас",
   });
 }
 
-async function getCatalog(_, res) {
-  try {
-    const products = await Product.findAll();
+async function getCatalog(req, res) {
+  const { catId } = req.query;
 
-    const hasProducts = products && products.length > 0 ? true : false;
+  try {
+    let rawProductsData;
+
+    if (catId) {
+      rawProductsData = await Category.findTaggedProducts(catId);
+    } else {
+      rawProductsData = await Product.findAll();
+    }
+
+    const products = rawProductsData[0];
+
+    const hasProducts = (products && products.length > 0) ? true : false;
+
+    const rawCategoriesData = await Category.findAll();
+    const categories = rawCategoriesData[0];
+
+    const hasCategories = (categories && categories.length > 0) ? true : false;
 
     return res.render("store/catalog", {
       pageTitle: "Каталог",
-      hasProducts: hasProducts,
-      products: products[0],
+      hasProducts,
+      products,
+      hasCategories,
+      categories
     });
   } catch (err) {
     throw new Error(err);
@@ -58,26 +84,26 @@ async function getCatalog(_, res) {
 }
 
 async function getCategory(req, res) {
-  const chosenCategory = req.query.category;
-  const categoryTitle = req.query.title;
+  const { catId, catTitle } = req.query;
 
   try {
-    const products = await Product.findByCategory(chosenCategory);
+    const rawProductsData = await Category.findTaggedProducts(catId);
+    const products = rawProductsData[0];
 
-    const hasProducts = products[0] && products[0].length > 0 ? true : false;
+    const hasProducts = (products && products.length > 0) ? true : false;
 
     return res.render("store/category", {
       pageTitle: "Категории товаров",
+      catTitle,
       hasProducts,
-      categoryTitle,
-      products: products[0],
+      products
     });
   } catch (err) {
     throw new Error(err);
   }
 }
 
-function getSearch(_, res) {
+function getSearch(req, res) {
   return res.render("store/search", {
     searchPerformed: false,
     searchString: null
@@ -107,7 +133,7 @@ async function postSearch(req, res) {
 
 export default {
   getSingleProduct,
-  getAllProducts,
+  getIndex,
   getAbout,
   getCatalog,
   getCategory,

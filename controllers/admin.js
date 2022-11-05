@@ -1,17 +1,33 @@
 import Product from "../models/Product.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
+import Category from "../models/Category.js";
 
 // Create product
-function getCreateProduct(_, res) {
-  return res.render("admin/create-product", {
-    pageTitle: "Добавить новый товар",
-  });
+async function getCreateProduct(req, res) {
+  try {
+    let categories = [];
+    const rawCategoriesData = await Category.findAll();
+    
+    for (let item of rawCategoriesData[0]) {
+      categories.push({
+        id: item.id,
+        title: item.title
+      });
+    }
+
+    return res.render("admin/create-product", {
+      pageTitle: "Добавить новый товар",
+      categories
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
 }
 
 async function postCreateProduct(req, res) {
   const title = req.body.title;
-  const category = req.body.category;
+  const categoryId = req.body.categoryId;
   const price = req.body.price;
   const imageUrl = req.file.path;
   const description = req.body.description;
@@ -20,10 +36,10 @@ async function postCreateProduct(req, res) {
     const newProduct = new Product(
       null,
       title,
-      category,
       price,
       imageUrl,
-      description
+      description,
+      categoryId
     );
 
     await newProduct.create();
@@ -34,8 +50,35 @@ async function postCreateProduct(req, res) {
   }
 }
 
+// Categories
+function getCreateCategory(req, res) {
+  return res.render("admin/create-category", {
+    pageTitle: "Добавить новую категорию",
+  });
+}
+
+async function postCreateCategory(req, res) {
+  const { title, description } = req.body;
+  const imageUrl = req.file.path;
+
+  try {
+    const newCategory = new Category(
+      null,
+      title,
+      description,
+      imageUrl
+    );
+
+    await newCategory.create();
+
+    return res.redirect("/catalog");
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 // Administer user accounts
-async function getUsers(_, res) {
+async function getUsers(req, res) {
   try {
     const rawUsersData = await User.findAll();
     const foundUsers = rawUsersData[0];
@@ -94,6 +137,8 @@ function getDashboard(_, res) {
 export default {
   getCreateProduct,
   postCreateProduct,
+  getCreateCategory,
+  postCreateCategory,
   getUsers,
   postDeleteUser,
   getOrders,
