@@ -25,7 +25,7 @@ html(lang="ru")
               p Перечень товаров: 
                 span #{order.content}
               p Итоговая цена: 
-                span #{order.total_price}
+                span #{order.total_price} руб.
               p Статус заказа: 
                 span(style="color:" + ((order.status == 'В обработке') ? "red" : "green")) #{order.status}
       else

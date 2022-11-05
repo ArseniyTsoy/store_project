@@ -20,7 +20,7 @@ html(lang="ru")
               a.fas.fa-eye(href="/show-product/" + item.product_id)
               img(src="/" + item.imageUrl, alt=item.title)
               div.name #{item.title}
-              div.price Цена: #{item.price}
+              div.price Цена: #{item.price} руб.
               
               form(action="/user/cart-delete", method="POST")
                 input(type="hidden", name="itemId", value=item.id)
@@ -34,7 +34,7 @@ html(lang="ru")
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="Пересчитать")
 
-              div.sub-total Итого: #{item.quantity * item.price}
+              div.sub-total Итого: #{item.quantity * item.price} руб.
 
         div.cart-total
         

@@ -28,10 +28,10 @@ html(lang="ru")
       
               div.box
                 div.price 
-                  span #{product.price}
+                  span #{product.price} руб.
                 a.fa-solid.fa-eye(href="/show-product/" + product.id)
                 img(src="/" + product.imageUrl, alt=product.title)
-                div.name product.title
+                div.name #{product.title}
                 form(action="/user/cart-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
                   input(type="hidden", name="_csrf", value=csrfToken)

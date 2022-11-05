@@ -58,13 +58,20 @@ export default class Product {
     try {
       const pool = await getPool();
 
-      // Inner JOIN
-      return pool.execute(
-        "SELECT * FROM products WHERE title LIKE ? OR category LIKE ?", 
-        [
-          `%${searchString}%`, 
-          `%${searchString}%`
-        ]);
+      const sql = `SELECT 
+        p.id, p.title, p.price, p.imageUrl
+        FROM products p
+        INNER JOIN categories c
+        ON p.categoryId = c.id
+        WHERE p.title LIKE ? 
+        OR c.title LIKE ?`;
+
+      const values = [
+        `%${searchString}%`, 
+        `%${searchString}%`
+      ];
+
+      return pool.execute(sql, values);
     } catch(err) {
       throw new Error(err);
     }

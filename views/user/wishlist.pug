@@ -18,7 +18,7 @@ html(lang="ru")
               a.fas.fa-eye(href="/show-product/" + item.product_id)
               img(src="/" + item.imageUrl, alt=item.title)
               div.name #{item.title}
-              div.price #{item.price}
+              div.price #{item.price} руб.
 
               form(action="/user/cart-add", method="POST")
                 input.qty(type="number", min="1", value="1", name="qty")
