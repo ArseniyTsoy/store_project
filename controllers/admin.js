@@ -1,6 +1,6 @@
-const Product = require("../models/Product");
-const User = require("../models/User");
-const Order = require("../models/Order");
+import Product from "../models/Product.js";
+import User from "../models/User.js";
+import Order from "../models/Order.js";
 
 // Create product
 function getCreateProduct(_, res) {
@@ -91,7 +91,7 @@ function getDashboard(_, res) {
   });
 }
 
-module.exports = {
+export default {
   getCreateProduct,
   postCreateProduct,
   getUsers,

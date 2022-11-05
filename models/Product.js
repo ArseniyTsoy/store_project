@@ -1,6 +1,6 @@
-const { getPool } = require("../util/db");
+import { getPool } from "../util/db.js";
 
-module.exports = class Product {
+export default class Product {
   constructor(id, title, price, imageUrl, description, category) {
     this.id = id,
     this.title = title;

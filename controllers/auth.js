@@ -1,10 +1,10 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const transporter = require("../util/mailer");
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import transporter from "../util/mailer.js";
 
 // Signup
 function getSignup(_, res) {
-  res.render("auth/form", {
+  return res.render("auth/form", {
     path: "/signup",
     pageTitle: "Регистрация",
     message: "Уже зарегистрированы?",
@@ -116,7 +116,7 @@ function postLogout(req, res) {
 // Reset password
 
 
-module.exports = {
+export default {
   getSignup,
   postSignup,
   getLogin,

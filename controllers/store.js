@@ -1,4 +1,4 @@
-const Product = require("../models/Product");
+import Product from "../models/Product.js";
 
 async function getSingleProduct(req, res) {
   const id = req.params.id;
@@ -105,7 +105,7 @@ async function postSearch(req, res) {
   }
 }
 
-module.exports = {
+export default {
   getSingleProduct,
   getAllProducts,
   getAbout,

@@ -1,7 +1,7 @@
-const mysql = require("mysql2/promise");
+import mysql from "mysql2/promise";
 let _pool;
 
-async function poolConnect(cb) {
+export async function poolConnect(cb) {
   try {
     const newPool = await mysql.createPool({
       host: process.env.HOST,
@@ -20,7 +20,7 @@ async function poolConnect(cb) {
   }
 }
 
-function getPool() {
+export function getPool() {
   if (_pool) {
     return _pool;
   } else {
@@ -28,7 +28,7 @@ function getPool() {
   }
 }
 
-module.exports = {
-  poolConnect: poolConnect,
-  getPool: getPool
-};
+// module.exports = {
+//   poolConnect: poolConnect,
+//   getPool: getPool
+// };

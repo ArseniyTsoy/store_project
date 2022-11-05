@@ -1,6 +1,6 @@
-const User = require("../models/User");
-const Product = require("../models/Product");
-const Order = require("../models/Order");
+import User from "../models/User.js";
+import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 // User profile
 async function getEditProfile(req, res) {
@@ -190,7 +190,7 @@ async function getCheckout(req, res) {
     if (processedCart && processedCart.length > 0) {
       cartHasItems = true;
 
-      for(item of processedCart) {
+      for (let item of processedCart) {
         orderContent += `${item.title} (${item.quantity}) `;
         totalPrice += item.quantity * item.price;
       }
@@ -251,7 +251,7 @@ async function getUserOrders(req, res) {
   }
 }
 
-module.exports = {
+export default {
   getEditProfile,
   getCart,
   postAddToCart,

@@ -1,17 +1,25 @@
-const path = require("path");
-const dotenv = require("dotenv");
-const http = require("http");
-const express = require("express");
-const { poolConnect } = require("./util/db");
-const multer = require("multer");
-const authRoutes = require("./routes/auth");
-const adminRoutes = require("./routes/admin");
-const storeRoutes = require("./routes/store");
-const userRoutes = require("./routes/user");
-const csrf = require("csurf");
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import http from "http";
+import express from "express";
+import multer from "multer";
+import csrf from "csurf";
+import session from "express-session";
+import expressSession from "express-mysql-session";
+import { poolConnect } from "./util/db.js";
+import authRoutes from "./routes/auth.js";
+import adminRoutes from "./routes/admin.js";
+import storeRoutes from "./routes/store.js";
+import userRoutes from "./routes/user.js";
+
+const MySQLStore = expressSession(session);
+
+// Constructing __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const csrfProtection = csrf();
-const session = require("express-session");
-const MySQLStore = require("express-mysql-session")(session);
 
 // EV-s
 dotenv.config({

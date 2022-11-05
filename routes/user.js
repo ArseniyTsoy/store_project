@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const userController = require("../controllers/user.js");
-const isAuth = require("../middleware/is-auth");
+import userController from "../controllers/user.js";
+import isAuth from "../middleware/is-auth.js";
 
 // User profile
 router.get("/edit-profile/:id", isAuth, userController.getEditProfile);
@@ -31,4 +31,4 @@ router.post("/checkout", isAuth, userController.postCheckout);
 
 router.get("/orders", isAuth, userController.getUserOrders);
 
-module.exports = router;
+export default router;
