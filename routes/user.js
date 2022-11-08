@@ -31,4 +31,6 @@ router.post("/checkout", isAuth, userController.postCheckout);
 
 router.get("/orders", isAuth, userController.getUserOrders);
 
+router.post("/delete-order", userController.postDeleteOrder);
+
 export default router;

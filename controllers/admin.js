@@ -127,6 +127,25 @@ async function getOrders(req, res) {
   }
 }
 
+async function postDeleteOrder(req, res) {
+  const orderId = req.body.orderId;
+
+  try {
+    const result = await Order.deleteById(orderId);
+
+    if (!result) {
+      throw new Error("Failed to delete the order!");
+    }
+
+    return res.render("utils/message", {
+      pageTitle: "Заказ удален",
+      message: "Выбранный вами заказ был успешно удален"
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
 // Admin dashboard
 function getDashboard(_, res) {
   return res.render("admin/index", {
@@ -142,5 +161,6 @@ export default {
   getUsers,
   postDeleteUser,
   getOrders,
+  postDeleteOrder,
   getDashboard
 };

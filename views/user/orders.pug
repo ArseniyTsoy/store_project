@@ -28,6 +28,10 @@ html(lang="ru")
                 span #{order.total_price} руб.
               p Статус заказа: 
                 span(style="color:" + ((order.status == 'В обработке') ? "red" : "green")) #{order.status}
+              form(action="/user/delete-order", method="POST")
+                input(type="hidden", name="_csrf", value=csrfToken)
+                input(type="hidden", name="orderId", value=order.id)
+                button.delete-btn(type="submit") Отменить заказ
       else
         p.empty У вас нет заказов
 

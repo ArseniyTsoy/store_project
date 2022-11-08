@@ -1,4 +1,4 @@
-import { getPool } from "../util/db.js";
+import { getPool } from "../utils/db.js";
 
 export default class User {
   constructor(id, name, email, imageUrl, password, resetToken, resetTokenExpiration) {
@@ -82,7 +82,7 @@ export default class User {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT id, name, email, password, imageUrl FROM users WHERE id = ?", [userId]);
+      return pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
     } catch(err) {
       throw new Error(err);
     }

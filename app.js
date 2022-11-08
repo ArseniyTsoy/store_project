@@ -7,7 +7,7 @@ import multer from "multer";
 import csrf from "csurf";
 import session from "express-session";
 import expressSession from "express-mysql-session";
-import { poolConnect } from "./util/db.js";
+import { poolConnect } from "./utils/db.js";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import storeRoutes from "./routes/store.js";

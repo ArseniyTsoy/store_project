@@ -69,7 +69,7 @@ async function postAddToCart(req, res) {
       ++req.session.cartItems;
     }
 
-    return res.redirect("/");
+    return res.redirect("back");
   } catch(err) {
     throw new Error(err);
   }
@@ -141,7 +141,7 @@ async function postAddToWishlist(req, res) {
       ++req.session.wishlistItems;
     }
 
-    return res.redirect("/");
+    return res.redirect("back");
   } catch(err) {
     throw new Error(err);
   }
@@ -232,6 +232,25 @@ async function postCheckout(req, res) {
   }
 }
 
+async function postDeleteOrder(req, res) {
+  const orderId = req.body.orderId;
+
+  try {
+    const result = await Order.deleteById(orderId);
+
+    if (!result) {
+      throw new Error("Failed to delete the order!");
+    }
+    // Уведомить админа об отмене заказа
+    return res.render("utils/message", {
+      pageTitle: "Заказ отменен",
+      message: "Ваш заказ был успешно отменен"
+    });
+  } catch(err) {
+    throw new Error(err);
+  } 
+}
+
 async function getUserOrders(req, res) {
   const userId = req.session.user.id;
 
@@ -263,5 +282,6 @@ export default {
   getCleanWishlist,
   getCheckout,
   postCheckout,
+  postDeleteOrder,
   getUserOrders
 };

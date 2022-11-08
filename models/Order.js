@@ -1,4 +1,4 @@
-import { getPool } from "../util/db.js";
+import { getPool } from "../utils/db.js";
 
 export default class Order {
 
@@ -65,6 +65,16 @@ export default class Order {
       const pool = await getPool();
 
       return pool.execute("SELECT * FROM orders");
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async deleteById(orderId) {
+    try {
+      const pool = getPool();
+
+      return pool.execute("DELETE FROM orders WHERE id = ?", [orderId]); 
     } catch(err) {
       throw new Error(err);
     }

@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import transporter from "../util/mailer.js";
+import transporter from "../utils/mailer.js";
 import crypto from "crypto";
 
 // Signup
@@ -174,7 +174,7 @@ async function postResetPassword(req, res) {
       throw new Error("Не удалось выслать письмо!");
     }
 
-    return res.render("auth/message", {
+    return res.render("utils/message", {
       pageTitle: "Проверьте вашу почту",
       message: `На указанный вами адрес ${providedEmail} было выслано сообщение. Пожалуйста, проверьте вашу почту`
     });
@@ -206,7 +206,8 @@ async function getNewPassword(req, res) {
 
     return res.render("auth/new-password", {
       pageTitle: "Новый пароль",
-      userId: user.id
+      userId: user.id,
+      resetToken
     });
   } catch(err) {
     throw new Error(err);
@@ -214,7 +215,7 @@ async function getNewPassword(req, res) {
 }
 
 async function postNewPassword(req, res) {
-  const { newPassword, confirmPassword, userId } = req.body;
+  const { newPassword, confirmPassword, userId, resetToken } = req.body;
 
   try {
     if (newPassword !== confirmPassword) {
@@ -228,17 +229,31 @@ async function postNewPassword(req, res) {
       throw new Error("Пользователь не найден!");
     }
 
+    if (user.resetToken !== resetToken) {
+      throw new Error("Tokens do not match!");
+    }
+    
+    if (user.resetTokenExpiration <= Date.now()) {
+      throw new Error("Token is expired!");
+    }
+
     const hashedNewPassword = await bcrypt.hash(newPassword, 12);
 
-    user = new User(userId);
-    user.password = hashedNewPassword;
-    const result = await user.updateField("password");
+    const { id, name, email, imageUrl } = user;
+
+    const updatedUser = new User(id, name, email, imageUrl);
+
+    updatedUser.password = hashedNewPassword;
+    updatedUser.resetToken = null;
+    updatedUser.resetTokenExpiration = null;
+
+    const result = await updatedUser.updateAll();
 
     if (!result) {
       throw new Error("Не удалось изменить пароль!");
     }
 
-    return res.render("auth/message", {
+    return res.render("utils/message", {
       pageTitle: "Пароль успешно изменен",
       message: "Ваш пароль был успешно изменен"
     })

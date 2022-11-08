@@ -1,4 +1,4 @@
-import { getPool } from "../util/db.js";
+import { getPool } from "../utils/db.js";
 
 export default class Category {
 

@@ -47,8 +47,9 @@ html(lang="ru")
                   option(value="Выполнен") Выполнен
                 div.flex-btn
                   input.option-btn(type="submit", value="Редактировать")
-              form(action="", method="POST")
+              form(action="/admin/delete-order", method="POST")
                 input(type="hidden", name="_csrf", value=csrfToken)
+                input(type="hidden", name="orderId", value=order.id)
                 button.delete-btn(type="submit", onclick="return confirm('Вы действительно желаете удалить этот заказ?');") Удалить
 
     script(src="/js/script.js")
