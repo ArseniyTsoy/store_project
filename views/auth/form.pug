@@ -20,3 +20,9 @@ html(lang="ru")
 
         p #{message} Тогда 
           a(href="/auth/login") #{buttonName}
+        if path === "/login"
+          p Забыли пароль? 
+            a(href="/auth/reset") Восстановите.
+
+    include ../includes/footer.pug
+    script(src="/js/script.js") 

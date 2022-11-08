@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import transporter from "../util/mailer.js";
+import crypto from "crypto";
 
 // Signup
 function getSignup(_, res) {
@@ -108,18 +109,152 @@ async function postLogin(req, res, next) {
 // Logout
 function postLogout(req, res) {
   return req.session.destroy(err => {
-    console.log(err);
+    if (err) {
+      console.log(err);
+    }
     res.redirect("/");
   });
 }
 
 // Reset password
+function getResetPassword(req, res) {
+  return res.render("auth/reset", {
+    pageTitle: "Сброс пароля"
+  });
+}
 
+async function postResetPassword(req, res) {
+  const providedEmail = req.body.email;
+  let resetToken;
+  let resetTokenExpiration;
+
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log(err);
+      return res.redirect("/reset");
+    }else {
+      resetToken = buffer.toString("hex");
+      resetTokenExpiration = Date.now() + 3600000;
+    }
+  });
+
+  try {
+    const rawUserData = await User.findOne("email", providedEmail);
+
+    let user = rawUserData[0][0];
+
+    if (!user) {
+      throw new Error("Пользователь не обнаружен!");
+    }
+
+    const { id, name, email, imageUrl, password } = user;
+    user = new User(id, name, email, imageUrl, password);
+
+    user.resetToken = resetToken;
+    user.resetTokenExpiration = resetTokenExpiration;
+
+    const saveResult = await user.updateAll();
+
+    // Better check
+    if (!saveResult) {
+      throw new Error("Saving token failed!");
+    }
+
+    const sendMailCheck = await transporter.sendMail({
+      from: process.env.MAIL_ADDR,
+      to: providedEmail,
+      subject: "Ссылка для изменения пароля!",
+      // Сверстать темплате и сунуть в public
+      html: `<h3>Вы запросили сброс пароля!</h3>
+        <p>Пожалуйста, перейдите по этой <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>`
+    });
+
+    // Better check
+    if (!sendMailCheck) {
+      throw new Error("Не удалось выслать письмо!");
+    }
+
+    return res.render("auth/message", {
+      pageTitle: "Проверьте вашу почту",
+      message: `На указанный вами адрес ${providedEmail} было выслано сообщение. Пожалуйста, проверьте вашу почту`
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function getNewPassword(req, res) {
+  const resetToken = req.params.resetToken;
+  const providedEmail = req.params.providedEmail;
+
+  try {
+    const rawUserData = await User.findOne("email", providedEmail);
+
+    const user = rawUserData[0][0];
+
+    if (!user) {
+      throw new Error("User wasn't found!");
+    }
+
+    if (user.resetToken !== resetToken) {
+      throw new Error("Reset tokens don't match!");
+    }
+
+    if (user.resetTokenExpiration <= Date.now()) {
+      throw new Error("Token is expired!");
+    }
+
+    return res.render("auth/new-password", {
+      pageTitle: "Новый пароль",
+      userId: user.id
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function postNewPassword(req, res) {
+  const { newPassword, confirmPassword, userId } = req.body;
+
+  try {
+    if (newPassword !== confirmPassword) {
+      throw new Error("Пароли не совпадают!");
+    }
+
+    const rawUserData = await User.findById(userId);
+    let user = rawUserData[0][0];
+
+    if (!user) {
+      throw new Error("Пользователь не найден!");
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
+    user = new User(userId);
+    user.password = hashedNewPassword;
+    const result = await user.updateField("password");
+
+    if (!result) {
+      throw new Error("Не удалось изменить пароль!");
+    }
+
+    return res.render("auth/message", {
+      pageTitle: "Пароль успешно изменен",
+      message: "Ваш пароль был успешно изменен"
+    })
+  } catch(err) {
+    throw new Error(err);
+  }
+}
 
 export default {
   getSignup,
   postSignup,
   getLogin,
   postLogin,
-  postLogout
+  postLogout,
+  getResetPassword,
+  postResetPassword,
+  getNewPassword,
+  postNewPassword
 };

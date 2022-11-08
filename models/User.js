@@ -1,12 +1,14 @@
 import { getPool } from "../util/db.js";
 
 export default class User {
-  constructor(id, name, email, imageUrl, password) {
+  constructor(id, name, email, imageUrl, password, resetToken, resetTokenExpiration) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.imageUrl = imageUrl;
     this.password = password;
+    this.resetToken = resetToken;
+    this.resetTokenExpiration = resetTokenExpiration;
   }
 
   // Change name to "create"
@@ -25,6 +27,54 @@ export default class User {
       return pool.execute(sql, values);
     } catch(err) {
       throw new Error("Failed to register new user!");
+    }
+  }
+
+  async updateAll() {
+    try {
+      const pool = await getPool();
+      
+      const sql = `UPDATE users SET 
+        name = ?, 
+        email = ?,
+        imageUrl = ?,
+        password = ?,
+        resetToken = ?,
+        resetTokenExpiration = ?
+      WHERE id = ?`; 
+
+      const values = [
+        this.name, 
+        this.email,
+        this.imageUrl,
+        this.password,
+        this.resetToken,
+        this.resetTokenExpiration,
+        this.id
+      ];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error("Failed to alter the user!");
+    }
+  }
+
+  async updateField(fieldName) {
+    try {
+      // Проверка на строку
+      if (!fieldName) {
+        throw new Error("Поле не указано!");
+      }
+
+      const pool = await getPool();
+      
+      const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
+
+      const values = [this[fieldName], this.id];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error("Failed to alter the user!");
     }
   }
 
