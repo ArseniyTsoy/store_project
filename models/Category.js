@@ -9,45 +9,32 @@ export default class Category {
     this.imageUrl = imageUrl;
   }
 
-  async create() {
-    try {
-      const pool = await getPool();
+  create() {
+    const pool = getPool();
 
-      const sql = "INSERT INTO categories (title, description, imageUrl) VALUES (?, ?, ?)";
-      
-      const values = [
-        this.title,
-        this.description,
-        this.imageUrl
-      ];
-
-      return pool.execute(sql, values);
-    } catch(err) {
-      throw new Error("Failed to save!");
-    }
-  }
-
-  static deleteById() {
+    const sql = "INSERT INTO categories (title, description, imageUrl) VALUES (?, ?, ?)";
     
+    const values = [
+      this.title,
+      this.description,
+      this.imageUrl
+    ];
+
+    return pool.execute(sql, values);
   }
 
-  static async findAll() {
-    try {
-      const pool = getPool();
-
-      return pool.execute("SELECT * FROM categories");
-    } catch(err) {
-      throw new Error(err);
-    }
+  static deleteById(categoryId) {
+    const pool = getPool();
+    return pool.execute("DELETE FROM categories WHERE id =?", [categoryId]);
   }
 
-  static async findTaggedProducts(catId) {
-    try {
-      const pool = await getPool();
+  static findAll() {
+    const pool = getPool();
+    return pool.execute("SELECT * FROM categories");
+  }
 
-      return pool.execute("SELECT * FROM products WHERE categoryId = ?", [catId]);
-    } catch(err) {
-      throw new Error(err);
-    }
+  static findTaggedProducts(catId) {
+    const pool = getPool();
+    return pool.execute("SELECT * FROM products WHERE categoryId = ?", [catId]);
   }
 };

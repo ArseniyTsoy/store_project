@@ -27,8 +27,3 @@ export function getPool() {
     throw new Error("No established pool found!");
   }
 }
-
-// module.exports = {
-//   poolConnect: poolConnect,
-//   getPool: getPool
-// };

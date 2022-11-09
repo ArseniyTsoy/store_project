@@ -323,6 +323,12 @@ section {
   color: var(--light-color);
 }
 
+.header .flex .profile span {
+  padding: .5rem 0;
+  font-size: 2rem;
+  color: var(--blue);
+}
+
 .update-profile form {
   max-width: 70rem;
   margin: 0 auto;

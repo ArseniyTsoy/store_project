@@ -10,103 +10,77 @@ export default class Product {
     this.categoryId = categoryId;
   }
 
-  async create() {
-    try {
-      const pool = await getPool();
+  create() {
+    const pool = getPool();
 
-      const sql = "INSERT INTO products (title, price, imageUrl, description, categoryId) VALUES (?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO products (title, price, imageUrl, description, categoryId) VALUES (?, ?, ?, ?, ?)";
       
-      const values = [
-        this.title,
-        this.price,
-        this.imageUrl,
-        this.description,
-        this.categoryId
-      ];
+    const values = [
+      this.title,
+      this.price,
+      this.imageUrl,
+      this.description,
+      this.categoryId
+    ];
 
-      return pool.execute(sql, values);
-    } catch(err) {
-      throw new Error("Failed to save!");
-    }
+    return pool.execute(sql, values);
   }
 
-  async update() {
-    try {
-      const pool = await getPool();
+  update() {
+    const pool = getPool();
 
-      const sql = `UPDATE products SET
-        title = ?, 
-        price = ?, 
-        imageUrl = ?, 
-        description = ?, 
-        categoryId = ? 
-      WHERE id = ?`;
-      
-      const values = [
-        this.title,
-        this.price,
-        this.imageUrl,
-        this.description,
-        this.categoryId,
-        this.id
-      ];
+    const sql = `UPDATE products SET
+      title = ?, 
+      price = ?, 
+      imageUrl = ?, 
+      description = ?, 
+      categoryId = ? 
+    WHERE id = ?`;
+    
+    const values = [
+      this.title,
+      this.price,
+      this.imageUrl,
+      this.description,
+      this.categoryId,
+      this.id
+    ];
 
-      return pool.execute(sql, values);
-    } catch(err) {
-      throw new Error("Failed to save!");
-    }
+    return pool.execute(sql, values);
   }
 
-  static async deleteById(productId) {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("DELETE FROM products WHERE id = ?", [productId]);
-    } catch(err) {
-      throw new Error(err);
-    }
+  static deleteById(productId) {
+    const pool = getPool();
+    return pool.execute("DELETE FROM products WHERE id = ?", [productId]);
   }
 
-  static async findById(id) {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("SELECT * FROM products WHERE id = ?", [id]);
-    } catch(err) {
-      throw new Error(err);
-    }
+  static findById(id) {
+    const pool = getPool();
+    return pool.execute("SELECT * FROM products WHERE id = ?", [id]);
   }
 
-  static async findAll() {
-    try {
-      const pool = await getPool();
+  static findAll() {
+    const pool = getPool();
 
-      return pool.execute("SELECT * FROM products ORDER BY id DESC");
-    } catch(err) {
-      throw new Error(err);
-    }
+    return pool.execute("SELECT * FROM products ORDER BY id DESC");
   }
 
-  static async search(searchString) {
-    try {
-      const pool = await getPool();
+  static search(searchString) {
+    const pool = getPool();
 
-      const sql = `SELECT 
-        p.id, p.title, p.price, p.imageUrl
-        FROM products p
-        INNER JOIN categories c
-        ON p.categoryId = c.id
-        WHERE p.title LIKE ? 
-        OR c.title LIKE ? ORDER BY p.id DESC`;
+    const sql = `SELECT 
+      p.id, p.title, p.price, p.imageUrl
+      FROM products p
+      INNER JOIN categories c
+      ON p.categoryId = c.id
+      WHERE p.title LIKE ? 
+      OR c.title LIKE ? ORDER BY p.id DESC`;
 
-      const values = [
-        `%${searchString}%`, 
-        `%${searchString}%`
-      ];
+    const values = [
+      `%${searchString}%`, 
+      `%${searchString}%`
+    ];
 
-      return pool.execute(sql, values);
-    } catch(err) {
-      throw new Error(err);
-    }
+    return pool.execute(sql, values);
   }
 };
