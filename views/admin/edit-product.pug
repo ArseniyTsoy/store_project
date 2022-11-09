@@ -1,0 +1,46 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+    
+    section.update-product
+
+      if hasProduct
+      
+        h1.title Редактирование товара   
+
+        form(action="/admin/edit-product", method="post", enctype="multipart/form-data")
+        
+          img(src="/" + product.imageUrl, alt=product.title)
+          input.box(type="file", name="image", accept="image/jpg, image/jpeg, image/png")
+          input(type="hidden", name="oldImageUrl", value=product.imageUrl)
+
+          label(for="productTitle") Наименование
+          input.box(type="text", name="productTitle", placeholder=product.title, required, value=product.title)#productTitle
+
+          label(for="productPrice") Цена
+          input.box(type="number", name="productPrice", min="0", placeholder=product.price, required, value=product.price)
+
+          label(for="productCategoryId") Категория
+          select.box(name="productCategoryId", required)#productCategoryId
+            each category in categories
+              if category.id === product.categoryId
+                option(value=category.id, selected) #{category.title}
+              else
+                option(value=category.id) #{category.title}
+
+          label(for="productDescription") Краткое описание
+          textarea.box(name="productDescription", required, placeholder=product.description, cols="30", rows="10")#productDescription
+          
+          div.flex-btn
+            input(type="hidden", name="_csrf", value=csrfToken)
+            input(type="hidden", name="productId", value=product.id)
+            input.btn(type="submit", value="Сохранить")
+            a.option-btn(href="/catalog") Назад
+      
+      else 
+        p.empty Товар не обнаружен!
+
+    script(src="/js/script.js")

@@ -2,12 +2,18 @@ import express from "express";
 const router = express.Router();
 import adminController from "../controllers/admin.js";
 
-// Create new product
+// Products
 router.get("/create-product", adminController.getCreateProduct);
 
 router.post("/create-product", adminController.postCreateProduct);
 
-// Create new category
+router.get("/edit-product/:productId", adminController.getEditProduct);
+
+router.post("/edit-product", adminController.postEditProduct);
+
+router.post("/remove-product", adminController.postRemoveProduct);
+
+// Categories
 router.get("/create-category", adminController.getCreateCategory);
 
 router.post("/create-category", adminController.postCreateCategory);

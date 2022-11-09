@@ -22,19 +22,26 @@ html(lang="ru")
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Создать")
 
-    //- section.show-products
+    if hasProducts
 
-    //-   h1.title products added
+      section.show-products
 
-    //-   .box-container
-    //-     .box
-    //-       .price $100/-
-    //-       img(src="uploaded_img/<?= $fetch_products['image']; ?>", alt="")
-    //-       .name Name
-    //-       .cat Category
-    //-       .details Details
-    //-       .flex-btn
-    //-         a.option-btn(href="admin_update_product.php?update=<?= $fetch_products['id']; ?>") update
-    //-         a.delete-btn(href="admin_products.php?delete=<?= $fetch_products['id']; ?>", onclick="return confirm('delete this product?');") delete
+        h1.title Товары
+
+        div.box-container
+
+          each product in products
+          
+            div.box
+              div.price #{product.price} руб.
+              img(src="/" + product.imageUrl, alt=product.title)
+              div.name #{product.title}
+              div.cat #{(categories.find(el => el.id === product.categoryId)).title}
+              div.details #{product.description}
+              div.flex-btn
+                a.option-btn(href="/admin/edit-product/" + product.id) Редактировать
+                form(action="/admin/delete-product", method="POST")
+                  input(type="hidden", name="productId", value=product.id)
+                  button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
 
     script(src="/js/script.js")

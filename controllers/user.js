@@ -75,6 +75,23 @@ async function postAddToCart(req, res) {
   }
 }
 
+async function postChangeQty(req, res) {
+  const newQty = req.body.qty;
+  const itemId = req.body.itemId;
+
+  try {
+    const result = await User.changeQty(newQty, itemId);
+
+    if (!result) {
+      throw new Error("Failed to change item quantity!");
+    }
+
+    return res.redirect("back");
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
 async function postDeleteFromCart(req, res) {
   const itemId = req.body.itemId;
 
@@ -210,16 +227,23 @@ async function getCheckout(req, res) {
 }
 
 async function postCheckout(req, res) {
-  const currentUser = new User(req.session.user.id);
   const { name, phone, email, method, content, total_price  } = req.body;
-  const { country, city, street, house, appartment, postalCode } = req.body;
-  const address = `${country}, ${city}, ул. ${street} ${house}, дом ${appartment}. Почтовый индекс: ${postalCode}.`;
-  const placed_on = (new Date()).toLocaleDateString();
-  
 
-  const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, content, total_price, placed_on);
+  const { country, city, street, house, appartment, postalCode } = req.body;
+
+  const address = `${country}, ${city}, ул. ${street} ${house}, дом ${appartment}. Почтовый индекс: ${postalCode}.`;
+
+  const placed_on = (new Date()).toLocaleDateString("ru", {
+    year: "2-digit",
+    month: "short",
+    day: "numeric"
+  });
 
   try {
+    const currentUser = new User(req.session.user.id);
+
+    const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, content, total_price, placed_on);
+
     // Добавить проверку
     await newOrder.create();
 
@@ -274,6 +298,7 @@ export default {
   getEditProfile,
   getCart,
   postAddToCart,
+  postChangeQty,
   postDeleteFromCart,
   getCleanCart,
   getWishlist,

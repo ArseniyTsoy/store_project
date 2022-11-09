@@ -4,6 +4,7 @@
   --green:#27ae60;
   --orange:#f39c12;
   --red:#e74c3c;
+  --blue: #473fe3;
   --black:#333;
   --light-color:#666;
   --white:#fff;
@@ -68,7 +69,8 @@ section {
 
 .btn,
 .delete-btn,
-.option-btn {
+.option-btn,
+.edit-btn {
   display: inline-block;
   margin-top: 1rem;
   border-radius: .5rem;
@@ -93,9 +95,14 @@ section {
   background-color: var(--orange);
 }
 
+.edit-btn {
+  background-color: var(--blue);
+}
+
 .btn:hover,
 .delete-btn:hover,
-.option-btn:hover {
+.option-btn:hover,
+.edit-btn:hover {
   background-color: var(--black);
 }
 

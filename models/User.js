@@ -113,7 +113,7 @@ export default class User {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM users");
+      return pool.execute("SELECT * FROM users ORDER BY id DESC");
     } catch(err) {
       throw new Error(err);
     }
@@ -191,6 +191,16 @@ export default class User {
 
       await pool.execute(sql, values);
       return newItemAdded;
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async changeQty(newQty, itemId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("UPDATE cart SET quantity = ? WHERE id = ?", [newQty, itemId]);
     } catch(err) {
       throw new Error(err);
     }

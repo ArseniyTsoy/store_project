@@ -29,8 +29,9 @@ html(lang="ru")
                   i.fas.fa-times
 
               div.flex-btn
-                form(action="", method="POST")
+                form(action="/user/change-qty", method="POST")
                   input.qty(type="number", min="1", value=item.quantity, name="qty")
+                  input(type="hidden", name="itemId", value=item.id)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="Пересчитать")
 

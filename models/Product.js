@@ -30,15 +30,48 @@ export default class Product {
     }
   }
 
-  static deleteById() {
-    
+  async update() {
+    try {
+      const pool = await getPool();
+
+      const sql = `UPDATE products SET
+        title = ?, 
+        price = ?, 
+        imageUrl = ?, 
+        description = ?, 
+        categoryId = ? 
+      WHERE id = ?`;
+      
+      const values = [
+        this.title,
+        this.price,
+        this.imageUrl,
+        this.description,
+        this.categoryId,
+        this.id
+      ];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error("Failed to save!");
+    }
+  }
+
+  static async deleteById(productId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("DELETE FROM products WHERE id = ?", [productId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
   static async findById(id) {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM `products` WHERE `id` = ?", [id]);
+      return pool.execute("SELECT * FROM products WHERE id = ?", [id]);
     } catch(err) {
       throw new Error(err);
     }
@@ -48,7 +81,7 @@ export default class Product {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM products");
+      return pool.execute("SELECT * FROM products ORDER BY id DESC");
     } catch(err) {
       throw new Error(err);
     }
@@ -64,7 +97,7 @@ export default class Product {
         INNER JOIN categories c
         ON p.categoryId = c.id
         WHERE p.title LIKE ? 
-        OR c.title LIKE ?`;
+        OR c.title LIKE ? ORDER BY p.id DESC`;
 
       const values = [
         `%${searchString}%`, 

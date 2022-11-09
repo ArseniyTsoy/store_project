@@ -94,6 +94,10 @@ async function postLogin(req, res, next) {
       // password: processedUser.password
     };
 
+    if (processedUser.user_type === "admin") {
+      req.session.isAdmin = true;
+    }
+
     const userForCounts = new User(processedUser.id);
     const cartItems = await userForCounts.countCart();
     req.session.cartItems = (cartItems[0][0])["COUNT (*)"];

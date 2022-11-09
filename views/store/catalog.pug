@@ -40,10 +40,20 @@ html(lang="ru")
                   input(type="hidden", name="productId", value=product.id)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.btn(type="submit", value="В корзину")
+                
                 form(action="/user/wishlist-add", method="POST")
                   input(type="hidden", name="productId", value=product.id)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="В список желаемого")
+
+                if isAdmin
+
+                  a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
+
+                  form(action="/admin/remove-product", method="POST")
+                    input(type="hidden", name="productId", value=product.id)
+                    button.delete-btn(type="submit") Удалить из БД
+
       else 
         p.empty Товары не обнаружены
           

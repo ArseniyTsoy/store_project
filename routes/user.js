@@ -11,6 +11,8 @@ router.get("/cart", isAuth, userController.getCart);
 
 router.post("/cart-add", isAuth, userController.postAddToCart);
 
+router.post("/change-qty", isAuth, userController.postChangeQty);
+
 router.post("/cart-delete", isAuth, userController.postDeleteFromCart);
 
 router.get("/cart-clean", isAuth, userController.getCleanCart);

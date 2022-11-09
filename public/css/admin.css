@@ -141,6 +141,11 @@
    margin-bottom: 1rem;
 }
 
+.update-product form label {
+   font-size: 1.8rem;
+   color:var(--light-color);
+}
+
 .update-product form .box{
    width: 100%;
    border:var(--border);

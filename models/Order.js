@@ -53,7 +53,7 @@ export default class Order {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM orders WHERE user_id = ?", [userId]);
+      return pool.execute("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC", [userId]);
       
     } catch(err) {
       throw new Error(err);
@@ -64,7 +64,7 @@ export default class Order {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM orders");
+      return pool.execute("SELECT * FROM orders ORDER BY id DESC");
     } catch(err) {
       throw new Error(err);
     }

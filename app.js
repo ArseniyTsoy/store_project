@@ -91,6 +91,7 @@ app.use(csrfProtection);
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   res.locals.isAuthenticated = req.session.isAuthenticated;
+  res.locals.isAdmin = req.session.isAdmin,
   res.locals.user = req.session.user;
   res.locals.cartItems = req.session.cartItems;
   res.locals.wishlistItems = req.session.wishlistItems;
