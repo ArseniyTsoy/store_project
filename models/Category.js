@@ -9,32 +9,51 @@ export default class Category {
     this.imageUrl = imageUrl;
   }
 
-  create() {
-    const pool = getPool();
+  async create() {
+    try {
+      const pool = await getPool();
 
-    const sql = "INSERT INTO categories (title, description, imageUrl) VALUES (?, ?, ?)";
+      const sql = "INSERT INTO categories (title, description, imageUrl) VALUES (?, ?, ?)";
     
-    const values = [
-      this.title,
-      this.description,
-      this.imageUrl
-    ];
+      const values = [
+        this.title,
+        this.description,
+        this.imageUrl
+      ];
 
-    return pool.execute(sql, values);
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static deleteById(categoryId) {
-    const pool = getPool();
-    return pool.execute("DELETE FROM categories WHERE id =?", [categoryId]);
+  static async deleteById(categoryId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("DELETE FROM categories WHERE id =?", [categoryId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findAll() {
-    const pool = getPool();
-    return pool.execute("SELECT * FROM categories");
+  static async findAll() {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("SELECT * FROM categories");
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findTaggedProducts(catId) {
-    const pool = getPool();
-    return pool.execute("SELECT * FROM products WHERE categoryId = ?", [catId]);
+  static async findTaggedProducts(catId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("SELECT * FROM products WHERE categoryId = ?", [catId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 };

@@ -63,7 +63,8 @@ async function postAddToCart(req, res) {
       throw new Error("Product isn't found!");
     }
 
-    const newItemAdded = await User.addToCart(userId, productId, quantity);
+    // await не нужен
+    const newItemAdded = User.addToCart(userId, productId, quantity);
 
     if (newItemAdded) {
       ++req.session.cartItems;
@@ -152,7 +153,7 @@ async function postAddToWishlist(req, res) {
       throw new Error("Product isn't found!");
     }
 
-    const newItemAdded = await User.addToWishlist(userId, productId);
+    const newItemAdded = User.addToWishlist(userId, productId);
 
     if (newItemAdded) {
       ++req.session.wishlistItems;

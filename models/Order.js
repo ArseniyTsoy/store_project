@@ -15,48 +15,67 @@ export default class Order {
     this.placed_on = placed_on;
   }
 
-  create() {
-    const pool = getPool();
+  async create() {
+    try {
+      const pool = await getPool();
 
-    const sql = `INSERT INTO orders (
-      user_id, 
-      name,
-      phone, 
-      email, 
-      method,
-      address,
-      content,
-      total_price, 
-      placed_on
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const sql = `INSERT INTO orders (
+        user_id, 
+        name,
+        phone, 
+        email, 
+        method,
+        address,
+        content,
+        total_price, 
+        placed_on
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    const values = [
-      this.user_id,
-      this.name,
-      this.phone,
-      this.email,
-      this.method,
-      this.address,
-      this.content,
-      this.total_price,
-      this.placed_on
-    ];
+      const values = [
+        this.user_id,
+        this.name,
+        this.phone,
+        this.email,
+        this.method,
+        this.address,
+        this.content,
+        this.total_price,
+        this.placed_on
+      ];
 
-    return pool.execute(sql, values);
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findByUser(userId) {
-    const pool = getPool();
-    return pool.execute("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC", [userId]);
+  static async findByUser(userId) {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC", [userId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findAll() {
-    const pool = getPool();
-    return pool.execute("SELECT * FROM orders ORDER BY id DESC");
+  static async findAll() {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("SELECT * FROM orders ORDER BY id DESC");
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static deleteById(orderId) {
-    const pool = getPool();
-    return pool.execute("DELETE FROM orders WHERE id = ?", [orderId]); 
+  static async deleteById(orderId) {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("DELETE FROM orders WHERE id = ?", [orderId]);
+    } catch(err) {
+      throw new Error(err);
+    } 
   }
 };

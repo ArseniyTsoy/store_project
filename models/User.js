@@ -12,112 +12,149 @@ export default class User {
     this.resetTokenExpiration = resetTokenExpiration;
   }
 
-  create() {
-    const pool = getPool();
-    
-    const sql = "INSERT INTO users (name, email, imageUrl, password) VALUES (?, ?, ?, ?)";
-    const values = [
-      this.name, 
-      this.email,
-      this.imageUrl,
-      this.password
-    ];
-
-    return pool.execute(sql, values);
-  }
-
-  updateAll() {
-    const pool = getPool();
-    
-    const sql = `UPDATE users SET 
-      name = ?, 
-      email = ?,
-      imageUrl = ?,
-      password = ?,
-      resetToken = ?,
-      resetTokenExpiration = ?
-    WHERE id = ?`; 
-
-    const values = [
-      this.name, 
-      this.email,
-      this.imageUrl,
-      this.password,
-      this.resetToken,
-      this.resetTokenExpiration,
-      this.id
-    ];
-
-    return pool.execute(sql, values);
-  }
-
-  updateField(fieldName) {
-    // Проверка на строку
-    if (!fieldName) {
-      throw new Error("Поле не указано!");
-    }
-
-    const pool = getPool();
+  async create() {
+    try {
+      const pool = await getPool();
       
-    const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
+      const sql = "INSERT INTO users (name, email, imageUrl, password) VALUES (?, ?, ?, ?)";
+      const values = [
+        this.name, 
+        this.email,
+        this.imageUrl,
+        this.password
+      ];
 
-    const values = [this[fieldName], this.id];
-
-    return pool.execute(sql, values);
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findById(userId) {
-    const pool = getPool();
+  async updateAll() {
+    try {
+      const pool = await getPool();
+      
+      const sql = `UPDATE users SET 
+        name = ?, 
+        email = ?,
+        imageUrl = ?,
+        password = ?,
+        resetToken = ?,
+        resetTokenExpiration = ?
+      WHERE id = ?`; 
 
-    return pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
+      const values = [
+        this.name, 
+        this.email,
+        this.imageUrl,
+        this.password,
+        this.resetToken,
+        this.resetTokenExpiration,
+        this.id
+      ];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findOne(field, value) {
-    const pool = getPool();
-    
-    const sql = `SELECT * FROM users WHERE ${field} = ?`;
-    return pool.execute(sql, [value]);
+  async updateField(fieldName) {
+    try {
+      // Проверка на строку
+      if (!fieldName) {
+        throw new Error("Поле не указано!");
+      }
+
+      const pool = await getPool();
+        
+      const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
+
+      const values = [this[fieldName], this.id];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static deleteById(userId) {
-    const pool = getPool();
+  static async findById(userId) {
+    try {
+      const pool = await getPool();
 
-    return pool.execute("DELETE FROM users WHERE id = ?", [userId]); 
+      return pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static findAll() {
-    const pool = getPool();
-
-    return pool.execute("SELECT * FROM users ORDER BY id DESC");
+  static async findOne(field, value) {
+    try {
+      const pool = await getPool();
+      
+      const sql = `SELECT * FROM users WHERE ${field} = ?`;
+      
+      return pool.execute(sql, [value]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  getCart() {
-    const pool = getPool();
+  static async deleteById(userId) {
+    try {
+      const pool = await getPool();
 
-    const sql = `SELECT 
-        cart.id,
-        cart.user_id, 
-        cart.product_id, 
-        p.title, 
-        p.price, 
-        cart.quantity, 
-        p.imageUrl 
-      FROM cart INNER JOIN products p 
-      ON cart.product_id = p.id  
-      WHERE cart.user_id = ?`;
-
-    return pool.execute(sql, [this.id]);
+      return pool.execute("DELETE FROM users WHERE id = ?", [userId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  countCart() {
-    const pool = getPool();
+  static async findAll() {
+    try {
+      const pool = await getPool();
 
-    return pool.execute("SELECT COUNT (*) FROM cart WHERE user_id = ?", [this.id]);
+      return pool.execute("SELECT * FROM users ORDER BY id DESC");
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async getCart() {
+    try {
+      const pool = await getPool();
+
+      const sql = `SELECT 
+          cart.id,
+          cart.user_id, 
+          cart.product_id, 
+          p.title, 
+          p.price, 
+          cart.quantity, 
+          p.imageUrl 
+        FROM cart INNER JOIN products p 
+        ON cart.product_id = p.id  
+        WHERE cart.user_id = ?`;
+
+      return pool.execute(sql, [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async countCart() {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("SELECT COUNT (*) FROM cart WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
   static async addToCart(userId, productId, quantity) {
     try {
-      const pool = getPool();
+      const pool = await getPool();
       let sql;
       let values;
       let newItemAdded;
@@ -160,47 +197,70 @@ export default class User {
     }
   }
 
-  static changeQty(newQty, itemId) {
-    const pool = getPool();
-    return pool.execute("UPDATE cart SET quantity = ? WHERE id = ?", [newQty, itemId]);
+  static async changeQty(newQty, itemId) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("UPDATE cart SET quantity = ? WHERE id = ?", [newQty, itemId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  static deleteFromCart(itemId) {
-    const pool = getPool();
+  static async deleteFromCart(itemId) {
+    try {
+      const pool = await getPool();
 
-    return pool.execute("DELETE FROM cart WHERE id = ?", [itemId]);
+      return pool.execute("DELETE FROM cart WHERE id = ?", [itemId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  cleanCart() {
-    const pool = getPool();
-    return pool.execute("DELETE FROM cart WHERE user_id = ?", [this.id]);
+  async cleanCart() {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("DELETE FROM cart WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  getWishlist() {
-    const pool = getPool();
-    
-    const sql = `SELECT 
-        w.id,
-        w.user_id,
-        w.product_id,
-        p.title,
-        p.price,
-        p.imageUrl
-      FROM wishlist w INNER JOIN products p
-      ON w.product_id = p.id
-      WHERE w.user_id = ?`;
+  async getWishlist() {
+    try {
+      const pool = await getPool();
+      
+      const sql = `SELECT 
+          w.id,
+          w.user_id,
+          w.product_id,
+          p.title,
+          p.price,
+          p.imageUrl
+        FROM wishlist w INNER JOIN products p
+        ON w.product_id = p.id
+        WHERE w.user_id = ?`;
 
-    return pool.execute(sql, [this.id]);
+      return pool.execute(sql, [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  countWishlist() {
-    const pool = getPool();
-    return pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
+  async countWishlist() {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
   static async addToWishlist(userId, productId) {
     try {
-      const pool = getPool();
+      const pool = await getPool();
       let sql;
       let values;
       let newItemAdded;
@@ -234,13 +294,23 @@ export default class User {
     }
   }
 
-  static deleteFromWishlist(itemId) {
-    const pool = getPool();
-    return pool.execute("DELETE FROM wishlist WHERE id = ?", [itemId]);
+  static async deleteFromWishlist(itemId) {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("DELETE FROM wishlist WHERE id = ?", [itemId]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 
-  cleanWishlist() {
-    const pool = getPool();
-    return pool.execute("DELETE FROM wishlist WHERE user_id = ?", [this.id]);
+  async cleanWishlist() {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("DELETE FROM wishlist WHERE user_id = ?", [this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
   }
 };

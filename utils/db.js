@@ -21,9 +21,11 @@ export async function poolConnect(cb) {
 }
 
 export function getPool() {
-  if (_pool) {
-    return _pool;
-  } else {
-    throw new Error("No established pool found!");
-  }
+  return new Promise(function(resolve, reject) {
+    if (_pool) {
+      resolve(_pool);
+    } else {
+      reject(new Error("No established pool found!"));
+    }
+  });
 }
