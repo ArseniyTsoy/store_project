@@ -8,7 +8,11 @@ html(lang="ru")
     section.form-container
       form(action="/auth/reset", method="POST")
         h3 Введите E-Mail, на который зарегистрирован ваш аккаунт
-        input.box(type="email", name="email", placeholder="E-Mail", required)
+
+        input(class=(errors.email ? "invalid" : "box"), type="email", name="email", placeholder="Введите ваш E-Mail", value=(errors.email ? providedEmail : ""), required)
+        if (errors.email)
+          span.error-message #{errors.email.msg}
+
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", name="submit", value="Отправить")
 

@@ -9,12 +9,40 @@ html(lang="ru")
       form(action=(path === "/signup") ? "/auth/signup" : "/auth/login", enctype="multipart/form-data", method="POST")
         h3 #{pageTitle}
         if path === "/signup"
-          input.box(type="name", name="name", placeholder="Ваше имя", required)
-        input.box(type="email", name="email", placeholder="E-Mail", required)
-        input.box(type="password", name="password", placeholder="Пароль", required)
+
+          if (errors.name)
+            input.invalid(type="text", name="name", placeholder="Ваше имя", value=oldInput.name, required)
+            span.error-message #{errors.name.msg}
+          else 
+            input.box(type="text", name="name", placeholder="Ваше имя", value=(hasError ? oldInput.name : ""), required)
+
+        if (errors.email) 
+          input.invalid(type="email", name="email", placeholder="E-Mail", value=oldInput.email, required)
+          span.error-message #{errors.email.msg}
+        else 
+          input.box(type="email", name="email", placeholder="E-Mail", value=(hasError ? oldInput.email : ""), required)
+
+        if (errors.password)
+          input.invalid(type="password", name="password", placeholder="Пароль", required)
+          span.error-message #{errors.password.msg}
+        else 
+          input.box(type="password", name="password", placeholder="Пароль", required)
+
         if path === "/signup"
-          input.box(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
-          input.box(type="file", name="image", required)
+          if (errors.confirmPassword) 
+            input.invalid(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
+            span.error-message #{errors.confirmPassword.msg}
+          else 
+            input.box(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
+
+          input(type="hidden", name="validateImage", value="Добавьте изображение")
+
+          if (errors.validateImage) 
+            input.invalid(type="file", name="image", required)
+            span.error-message #{errors.validateImage.msg}
+          else 
+            input.box(type="file", name="image", required)
+
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", name="submit", value="Отправить")
 

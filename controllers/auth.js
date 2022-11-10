@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import transporter from "../utils/mailer.js";
 import crypto from "crypto";
+import { validationResult } from "express-validator";
 
 // Signup
 function getSignup(_, res) {
@@ -9,39 +10,47 @@ function getSignup(_, res) {
     path: "/signup",
     pageTitle: "Регистрация",
     message: "Уже зарегистрированы?",
-    buttonName: "войдите"
+    buttonName: "войдите",
+    hasError: false,
+    errors: {}
   });
 }
 
 async function postSignup(req, res) {
   try {
-    const name = req.body.name;
-    const email = req.body.email;
-    const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
+    const { name, email, password } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).render("auth/form", {
+        path: "/signup",
+        pageTitle: "Регистрация",
+        message: "Уже зарегистрированы?",
+        buttonName: "войдите",
+        hasError: true,
+        oldInput: {
+          name,
+          email
+        },
+        errors: errors.mapped()
+      });
+    }
+
     const imageUrl = req.file.path;
-
-    const emailCheck = await User.findOne("email", email);
-
-    if (emailCheck[0][0]) {
-      throw new Error("E-Mail уже зарегистрирован! <a href='/user/password-reset'>Забыли пароль?</a>");
-    }
-
-    if (password !== confirmPassword) {
-      throw new Error("Passwords don't match!");
-    }
-
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = new User(null, name, email, imageUrl, hashedPassword);
     
     const result = await newUser.create();
 
+    // Нужна ли эта проверка при try-catch?
     if (!result) {
       throw new Error("Failed to create a new account!");
     }
 
-    await transporter.sendMail({
+    res.redirect("/auth/login");
+
+    return transporter.sendMail({
       from: process.env.MAIL_ADDR,
       to: email,
       subject: "Signup Succeeded! Регистрация прошла успешно!",
@@ -51,8 +60,6 @@ async function postSignup(req, res) {
         <h1>Поздравляем!</h2>
         <p>Ваш аккаунт был успешно зарегистрирован!</p>`
     });
-
-    return res.redirect("/auth/login");
   } catch(err) {
     throw new Error(err);
   }
@@ -64,22 +71,35 @@ function getLogin(_, res) {
     path: "/login",
     pageTitle: "Авторизация",
     message: "Не зарегистрированы?",
-    buttonName: "создайте аккаунт"
+    buttonName: "создайте аккаунт",
+    hasError: false,
+    errors: {}
   });
 }
 
 async function postLogin(req, res, next) {
   try {
-    const email = req.body.email;
-    const providedPassword = req.body.password;
-    const rawUser = await User.findOne("email", email);
-    const processedUser = rawUser[0][0];
+    const { email, password } = req.body;
+    const errors = validationResult(req);
 
-    if (!processedUser) {
-      throw new Error("Пользователь с таким E-Mail не обнаружен");
+    if (!errors.isEmpty()) {
+      return res.status(422).render("auth/form", {
+        path: "/login",
+        pageTitle: "Авторизация",
+        message: "Не зарегистрированы?",
+        buttonName: "создайте аккаунт",
+        hasError: true,
+        oldInput: {
+          email
+        },
+        errors: errors.mapped()
+      });
     }
 
-    const compareResult = await bcrypt.compare(providedPassword, processedUser.password);
+    const [ rows ] = await User.findOne("email", email);
+    const user = rows[0];
+
+    const compareResult = await bcrypt.compare(password, user.password);
 
     if (!compareResult) {
       throw new Error("Неверный пароль");
@@ -87,18 +107,16 @@ async function postLogin(req, res, next) {
 
     req.session.isAuthenticated = true;
     req.session.user = {
-      id: processedUser.id,
-      name: processedUser.name, 
-      // email: processedUser.email, 
-      imageUrl: processedUser.imageUrl
-      // password: processedUser.password
+      id: user.id,
+      name: user.name,
+      imageUrl: user.imageUrl
     };
 
-    if (processedUser.user_type === "admin") {
+    if (user.user_type === "admin") {
       req.session.isAdmin = true;
     }
 
-    const userForCounts = new User(processedUser.id);
+    const userForCounts = new User(user.id);
     const cartItems = await userForCounts.countCart();
     req.session.cartItems = (cartItems[0][0])["COUNT (*)"];
     const wishlistItems = await userForCounts.countWishlist();
@@ -123,29 +141,40 @@ function postLogout(req, res) {
 // Reset password
 function getResetPassword(req, res) {
   return res.render("auth/reset", {
-    pageTitle: "Сброс пароля"
+    pageTitle: "Сброс пароля",
+    errors: {}
   });
 }
 
 async function postResetPassword(req, res) {
-  const providedEmail = req.body.email;
-  let resetToken;
-  let resetTokenExpiration;
-
-  crypto.randomBytes(32, (err, buffer) => {
-    if (err) {
-      console.log(err);
-      return res.redirect("/reset");
-    }else {
-      resetToken = buffer.toString("hex");
-      resetTokenExpiration = Date.now() + 3600000;
-    }
-  });
-
   try {
-    const rawUserData = await User.findOne("email", providedEmail);
+    const providedEmail = req.body.email;
+    let resetToken;
+    let resetTokenExpiration;
 
-    let user = rawUserData[0][0];
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.render("auth/reset", {
+        pageTitle: "Сброс пароля",
+        providedEmail,
+        errors: errors.mapped()
+      });
+    }
+
+    crypto.randomBytes(32, (err, buffer) => {
+      if (err) {
+        console.log(err);
+        return res.redirect("/reset");
+      }else {
+        resetToken = buffer.toString("hex");
+        resetTokenExpiration = Date.now() + 3600000;
+      }
+    });
+
+    const [rows] = await User.findOne("email", providedEmail);
+
+    let user = rows[0];
 
     if (!user) {
       throw new Error("Пользователь не обнаружен!");
@@ -188,13 +217,11 @@ async function postResetPassword(req, res) {
 }
 
 async function getNewPassword(req, res) {
-  const resetToken = req.params.resetToken;
-  const providedEmail = req.params.providedEmail;
-
   try {
-    const rawUserData = await User.findOne("email", providedEmail);
+    const { resetToken, providedEmail } = req.params;
+    const [rows] = await User.findOne("email", providedEmail);
 
-    const user = rawUserData[0][0];
+    const user = rows[0];
 
     if (!user) {
       throw new Error("User wasn't found!");
@@ -211,7 +238,8 @@ async function getNewPassword(req, res) {
     return res.render("auth/new-password", {
       pageTitle: "Новый пароль",
       userId: user.id,
-      resetToken
+      resetToken,
+      errors: {}
     });
   } catch(err) {
     throw new Error(err);
@@ -219,15 +247,21 @@ async function getNewPassword(req, res) {
 }
 
 async function postNewPassword(req, res) {
-  const { newPassword, confirmPassword, userId, resetToken } = req.body;
-
   try {
-    if (newPassword !== confirmPassword) {
-      throw new Error("Пароли не совпадают!");
+    const { newPassword, userId, resetToken } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).render("auth/new-password", {
+        pageTitle: "Новый пароль",
+        userId,
+        resetToken,
+        errors: errors.mapped()
+      });
     }
 
-    const rawUserData = await User.findById(userId);
-    let user = rawUserData[0][0];
+    const [rows] = await User.findById(userId);
+    let user = rows[0];
 
     if (!user) {
       throw new Error("Пользователь не найден!");

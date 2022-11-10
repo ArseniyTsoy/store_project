@@ -205,6 +205,24 @@ section {
   background-color: var(--light-bg);
 }
 
+.form-container form .invalid {
+  width: 100%;
+  margin: 1rem 0 0 0;
+  border-radius: .5rem;
+  border: .2rem solid #bf5f5f;
+  padding:1.2rem 1.4rem;
+  font-size: 1.8rem;
+  color:var(--black);
+  background-color: var(--light-bg);
+}
+
+.form-container form .error-message {
+  margin: 0.2rem 0 0 0;
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--red);
+}
+
 .form-container form p {
   margin-top: 2rem;
   font-size: 2.2rem;
