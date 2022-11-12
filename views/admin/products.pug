@@ -1,0 +1,34 @@
+doctype html 
+html(lang="ru")
+  head
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+
+    section.show-products
+
+      if hasProducts
+
+        h1.title Товары
+
+        div.box-container
+
+          each product in products
+          
+            div.box
+              div.price #{product.price} руб.
+              a.fa-solid.fa-eye(href="/admin/show-product/" + product.id)
+              img(src="/" + product.imageUrl, alt=product.title)
+              div.name #{product.title}
+              div.cat #{(categories.find(el => el.id === product.categoryId)).title}
+              div.details #{product.description}
+              div.flex-btn
+                a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
+                form(action="/admin/delete-product", method="POST")
+                  input(type="hidden", name="productId", value=product.id)
+                  button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
+                  
+      else 
+        p.empty Товары не найдены
+
+    script(src="/js/script.js")

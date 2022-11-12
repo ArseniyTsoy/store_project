@@ -21,7 +21,7 @@ html(lang="ru")
           input.box(type="text", name="productTitle", placeholder=product.title, required, value=product.title)#productTitle
 
           label(for="productPrice") Цена
-          input.box(type="number", name="productPrice", min="0", placeholder=product.price, required, value=product.price)#productPrice
+          input.box(type="number", name="productPrice", step="0.01", min="0", placeholder=product.price, required, value=product.price)#productPrice
 
           label(for="productCategoryId") Категория
           select.box(name="productCategoryId", required)#productCategoryId

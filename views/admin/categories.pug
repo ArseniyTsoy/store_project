@@ -1,0 +1,31 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+      
+    section.list-categories
+      
+      h1.title Категории
+
+      div.box-container
+
+        div.box
+          img(src="/images/service/add-new.png", alt="Создать категорию")       
+          a.option-btn(href="/admin/create-category") Добавить новую категорию
+
+        if hasCategories
+
+          each cat in categories
+
+            div.box
+              img(src="/" + cat.imageUrl, alt=cat.title)
+              h3 #{cat.title}
+              p #{cat.description}        
+              a.edit-btn(href="/admin/edit-category/" + cat.id) Редактировать
+
+              form(action="/admin/delete-category", method="POST")
+                input(type="hidden", name="_csrf", value=csrfToken)
+                input(type="hidden", name="catId", value=cat.id)
+                button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить

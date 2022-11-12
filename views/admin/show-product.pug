@@ -1,0 +1,31 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/head
+  body 
+    include ../includes/admin-navigation
+
+    section.quick-view
+      
+      if hasProduct
+
+        h1.title Быстрый просмотр
+
+        div.box
+          div.price 
+            span #{product.price} руб.
+          img(src="/" + product.imageUrl, alt="")
+          div.name #{product.title}
+          div.cat #{category}
+          div.details #{product.description}
+          a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
+          form(action="/admin/delete-product", method="POST")
+            input(type="hidden", name="productId", value=product.id)
+            input(type="hidden", name="_csrf", value=csrfToken)
+            button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
+
+      else 
+        p.empty Товар не обнаружен
+
+    include ../includes/footer.pug
+    script(src="/js/script.js")

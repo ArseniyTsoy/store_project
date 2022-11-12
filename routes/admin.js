@@ -10,6 +10,8 @@ router.post("/create-product", [
 
     body(["title", "price", "description"]).exists({ checkNull: true, checkFalsy: true }).withMessage("Поле должно быть заполнено"),
 
+    body("categoryId").exists({ checkNull: true, checkFalsy: true }).withMessage("Категория не выбрана"),
+
     body("title", "Название от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
 
     body("price").isFloat().withMessage("Укажите стоимость в цифрах").bail().custom(value => {
@@ -21,6 +23,14 @@ router.post("/create-product", [
     }),
 
     body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim(),
+
+    body("validateImage").custom((value, { req }) => {
+      if (!req.file) {
+        return Promise.reject(value);
+      } else {
+        return Promise.resolve();
+      }
+    })
 
   ],
   adminController.postCreateProduct
@@ -49,6 +59,10 @@ router.post("/edit-product", [
 
 router.post("/remove-product", adminController.postRemoveProduct);
 
+router.get("/show-product/:productId", adminController.getShowProduct);
+
+router.get("/products", adminController.getProducts);
+
 // Categories
 router.get("/create-category", adminController.getCreateCategory);
 
@@ -63,6 +77,14 @@ router.post("/create-category", [
   ], 
   adminController.postCreateCategory
 );
+
+router.get("/edit-category/:catId", adminController.getEditCategory);
+
+router.post("/edit-category", adminController.postEditCategory);
+
+router.post("/delete-category", adminController.postDeleteCategory);
+
+router.get("/categories", adminController.getCategories);
 
 // Users
 router.get("/users", adminController.getUsers);

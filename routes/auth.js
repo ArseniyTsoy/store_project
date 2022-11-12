@@ -28,7 +28,7 @@ router.post("/signup", [
       }
     ),
 
-    body("password", "Пароль должен быть не короче 5 символов и содержать только буквы и цифры").isLength({ min: 5 }).isAlphanumeric(),
+    body("password", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric(),
 
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
@@ -73,7 +73,7 @@ router.post(
       }
     ),
 
-    body("password", "Пароль должен быть не короче 5 символов и содержать только буквы и цифры").isLength({ min: 5 }).isAlphanumeric()
+    body("password", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric()
     
   ],
   authController.postLogin
@@ -112,7 +112,7 @@ router.post("/new-password", [
 
     body(["newPassword", "confirmPassword"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
-    body("newPassword", "Пароль должен быть не короче 5 символов и содержать только буквы и цифры").isLength({ min: 5 }).isAlphanumeric(),
+    body("newPassword", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric(),
 
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {

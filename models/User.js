@@ -134,7 +134,8 @@ export default class User {
           p.imageUrl 
         FROM cart INNER JOIN products p 
         ON cart.product_id = p.id  
-        WHERE cart.user_id = ?`;
+        WHERE cart.user_id = ? 
+        ORDER BY cart.id DESC`;
 
       return pool.execute(sql, [this.id]);
     } catch(err) {
@@ -240,7 +241,8 @@ export default class User {
           p.imageUrl
         FROM wishlist w INNER JOIN products p
         ON w.product_id = p.id
-        WHERE w.user_id = ?`;
+        WHERE w.user_id = ? 
+        ORDER BY w.id DESC`;
 
       return pool.execute(sql, [this.id]);
     } catch(err) {

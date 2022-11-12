@@ -6,42 +6,51 @@ html(lang="ru")
     include ../includes/admin-navigation
 
     section.add-products
+
       h1.title Добавьте новый товар
-      form(action="/admin/create-product", method="POST", enctype="multipart/form-data")
+
+      form(action="/admin/create-product", method="POST", enctype="multipart/form-data", novalidate)
+
         div.flex
+
           div.inputBox
-            input.box(type="text", name="title", required, placeholder="Наименование товара")
-            select.box(name="categoryId", required)
+
+            if (errors.title)
+              input.invalid(type="text", name="title", required, placeholder="Наименование товара", value=oldInput.title)
+              span.error-message #{errors.title.msg}
+            else
+              input.box(type="text", name="title", required, placeholder="Наименование товара", value=(hasError ? oldInput.title : ""))
+
+            select(class=(errors.categoryId ? "invalid" : "box"), name="categoryId", required)
               option(value="", selected, disabled) Выберите категорию
               each cat in categories
                 option(value=cat.id) #{cat.title}
+            if (errors.categoryId)
+              span.error-message #{errors.categoryId.msg}
+          
           div.inputBox
-            input.box(type="number", min="0", name="price", required, placeholder="Стоимость товара")
-            input.box(type="file", name="image", required)
-        textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10")
+
+            if (errors.price)
+              input.invalid(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=oldInput.price)
+              span.error-message #{errors.price.msg}
+            else
+              input.box(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=(hasError ? oldInput.price : ""))
+
+            input(type="hidden", name="validateImage", value="Добавьте изображение")
+
+            if (errors.validateImage)
+              input.invalid(type="file", name="image", required)
+              span.error-message #{errors.validateImage.msg}
+            else
+              input.box(type="file", name="image", required)
+
+        if (errors.description)
+          textarea.invalid(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10", value=oldInput.description)
+          span.error-message #{errors.description.msg}
+        else
+          textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{hasError ? oldInput.description : ""}
+
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Создать")
-
-    if hasProducts
-
-      section.show-products
-
-        h1.title Товары
-
-        div.box-container
-
-          each product in products
-          
-            div.box
-              div.price #{product.price} руб.
-              img(src="/" + product.imageUrl, alt=product.title)
-              div.name #{product.title}
-              div.cat #{(categories.find(el => el.id === product.categoryId)).title}
-              div.details #{product.description}
-              div.flex-btn
-                a.option-btn(href="/admin/edit-product/" + product.id) Редактировать
-                form(action="/admin/delete-product", method="POST")
-                  input(type="hidden", name="productId", value=product.id)
-                  button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
 
     script(src="/js/script.js")

@@ -27,6 +27,24 @@ export default class Category {
     }
   }
 
+  async updateAll() {
+    try {
+      const pool = await getPool();
+
+      const sql = `UPDATE categories SET
+          title = ?,
+          description = ?,
+          imageUrl = ? 
+        WHERE id = ?`;
+
+      const values = [this.title, this.description, this.imageUrl, this.id];
+
+      return pool.execute(sql, values);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
   static async deleteById(categoryId) {
     try {
       const pool = await getPool();
@@ -37,21 +55,31 @@ export default class Category {
     }
   }
 
-  static async findAll() {
+  static async findTaggedProducts(catId) {
     try {
       const pool = await getPool();
-      
-      return pool.execute("SELECT * FROM categories");
+
+      return pool.execute("SELECT * FROM products WHERE categoryId = ? ORDER BY id DESC", [catId]);
     } catch(err) {
       throw new Error(err);
     }
   }
 
-  static async findTaggedProducts(catId) {
+  static async findById(catId) {
     try {
       const pool = await getPool();
 
-      return pool.execute("SELECT * FROM products WHERE categoryId = ?", [catId]);
+      return pool.execute("SELECT * FROM categories WHERE id = ?", [catId]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  static async findAll() {
+    try {
+      const pool = await getPool();
+      
+      return pool.execute("SELECT * FROM categories ORDER BY id DESC");
     } catch(err) {
       throw new Error(err);
     }

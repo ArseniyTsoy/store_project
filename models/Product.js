@@ -81,7 +81,6 @@ export default class Product {
   static async findAll() {
     try {
       const pool = await getPool();
-      console.log(await getPool());
 
       return pool.execute("SELECT * FROM products ORDER BY id DESC");
     } catch(err) {

@@ -1,0 +1,35 @@
+doctype html 
+html(lang="ru")
+  head 
+    include ../includes/admin-head
+  body 
+    include ../includes/admin-navigation
+
+    section.add-products
+      h1.title #{pageTitle}
+      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data")
+
+        if edit
+          img(src="/" + category.imageUrl, alt=category.title)
+
+        div.flex
+
+          div.inputBox
+            label(for="title") Название
+            input.box(type="text", name="title", required, placeholder=(edit ? category.title : "Название категории"), value=(edit ? category.title : null))#title
+
+          div.inputBox
+            label(for="image") Загрузите изображение
+            input.box(type="file", name="image", required)#image
+
+        label(for="description") Краткое описание
+        textarea.box(name="description", required, placeholder=(edit ? category.description : "Краткое описание категории"), cols="30", rows="10")#description #{edit ? category.description : ""}
+
+        input(type="hidden", name="_csrf", value=csrfToken)
+
+        if edit
+          input(type="hidden", name="catId", value=category.id)
+
+        input.btn(type="submit", value=(edit ? "Сохранить" : "Создать"))
+
+    script(src="/js/script.js")

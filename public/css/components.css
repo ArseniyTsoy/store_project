@@ -118,7 +118,7 @@ section {
 
 .title {
   text-align: center;
-  margin-bottom: 2rem;
+  margin: 2rem 0;
   text-transform: uppercase;
   color:var(--black);
   font-size: 3.5rem;
@@ -347,6 +347,107 @@ section {
   color: var(--blue);
 }
 
+.list-categories .box-container{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 27rem);
+  gap:1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.list-categories .box-container .box{
+  padding:2rem;
+  text-align: center;
+  border:var(--border);
+  background-color: var(--white);
+  box-shadow: var(--box-shadow);
+  border-radius: .5rem;
+}
+
+.list-categories .box-container .box img{
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.list-categories .box-container .box h3{
+  text-transform: uppercase;
+  color:var(--black);
+  padding:1rem 0;
+  font-size: 2rem;
+}
+
+.list-categories .box-container .box p{
+  line-height: 2;
+  font-size: 1.5rem;
+  color:var(--light-color);
+  padding:.5rem 0;
+}
+
+.list-categories{
+  padding-bottom: 0;
+}
+
+.quick-view .box{
+  max-width: 50rem;
+  padding:2rem;
+  text-align: center;
+  border:var(--border);
+  background-color: var(--white);
+  box-shadow: var(--box-shadow);
+  border-radius: .5rem;
+  position: relative;
+  margin:0 auto;
+}
+
+.quick-view .box img{
+  height: 25rem;
+  margin-bottom: 1rem;
+}
+
+.quick-view .box .price{
+  position: absolute;
+  top:1rem; left:1rem;
+  padding:1rem;
+  border-radius: .5rem;
+  background-color: var(--red);
+  font-size: 1.8rem;
+  color:var(--white);
+}
+
+.quick-view .box .price span{
+  font-size: 2.5rem;
+  color:var(--white);
+  margin:0 .2rem;
+}
+
+.quick-view .box .qty{
+  margin:.5rem 0;
+  border-radius: .5rem;
+  padding:1.2rem 1.4rem;
+  font-size: 1.8rem;
+  color:var(--black);
+  border:var(--border);
+  width: 100%;
+}
+
+.quick-view .box .name{
+  font-size: 2rem;
+  color:var(--black);
+  padding:1rem 0;
+}
+
+.quick-view .box .cat{
+  font-size: 1.8rem;
+  color:var(--green);
+}
+
+.quick-view .box .details{
+  padding:1rem 0;
+  line-height: 2;
+  font-size: 1.5rem;
+  color:var(--light-color);
+}
+
 .update-profile form {
   max-width: 70rem;
   margin: 0 auto;
@@ -508,4 +609,14 @@ section {
   .title {
     font-size: 3rem;
   }
+
+  .list-categories .box-container{
+    grid-template-columns: 1fr;
+  }
+
+  .quick-view .box img{
+    height: auto;
+    width: 100%;
+  }
+
 }
