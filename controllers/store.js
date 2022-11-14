@@ -106,9 +106,9 @@ function getSearch(req, res) {
 }
 
 async function postSearch(req, res) {
-  const searchString = req.body.enteredString;
-
   try {
+    const searchString = req.body.searchString;
+
     const rawSearchData = await Product.search(searchString);
 
     const searchResults = rawSearchData[0];

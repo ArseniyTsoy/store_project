@@ -238,7 +238,9 @@ async function getCheckout(req, res) {
 
 async function postCreateOrder(req, res) {
   try {
-    const { name, phone, email, method, country, city, street, house, flat, postalCode, orderContent, totalPrice } = req.body;
+    const { name, phone, email, method, country, city, street, house, flat, postalCode, totalPrice } = req.body;
+
+    const orderContent = JSON.parse(req.body.orderContent);
 
     let address = { country, city, street, house, flat, postalCode };
 
@@ -366,7 +368,6 @@ async function getUserOrders(req, res) {
     for (let order of orders) {
       order.address = JSON.parse(order.address);
       order.content = JSON.parse(order.content);
-      console.log(order.content);
     }
 
     return res.render("user/orders", {

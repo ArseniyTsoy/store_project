@@ -10,43 +10,34 @@ html(lang="ru")
         div.box-container
           each order in orders
             div.box
-              p 
-                | ID пользователя: 
+              p ID пользователя: 
                 span #{order.userId}
-              p 
-                | Дата заказа: 
+              p Дата заказа: 
                 span #{order.dateCreated}
-              p 
-                | Имя: 
+              p На кого сделан заказ: 
                 span #{order.name}
-              p 
-                | E-Mail: 
-                span #{order.email}
-              p 
-                | Телефон: 
+              p Номер телефона: 
                 span #{order.phone}
-              p 
-                | Адрес: 
+              p E-Mail: 
+                span #{order.email}
+              p Адрес: 
                 span #{`${order.address.country}, ${order.address.city}, ул. ${order.address.street} ${order.address.house}, дом ${order.address.flat}. Почтовый индекс: ${order.address.postalCode}`}
-              p 
-                | Состав заказа: 
-                span #{order.content}
-              p 
-                | Итоговая цена: 
-                span #{order.totalPrice} руб.
-              p 
-                | Способ оплаты: 
+              p Способ оплаты: 
                 span #{order.method}
-              form(action="", method="POST")
+              p Перечень товаров:  
+                span 
+                  each item in order.content
+                    | #{`${item.title} (${item.quantity}) `}
+              p Итоговая цена: 
+                span #{order.totalPrice} руб.
+              form(action="/admin/order-status", method="POST")
                 input(type="hidden", name="orderId", value=order.id)
                 input(type="hidden", name="_csrf", value=csrfToken)
-                select.drop-down(name="updatePayment")
-                  //- Должен показывать текущий статус
-                  option(value="", selected, disabled) Статус заказа
-                  option(value="В обработке") В обработке
-                  option(value="Выполнен") Выполнен
+                select.drop-down(name="orderStatus")
+                  option(value="В обработке", selected=((order.status === "В обработке") ? true : false)) В обработке
+                  option(value="Выполнен", selected=((order.status === "Выполнен") ? true : false)) Выполнен
                 div.flex-btn
-                  input.option-btn(type="submit", value="Редактировать")
+                  button.option-btn(type="submit", onclick="return confirm('Вы действительно желаете изменить статус этого заказа?');") Обновить статус
               form(action="/admin/delete-order", method="POST")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="orderId", value=order.id)

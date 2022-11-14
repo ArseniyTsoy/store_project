@@ -62,7 +62,6 @@ export default class Product extends BaseModel {
 
   async setQuantity(newQty, userId) {
     try {
-      console.log(newQty);
       const pool = await getPool();
 
       return pool.execute("UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?", [newQty, userId, this.id]);

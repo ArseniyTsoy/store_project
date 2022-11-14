@@ -14,13 +14,13 @@ html(lang="ru")
             input.invalid(type="text", name="name", placeholder="Ваше имя", value=oldInput.name, required)
             span.error-message #{errors.name.msg}
           else 
-            input.box(type="text", name="name", placeholder="Ваше имя", value=(hasError ? oldInput.name : ""), required)
+            input.box(type="text", name="name", placeholder="Ваше имя", value=(hasError ? oldInput.name : null), required)
 
         if (errors.email) 
           input.invalid(type="email", name="email", placeholder="E-Mail", value=oldInput.email, required)
           span.error-message #{errors.email.msg}
         else 
-          input.box(type="email", name="email", placeholder="E-Mail", value=(hasError ? oldInput.email : ""), required)
+          input.box(type="email", name="email", placeholder="E-Mail", value=(hasError ? oldInput.email : null), required)
 
         if (errors.password)
           input.invalid(type="password", name="password", placeholder="Пароль", required)

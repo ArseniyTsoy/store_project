@@ -8,11 +8,14 @@ html(lang="ru")
     section.search-form
 
       form(action="#", method="POST")
+
         input.box(
           type="text", 
-          name="enteredString", 
-          placeholder=(searchString ? searchString : "Что будем искать?")
+          name="searchString", 
+          placeholder="Что будем искать?",
+          value=(searchString ? searchString: null)
         )
+        
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Найти")
 

@@ -62,24 +62,24 @@ export default class User extends BaseModel {
     }
   }
 
-  async updateField(fieldName) {
-    try {
-      // Проверка на строку
-      if (!fieldName) {
-        throw new Error("Поле не указано!");
-      }
+  // async updateField(fieldName) {
+  //   try {
+  //     // Проверка на строку
+  //     if (!fieldName) {
+  //       throw new Error("Поле не указано!");
+  //     }
 
-      const pool = await getPool();
+  //     const pool = await getPool();
         
-      const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
+  //     const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
 
-      const values = [this[fieldName], this.id];
+  //     const values = [this[fieldName], this.id];
 
-      return pool.execute(sql, values);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
+  //     return pool.execute(sql, values);
+  //   } catch(err) {
+  //     throw new Error(err);
+  //   }
+  // }
 
   async getEverythingFrom(tableName) {
     try {

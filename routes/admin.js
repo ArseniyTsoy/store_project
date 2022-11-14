@@ -94,6 +94,8 @@ router.post("/user-delete", adminController.postDeleteUser);
 // Orders
 router.get("/orders", adminController.getOrders);
 
+router.post("/order-status", adminController.postSetOrderStatus);
+
 router.post("/delete-order", adminController.postDeleteOrder);
 
 // Dashboard

@@ -16,14 +16,14 @@ html(lang="ru")
 
           div.inputBox
             label(for="title") Название
-            input.box(type="text", name="title", required, placeholder=(edit ? category.title : "Название категории"), value=(edit ? category.title : null))#title
+            input.box(type="text", name="title", required, placeholder="Название категории", value=(edit ? category.title : null))#title
 
           div.inputBox
             label(for="image") Загрузите изображение
             input.box(type="file", name="image", required)#image
 
         label(for="description") Краткое описание
-        textarea.box(name="description", required, placeholder=(edit ? category.description : "Краткое описание категории"), cols="30", rows="10")#description #{edit ? category.description : ""}
+        textarea.box(name="description", required, placeholder="Краткое описание категории", cols="30", rows="10")#description #{edit ? category.description : ""}
 
         input(type="hidden", name="_csrf", value=csrfToken)
 

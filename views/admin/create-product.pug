@@ -45,7 +45,7 @@ html(lang="ru")
               input.box(type="file", name="image", required)
 
         if (errors.description)
-          textarea.invalid(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10", value=oldInput.description)
+          textarea.invalid(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{oldInput.description}
           span.error-message #{errors.description.msg}
         else
           textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{hasError ? oldInput.description : ""}

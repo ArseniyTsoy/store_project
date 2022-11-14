@@ -78,4 +78,14 @@ export default class Order extends BaseModel {
       throw new Error(err);
     }
   }
+
+  async setStatus(newStatus) {
+    try {
+      const pool = await getPool();
+
+      return pool.execute("UPDATE orders SET status = ? WHERE id = ?", [newStatus, this.id]);
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
 };

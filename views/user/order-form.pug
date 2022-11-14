@@ -51,9 +51,16 @@ html(lang="ru")
 
           div.inputBox
             label(for="method") Способ оплаты:
-            select.box(name="method", required)#method
-              option(value="Наличные") Наличными при получении
-              option(value="Банковская карта") Банковской картой при получении
+            select(class=(errors.method ? "invalid" : "box"), name="method", required)#method
+              if edit
+                option(value="Наличные", selected=((hasError && oldInput.method === "Наличные") || (order && order.method === "Наличные") ? true : false)) Наличными при получении
+                option(value="Карта", selected=((hasError && oldInput.method === "Карта") || (order && order.method === "Карта") ? true : false)) Банковской картой при получении
+              else
+                option(value=null, selected, disabled) Выберите способ оплаты
+                option(value="Наличные", selected=(hasError && oldInput.method === "Наличные") ? true : false) Наличными при получении
+                option(value="Карта", selected=(hasError && oldInput.method === "Карта") ? true : false) Банковской картой при получении
+            if (errors.method)
+              span.error-message #{errors.method.msg}
 
           div.inputBox
             label(for="country") Страна:

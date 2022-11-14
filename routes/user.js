@@ -35,6 +35,8 @@ router.post("/create-order", [
 
     body(["name", "phone", "email", "country", "city", "street", "house", "flat", "postalCode"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
+    body("method", "Выберите категорию").exists({ checkNull: true, checkFalsy: true }),
+
     body("phone", "Укажите корректный номер телефона").isMobilePhone("any"),
 
     body("email").isEmail().withMessage("Введите корректный E-Mail").bail().normalizeEmail(),

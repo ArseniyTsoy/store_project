@@ -359,14 +359,38 @@ async function postDeleteUser(req, res) {
 // Admin orders
 async function getOrders(req, res) {
   try {
-    const [ orders ] = await Order.findAll("orders");
+
+    let [ orders ] = await Order.findAll("orders");
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
+
+    for (let order of orders) {
+      order.address = JSON.parse(order.address);
+      order.content = JSON.parse(order.content);
+    }
 
     return res.render("admin/orders", {
       hasOrders,
       orders
     });
+
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function postSetOrderStatus(req, res) {
+  try {
+    const order = new Order(req.body.orderId);
+    const newStatus = req.body.orderStatus;
+
+    const result = await order.setStatus(newStatus);
+
+    if (!result) {
+
+    }
+
+    return res.redirect("back");
   } catch(err) {
     throw new Error(err);
   }
@@ -382,10 +406,12 @@ async function postDeleteOrder(req, res) {
       throw new Error("Failed to delete the order!");
     }
 
-    return res.render("utils/message", {
-      pageTitle: "Заказ удален",
-      message: "Выбранный вами заказ был успешно удален"
-    });
+    return res.redirect("back");
+
+    // return res.render("utils/message", {
+    //   pageTitle: "Заказ удален",
+    //   message: "Выбранный вами заказ был успешно удален"
+    // });
   } catch(err) {
     throw new Error(err);
   }
@@ -423,6 +449,7 @@ export default {
   getUsers,
   postDeleteUser,
   getOrders,
+  postSetOrderStatus,
   postDeleteOrder,
   getDashboard
 };
