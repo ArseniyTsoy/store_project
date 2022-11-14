@@ -17,7 +17,7 @@ html(lang="ru")
 
             div.box
 
-              a.fas.fa-eye(href="/show-product/" + item.product_id)
+              a.fas.fa-eye(href="/show-product/" + item.productId)
               img(src="/" + item.imageUrl, alt=item.title)
               div.name #{item.title}
               div.price Цена: #{item.price} руб.
@@ -31,7 +31,7 @@ html(lang="ru")
               div.flex-btn
                 form(action="/user/change-qty", method="POST")
                   input.qty(type="number", min="1", value=item.quantity, name="qty")
-                  input(type="hidden", name="itemId", value=item.id)
+                  input(type="hidden", name="productId", value=item.productId)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="Пересчитать")
 

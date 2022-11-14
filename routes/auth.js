@@ -19,7 +19,7 @@ router.post("/signup", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findOne("email", value);
+        const [ rows ] = await User.findByField("users", "email", value);
         if(rows[0]) {
           return Promise.reject("Данный E-Mail уже зарегистрирован");
         } else {
@@ -63,7 +63,7 @@ router.post(
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findOne("email", value);
+        const [ rows ] = await User.findByField("users", "email", value);
 
         if(!rows[0]) {
           return Promise.reject("Пользователь с таким E-Mail не обнаружен");
@@ -93,7 +93,7 @@ router.post("/reset", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findOne("email", value);
+        const [ rows ] = await User.findByField("users", "email", value);
 
         if(!rows[0]) {
           return Promise.reject("E-Mail не найден");

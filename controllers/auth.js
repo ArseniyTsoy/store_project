@@ -41,7 +41,7 @@ async function postSignup(req, res) {
 
     const newUser = new User(null, name, email, imageUrl, hashedPassword);
     
-    const result = await newUser.create();
+    const result = await newUser.create("users");
 
     // Нужна ли эта проверка при try-catch?
     if (!result) {
@@ -96,7 +96,7 @@ async function postLogin(req, res, next) {
       });
     }
 
-    const [ rows ] = await User.findOne("email", email);
+    const [ rows ] = await User.findByField("users", "email", email);
     const user = rows[0];
 
     const compareResult = await bcrypt.compare(password, user.password);
@@ -112,14 +112,14 @@ async function postLogin(req, res, next) {
       imageUrl: user.imageUrl
     };
 
-    if (user.user_type === "admin") {
+    if (user.userType === "admin") {
       req.session.isAdmin = true;
     }
 
     const userForCounts = new User(user.id);
-    const cartItems = await userForCounts.countCart();
+    const cartItems = await userForCounts.countItemsInside("cart");
     req.session.cartItems = (cartItems[0][0])["COUNT (*)"];
-    const wishlistItems = await userForCounts.countWishlist();
+    const wishlistItems = await userForCounts.countItemsInside("wishlist");
     req.session.wishlistItems = (wishlistItems[0][0])["COUNT (*)"];
 
     return res.redirect("/");
@@ -172,7 +172,7 @@ async function postResetPassword(req, res) {
       }
     });
 
-    const [rows] = await User.findOne("email", providedEmail);
+    const [rows] = await User.findByField("users", "email", providedEmail);
 
     let user = rows[0];
 
@@ -186,7 +186,7 @@ async function postResetPassword(req, res) {
     user.resetToken = resetToken;
     user.resetTokenExpiration = resetTokenExpiration;
 
-    const saveResult = await user.updateAll();
+    const saveResult = await user.update();
 
     // Better check
     if (!saveResult) {
@@ -219,7 +219,7 @@ async function postResetPassword(req, res) {
 async function getNewPassword(req, res) {
   try {
     const { resetToken, providedEmail } = req.params;
-    const [rows] = await User.findOne("email", providedEmail);
+    const [rows] = await User.findByField("users", "email", providedEmail);
 
     const user = rows[0];
 
@@ -260,7 +260,7 @@ async function postNewPassword(req, res) {
       });
     }
 
-    const [rows] = await User.findById(userId);
+    const [rows] = await User.findById("users", userId);
     let user = rows[0];
 
     if (!user) {
@@ -285,7 +285,7 @@ async function postNewPassword(req, res) {
     updatedUser.resetToken = null;
     updatedUser.resetTokenExpiration = null;
 
-    const result = await updatedUser.updateAll();
+    const result = await updatedUser.update();
 
     if (!result) {
       throw new Error("Не удалось изменить пароль!");

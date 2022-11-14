@@ -1,13 +1,14 @@
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import { validationResult } from "express-validator";
 
 // User profile
 async function getEditProfile(req, res) {
   const userId = req.params.id;
 
   try {
-    const rawUser = await User.findOne("id", userId);
+    const rawUser = await User.findById(userId);
 
     if (!rawUser) {
       throw new Error("No user found!");
@@ -36,7 +37,7 @@ async function getCart(req, res) {
   const currentUser = new User(req.session.user.id);
 
   try {
-    const rawCartData = await currentUser.getCart();
+    const rawCartData = await currentUser.getEverythingFrom("cart");
     const cart = rawCartData[0];
 
     const hasCart = (cart && cart.length > 0) ? true : false;
@@ -57,14 +58,14 @@ async function postAddToCart(req, res) {
   const quantity = +req.body.qty;
 
   try {
-    const productCheck = await Product.findById(productId);
+    const productCheck = await Product.findById("products", productId);
 
     if (!productCheck) {
       throw new Error("Product isn't found!");
     }
 
-    // await не нужен
-    const newItemAdded = User.addToCart(userId, productId, quantity);
+    const product = new Product(productId);
+    const newItemAdded = await product.addTo("cart", userId, quantity);
 
     if (newItemAdded) {
       ++req.session.cartItems;
@@ -78,10 +79,11 @@ async function postAddToCart(req, res) {
 
 async function postChangeQty(req, res) {
   const newQty = req.body.qty;
-  const itemId = req.body.itemId;
+  const product = new Product(req.body.productId);
+  const userId = req.session.user.id;
 
   try {
-    const result = await User.changeQty(newQty, itemId);
+    const result = await product.setQuantity(newQty, userId);
 
     if (!result) {
       throw new Error("Failed to change item quantity!");
@@ -94,10 +96,10 @@ async function postChangeQty(req, res) {
 }
 
 async function postDeleteFromCart(req, res) {
-  const itemId = req.body.itemId;
+  const product = new Product(req.body.itemId);
 
   try {
-    await User.deleteFromCart(itemId);
+    await product.deleteFrom("cart");
     
     --req.session.cartItems;
 
@@ -112,7 +114,7 @@ async function getCleanCart(req, res) {
 
   try {
     // Проверку на очистку
-    await currentUser.cleanCart();
+    await currentUser.clean("cart");
     
     req.session.cartItems = 0;
 
@@ -127,7 +129,7 @@ async function getWishlist(req, res) {
   const currentUser = new User(req.session.user.id);
 
   try {
-    const rawListData = await currentUser.getWishlist();
+    const rawListData = await currentUser.getEverythingFrom("wishlist");
     const wishlist = rawListData[0];
 
     const hasItems = (wishlist && wishlist.length > 0) ? true : false;
@@ -143,17 +145,18 @@ async function getWishlist(req, res) {
 }
 
 async function postAddToWishlist(req, res) {
-  const userId = req.session.user.id;
-  const productId = req.body.productId;
-
   try {
-    const productCheck = await Product.findById(productId);
+    const userId = req.session.user.id;
+    const productId = req.body.productId;
 
-    if (!productCheck) {
+    const [ productCheck ] = await Product.findById("products", productId);
+
+    if (!productCheck[0]) {
       throw new Error("Product isn't found!");
     }
 
-    const newItemAdded = User.addToWishlist(userId, productId);
+    const product = new Product(productId);
+    const newItemAdded = await product.addTo("wishlist", userId);
 
     if (newItemAdded) {
       ++req.session.wishlistItems;
@@ -166,10 +169,10 @@ async function postAddToWishlist(req, res) {
 }
 
 async function postDeleteFromWishlist(req, res) {
-  const itemId = req.body.itemId;
-
   try {
-    await User.deleteFromWishlist(itemId);
+    const product = new Product(req.body.itemId);
+
+    await product.deleteFrom("wishlist");
     
     --req.session.wishlistItems;
 
@@ -184,7 +187,7 @@ async function getCleanWishlist(req, res) {
 
   try {
     // Проверку на очистку
-    await currentUser.cleanWishlist();
+    await currentUser.clean("wishlist");
     
     req.session.wishlistItems = 0;
 
@@ -196,61 +199,137 @@ async function getCleanWishlist(req, res) {
 
 // Orders
 async function getCheckout(req, res) {
-  const currentUser = new User(req.session.user.id);
-
   try {
-    const cart = await currentUser.getCart();
-    const processedCart = cart[0];
+    const currentUser = new User(req.session.user.id);
+
+    // Может корзину в сессию после логина, новые тоже в сессию, сессию сохранять вручную в стор после добавления.
+    const [ cart ] = await currentUser.getEverythingFrom("cart");
     let cartHasItems = false;
-    let orderContent = "";
+    let orderContent = [];
     let totalPrice = 0;
 
-    if (processedCart && processedCart.length > 0) {
+    if (cart && cart.length > 0) {
       cartHasItems = true;
 
-      for (let item of processedCart) {
-        orderContent += `${item.title} (${item.quantity}) `;
+      for (let item of cart) {
+        orderContent.push({ 
+          title: item.title, 
+          price: item.price, 
+          quantity: item.quantity 
+        });
         totalPrice += item.quantity * item.price;
       }
     } else {
       cartHasItems = false;
     }
 
-    return res.render("user/checkout", {
+    return res.render("user/order-form", {
+      edit: false,
       cartHasItems,
-      cart: processedCart,
-      orderContent: orderContent.trimEnd(),
-      totalPrice
+      orderContent,
+      totalPrice,
+      hasError: false,
+      errors: {}
     });
   } catch(err) {
     throw new Error(err);
   }
 }
 
-async function postCheckout(req, res) {
-  const { name, phone, email, method, content, total_price  } = req.body;
-
-  const { country, city, street, house, appartment, postalCode } = req.body;
-
-  const address = `${country}, ${city}, ул. ${street} ${house}, дом ${appartment}. Почтовый индекс: ${postalCode}.`;
-
-  const placed_on = (new Date()).toLocaleDateString("ru", {
-    year: "2-digit",
-    month: "short",
-    day: "numeric"
-  });
-
+async function postCreateOrder(req, res) {
   try {
+    const { name, phone, email, method, country, city, street, house, flat, postalCode, orderContent, totalPrice } = req.body;
+
+    let address = { country, city, street, house, flat, postalCode };
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.render("user/order-form", {
+        edit: false,
+        cartHasItems: true,
+        oldInput: { name, phone, email, method, address },
+        orderContent,
+        totalPrice, 
+        hasError: true,
+        errors: errors.mapped()
+      });
+    }
+
+    const dateCreated = (new Date()).toLocaleDateString("ru", {
+      year: "2-digit",
+      month: "short",
+      day: "numeric"
+    });
+
     const currentUser = new User(req.session.user.id);
 
-    const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, content, total_price, placed_on);
+    const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, orderContent, totalPrice, dateCreated);
 
     // Добавить проверку
     await newOrder.create();
 
-    await currentUser.cleanCart();
+    await currentUser.clean("cart");
     req.session.cartItems = 0;
     
+    return res.redirect("/user/orders");
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function getEditOrder(req, res) {
+  try {
+    const orderId = req.params.orderId;
+    const [ rows ] = await Order.findById("orders", orderId);
+    const order = rows[0];
+
+    if (order.userId !== req.session.user.id) {
+      throw new Error("Wrong user!");
+    }
+
+    // hasOrder
+
+    order.address = JSON.parse(order.address);
+
+    return res.render("user/order-form", {
+      pageTitle: "Редактировать заказ",
+      edit: true,
+      order,
+      hasError: false,
+      errors: {}
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
+}
+
+async function postEditOrder(req, res) {
+  try {
+    const { orderId, name, phone, email, method, country, city, street, house, flat, postalCode } = req.body;
+
+    let address = { country, city, street, house, flat, postalCode };
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.render("user/order-form", {
+        pageTitle: "Редактировать заказ",
+        edit: true,
+        hasError: true,
+        oldInput: { orderId, name, phone, email, method, address },
+        errors: errors.mapped()
+      });
+    }
+
+    address = JSON.stringify(address);
+
+    const userId = req.session.user.id;
+
+    const newOrder = new Order(orderId, userId, name, phone, email, method, address);
+
+    // Добавить проверку
+    await newOrder.update();
     return res.redirect("/user/orders");
   } catch(err) {
     throw new Error(err);
@@ -261,7 +340,7 @@ async function postDeleteOrder(req, res) {
   const orderId = req.body.orderId;
 
   try {
-    const result = await Order.deleteById(orderId);
+    const result = await Order.deleteById("orders", orderId);
 
     if (!result) {
       throw new Error("Failed to delete the order!");
@@ -280,10 +359,15 @@ async function getUserOrders(req, res) {
   const userId = req.session.user.id;
 
   try {
-    const rawOrdersData = await Order.findByUser(userId);
-    const orders = rawOrdersData[0];
+    const [ orders ] = await Order.findByField("orders", "userId", userId);
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
+
+    for (let order of orders) {
+      order.address = JSON.parse(order.address);
+      order.content = JSON.parse(order.content);
+      console.log(order.content);
+    }
 
     return res.render("user/orders", {
       pageTitle: "Ваши заказы",
@@ -307,7 +391,9 @@ export default {
   postDeleteFromWishlist,
   getCleanWishlist,
   getCheckout,
-  postCheckout,
+  postCreateOrder,
+  getEditOrder,
+  postEditOrder,
   postDeleteOrder,
   getUserOrders
 };

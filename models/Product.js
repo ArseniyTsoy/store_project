@@ -1,8 +1,10 @@
+import BaseModel from "./BaseModel.js";
 import { getPool } from "../utils/db.js";
 
-export default class Product {
-
+export default class Product extends BaseModel {
   constructor(id, title, price, imageUrl, description, categoryId) {
+    super();
+    
     this.id = id,
     this.title = title;
     this.price = price;
@@ -58,31 +60,67 @@ export default class Product {
     }
   }
 
-  static async deleteById(productId) {
+  async setQuantity(newQty, userId) {
     try {
+      console.log(newQty);
       const pool = await getPool();
 
-      return pool.execute("DELETE FROM products WHERE id = ?", [productId]);
+      return pool.execute("UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?", [newQty, userId, this.id]);
     } catch(err) {
       throw new Error(err);
     }
   }
 
-  static async findById(id) {
+  async addTo(tableName, userId, quantity) {
     try {
-      const pool = await getPool();
 
-      return pool.execute("SELECT * FROM products WHERE id = ?", [id]);
+      if (typeof tableName !== "string") {
+        throw new Error("Wrong type!");
+      }
+
+      const pool = await getPool();
+            
+      const [ rows ] = await pool.execute(`SELECT * FROM ${tableName} WHERE userId = ? AND productId = ?`, [userId, this.id]);
+
+      const alreadyAdded = rows[0];
+
+      if (!alreadyAdded) {
+
+        const [ result ] = await pool.execute(`INSERT INTO ${tableName} (userId, productId) VALUES (?, ?)`, [userId, this.id]);
+
+        if (!result) {
+
+        }
+
+        if (tableName === "cart") {
+          await this.setQuantity(quantity, userId);
+        }
+
+        return true;
+      } else {
+
+        if (tableName === "cart") {
+          const newQuantity = alreadyAdded.quantity + quantity;
+          await this.setQuantity(newQuantity, userId);
+        }
+
+        return false;
+      }
     } catch(err) {
       throw new Error(err);
     }
   }
 
-  static async findAll() {
+  async deleteFrom(tableName) {
     try {
-      const pool = await getPool();
 
-      return pool.execute("SELECT * FROM products ORDER BY id DESC");
+      if (typeof tableName !== "string") {
+        throw new Error("Wrong type!");
+      }
+
+      const pool = await getPool();
+      
+      return pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [this.id]);
     } catch(err) {
       throw new Error(err);
     }

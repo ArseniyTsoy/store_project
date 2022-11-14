@@ -1,8 +1,10 @@
+import BaseModel from "./BaseModel.js";
 import { getPool } from "../utils/db.js";
 
-export default class User {
-
+export default class User extends BaseModel {
   constructor(id, name, email, imageUrl, password, resetToken, resetTokenExpiration) {
+    super();
+    
     this.id = id;
     this.name = name;
     this.email = email;
@@ -17,6 +19,7 @@ export default class User {
       const pool = await getPool();
       
       const sql = "INSERT INTO users (name, email, imageUrl, password) VALUES (?, ?, ?, ?)";
+
       const values = [
         this.name, 
         this.email,
@@ -30,7 +33,7 @@ export default class User {
     }
   }
 
-  async updateAll() {
+  async update() {
     try {
       const pool = await getPool();
       
@@ -78,64 +81,24 @@ export default class User {
     }
   }
 
-  static async findById(userId) {
+  async getEverythingFrom(tableName) {
     try {
-      const pool = await getPool();
 
-      return pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
+      if (typeof tableName !== "string") {
+        throw new Error(err);
+      }
 
-  static async findOne(field, value) {
-    try {
-      const pool = await getPool();
-      
-      const sql = `SELECT * FROM users WHERE ${field} = ?`;
-      
-      return pool.execute(sql, [value]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  static async deleteById(userId) {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("DELETE FROM users WHERE id = ?", [userId]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  static async findAll() {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("SELECT * FROM users ORDER BY id DESC");
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  async getCart() {
-    try {
       const pool = await getPool();
 
       const sql = `SELECT 
-          cart.id,
-          cart.user_id, 
-          cart.product_id, 
+          ${tableName}.*, 
           p.title, 
-          p.price, 
-          cart.quantity, 
+          p.price,  
           p.imageUrl 
-        FROM cart INNER JOIN products p 
-        ON cart.product_id = p.id  
-        WHERE cart.user_id = ? 
-        ORDER BY cart.id DESC`;
+        FROM ${tableName} INNER JOIN products p 
+        ON ${tableName}.productId = p.id  
+        WHERE ${tableName}.userId = ? 
+        ORDER BY ${tableName}.id DESC`;
 
       return pool.execute(sql, [this.id]);
     } catch(err) {
@@ -143,174 +106,32 @@ export default class User {
     }
   }
 
-  async countCart() {
+  async countItemsInside(tableName) {
     try {
-      const pool = await getPool();
 
-      return pool.execute("SELECT COUNT (*) FROM cart WHERE user_id = ?", [this.id]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  static async addToCart(userId, productId, quantity) {
-    try {
-      const pool = await getPool();
-      let sql;
-      let values;
-      let newItemAdded;
-            
-      const [ rows ] = await pool.execute("SELECT * FROM cart WHERE user_id = ? AND product_id = ?", [userId, productId]);
-
-      const alreadyInCart = rows[0];
-
-      if (!alreadyInCart) {
-        sql = `INSERT INTO cart (
-          user_id, 
-          product_id, 
-          quantity
-          ) VALUES (?, ?, ?)`;
-
-        values = [
-          userId, 
-          productId, 
-          quantity
-        ];
-
-        newItemAdded = true;
-      } else {
-        const newQuantity = alreadyInCart.quantity + quantity;
-
-        sql = "UPDATE cart SET quantity = ? WHERE id = ?";
-
-        values = [
-          newQuantity, 
-          alreadyInCart.id
-        ];
-
-        newItemAdded = false;
+      if (typeof tableName !== "string") {
+        throw new Error("Wrong type!");
       }
 
-      await pool.execute(sql, values);
-      return newItemAdded;
+      const pool = await getPool();
+
+      return pool.execute(`SELECT COUNT (*) FROM ${tableName} WHERE userId = ?`, [this.id]);
     } catch(err) {
       throw new Error(err);
     }
   }
 
-  static async changeQty(newQty, itemId) {
+  async clean(tableName) {
     try {
-      const pool = await getPool();
 
-      return pool.execute("UPDATE cart SET quantity = ? WHERE id = ?", [newQty, itemId]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  static async deleteFromCart(itemId) {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("DELETE FROM cart WHERE id = ?", [itemId]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  async cleanCart() {
-    try {
-      const pool = await getPool();
-
-      return pool.execute("DELETE FROM cart WHERE user_id = ?", [this.id]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  async getWishlist() {
-    try {
-      const pool = await getPool();
-      
-      const sql = `SELECT 
-          w.id,
-          w.user_id,
-          w.product_id,
-          p.title,
-          p.price,
-          p.imageUrl
-        FROM wishlist w INNER JOIN products p
-        ON w.product_id = p.id
-        WHERE w.user_id = ? 
-        ORDER BY w.id DESC`;
-
-      return pool.execute(sql, [this.id]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  async countWishlist() {
-    try {
-      const pool = await getPool();
-      
-      return pool.execute("SELECT COUNT (*) FROM wishlist WHERE user_id = ?", [this.id]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
-
-  static async addToWishlist(userId, productId) {
-    try {
-      const pool = await getPool();
-      let sql;
-      let values;
-      let newItemAdded;
-
-      const [ rows ] = await pool.execute("SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?", [userId, productId]);
-      
-      const alreadyInWishlist = rows[0];
-      
-      if (!alreadyInWishlist) {
-        sql = `INSERT INTO wishlist (
-          user_id, 
-          product_id
-        ) VALUES (?, ?)`;
-
-        values = [
-          userId, 
-          productId
-        ];
-
-        await pool.execute(sql, values);
-
-        newItemAdded = true;
-        return newItemAdded;
-      } else {
-        console.log("Already in wishlist");
-        newItemAdded = false;
-        return newItemAdded;
+      if (typeof tableName !== "string") {
+        throw new Error("Wrong type!");
       }
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
 
-  static async deleteFromWishlist(itemId) {
-    try {
       const pool = await getPool();
       
-      return pool.execute("DELETE FROM wishlist WHERE id = ?", [itemId]);
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
+      return pool.execute(`DELETE FROM ${tableName} WHERE userId = ?`, [this.id]);
 
-  async cleanWishlist() {
-    try {
-      const pool = await getPool();
-      
-      return pool.execute("DELETE FROM wishlist WHERE user_id = ?", [this.id]);
     } catch(err) {
       throw new Error(err);
     }

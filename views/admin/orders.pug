@@ -12,10 +12,10 @@ html(lang="ru")
             div.box
               p 
                 | ID пользователя: 
-                span #{order.user_id}
+                span #{order.userId}
               p 
                 | Дата заказа: 
-                span #{order.placed_on}
+                span #{order.dateCreated}
               p 
                 | Имя: 
                 span #{order.name}
@@ -27,13 +27,13 @@ html(lang="ru")
                 span #{order.phone}
               p 
                 | Адрес: 
-                span #{order.address}
+                span #{`${order.address.country}, ${order.address.city}, ул. ${order.address.street} ${order.address.house}, дом ${order.address.flat}. Почтовый индекс: ${order.address.postalCode}`}
               p 
                 | Состав заказа: 
                 span #{order.content}
               p 
                 | Итоговая цена: 
-                span #{order.total_price} руб.
+                span #{order.totalPrice} руб.
               p 
                 | Способ оплаты: 
                 span #{order.method}

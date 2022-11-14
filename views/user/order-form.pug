@@ -1,0 +1,115 @@
+doctype html
+html(lang="ru")
+  head
+    include ../includes/head
+  body
+    include ../includes/navigation
+    section.display-orders
+
+      if !edit
+
+        if cartHasItems
+          each item in orderContent
+            p #{item.title}:  
+              span #{item.price} руб. / #{item.quantity} шт.
+        else
+          p.empty Ваша корзина пуста
+        div.grand-total Итого: 
+          span #{totalPrice} руб.
+
+    section.checkout-orders
+
+      form(action=(edit ? "/user/edit-order" : "/user/create-order"), method="POST", novalidate)
+
+        h3 #{edit ? "Редактирование заказа" : "Оформите заказ"}
+
+        div.flex
+
+          div.inputBox
+            label(for="name") Ваше имя:
+            if (errors.name)
+              input.invalid(type="text", name="name", required, value=oldInput.name)#name
+              span.error-message #{errors.name.msg}
+            else
+              input.box(type="text", name="name", placeholder="например Евгений Лукашин", required, value=(hasError ? oldInput.name : (edit ? order.name : null)))#name
+
+          div.inputBox
+            label(for="phone") Ваш телефон:
+            if (errors.phone)
+              input.invalid(type="tel", name="phone", required, value=oldInput.phone)#phone
+              span.error-message #{errors.phone.msg}
+            else
+              input.box(type="tel", name="phone", placeholder="например +79061112333", required, value=(hasError ? oldInput.phone : (edit ? order.phone : null)))#phone
+
+          div.inputBox
+            label(for="email") Ваш E-Mail:
+            if (errors.email)
+              input.invalid(type="email", name="email", required, value=oldInput.email)#email
+              span.error-message #{errors.email.msg}
+            else
+              input.box(type="email", name="email", placeholder="например fateirony@mail.ru", required, value=(hasError ? oldInput.email : (edit ? order.email : null)))#email
+
+          div.inputBox
+            label(for="method") Способ оплаты:
+            select.box(name="method", required)#method
+              option(value="Наличные") Наличными при получении
+              option(value="Банковская карта") Банковской картой при получении
+
+          div.inputBox
+            label(for="country") Страна:
+            if (errors.country)
+              input.invalid(type="text", name="country", required, value=oldInput.address.country)#country
+              span.error-message #{errors.country.msg}
+            else
+              input.box(type="text", name="country", placeholder="например Россия", required, value=(hasError ? oldInput.address.country : (edit ? order.address.country : null)))#country
+
+          div.inputBox
+            label(for="city") Город:
+            if (errors.city)
+              input.invalid(type="text", name="city", required, value=oldInput.address.city)#city
+              span.error-message #{errors.city.msg}
+            else
+              input.box(type="text", name="city" placeholder="например Санкт-Петербург", required, value=(hasError ? oldInput.address.city : (edit ? order.address.city : null)))#city
+
+          div.inputBox
+            label(for="street") Улица:
+            if (errors.street)
+              input.invalid(type="text", name="street", required, value=oldInput.address.street)#street
+              span.error-message #{errors.street.msg}
+            else
+              input.box(type="text", name="street", placeholder="например 3-я Строителей", required, value=(hasError ? oldInput.address.street : (edit ? order.address.street : null)))#street
+
+          div.inputBox
+            label(for="house") Номер дома:
+            if (errors.house)
+              input.invalid(type="text", name="house", required, value=oldInput.address.house)#house
+              span.error-message #{errors.house.msg}
+            else
+              input.box(type="text", name="house" placeholder="например 25", required, value=(hasError ? oldInput.address.house : (edit ? order.address.house : null)))#house
+
+          div.inputBox
+            label(for="flat") Номер квартиры:
+            if (errors.flat)
+              input.invalid(type="number", min="0", name="flat", required, value=oldInput.address.flat)#flat
+              span.error-message #{errors.flat.msg}
+            else
+              input.box(type="number", min="0", name="flat", placeholder="например 12", required, value=(hasError ? oldInput.address.flat : (edit ? order.address.flat : null)))#flat
+
+          div.inputBox
+            label(for="postalCode") Почтовый индекс:
+            if (errors.postalCode)
+              input.invalid(type="text", name="postalCode", required, value=oldInput.address.postalCode)#postalCode
+              span.error-message #{errors.postalCode.msg}
+            else
+              input.box(type="text", name="postalCode", placeholder="например 123456", required, value=(hasError ? oldInput.address.postalCode : (edit ? order.address.postalCode : null)))#postalCode
+
+        if (!edit)
+          input(type="hidden", name="orderContent", value=orderContent)
+          input(type="hidden", name="totalPrice", value=totalPrice)
+
+        input(type="hidden", name="_csrf", value=csrfToken)
+        input(type="hidden", name="orderId", value=(hasError ? oldInput.orderId : (edit ? order.id : null)))
+        button(type="submit", class=(edit ? "btn" : ("btn" + ((totalPrice > 0) ? "" : " disabled")))) #{ edit ? "Сохранить" : "Заказать" }
+
+    include ../includes/footer.pug
+    script(src="/js/script.js")

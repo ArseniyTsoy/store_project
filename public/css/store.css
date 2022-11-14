@@ -584,6 +584,24 @@
    color:var(--light-color);
 }
 
+.checkout-orders form .flex .inputBox .invalid{
+   width: 100%;
+   border:.2rem solid #bf5f5f;
+   border-radius: .5rem;
+   font-size: 1.8rem;
+   color:var(--black);
+   padding:1.2rem 1.4rem;
+   margin:1rem 0 0 0;
+   background-color: var(--light-bg);
+}
+
+.checkout-orders form .flex .inputBox .error-message {
+   margin: 0.3rem 0 0 0;
+   font-size: 1.5rem;
+   font-style: italic;
+   color: var(--red);
+ }
+
 .placed-orders .box-container{
    display: flex;
    flex-wrap: wrap;

@@ -5,7 +5,7 @@ async function getSingleProduct(req, res) {
   const id = req.params.id;
 
   try {
-    const [ rows ] = await Product.findById(id);
+    const [ rows ] = await Product.findById("products", id);
     const product = rows[0];
 
     const productIsFound = product ? true : false;
@@ -22,11 +22,11 @@ async function getSingleProduct(req, res) {
 
 async function getIndex(req, res) {
   try {
-    const [ products ] = await Product.findAll();
+    const [ products ] = await Product.findAll("products");
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
-    const [ categories ] = await Category.findAll();
+    const [ categories ] = await Category.findAll("categories");
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
@@ -55,14 +55,14 @@ async function getCatalog(req, res) {
     let products;
 
     if (catId) {
-      [ products ] = await Category.findTaggedProducts(catId);
+      [ products ] = await Product.findByField("products", "categoryId", catId);
     } else {
-      [ products ] = await Product.findAll();
+      [ products ] = await Product.findAll("products");
     }
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
-    const [ categories ] = await Category.findAll();
+    const [ categories ] = await Category.findAll("categories");
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
@@ -82,7 +82,7 @@ async function getCategory(req, res) {
   const { catId, catTitle } = req.query;
 
   try {
-    const rawProductsData = await Category.findTaggedProducts(catId);
+    const rawProductsData = await Product.findByField("products", "categoryId", catId);
     const products = rawProductsData[0];
 
     const hasProducts = (products && products.length > 0) ? true : false;

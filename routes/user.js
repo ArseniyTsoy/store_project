@@ -31,24 +31,42 @@ router.get("/wishlist-clean", isAuth, userController.getCleanWishlist);
 // Orders
 router.get("/checkout", isAuth, userController.getCheckout);
 
-router.post("/checkout", [
+router.post("/create-order", [
 
-    body(["name", "phone", "email", "country", "city", "street", "house", "flat", "postalCode"]).exists({ checkNull: true, checkFalsy: true }).withMessage("Поле должно быть заполнено"),
+    body(["name", "phone", "email", "country", "city", "street", "house", "flat", "postalCode"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
-    body("phone", "Укажите корректный номер телефона").isNumeric().isMobilePhone("any"),
+    body("phone", "Укажите корректный номер телефона").isMobilePhone("any"),
 
-    body("email").isEmail().withMessage("Введите корректный E-Mail").normalizeEmail(),
+    body("email").isEmail().withMessage("Введите корректный E-Mail").bail().normalizeEmail(),
 
-    body(["house", "flat"], "Укажите номер в цифрах").isNumeric(),
+    body("flat", "Укажите номер в цифрах").isNumeric(),
 
     body("postalCode", "Укажите корректный индекс").isPostalCode("any")
 
   ],
-  isAuth, userController.postCheckout
+  isAuth, userController.postCreateOrder
 );
 
-router.get("/orders", isAuth, userController.getUserOrders);
+router.get("/edit-order/:orderId", userController.getEditOrder);
+
+router.post("/edit-order", [
+
+    body(["name", "phone", "email", "country", "city", "street", "house", "flat", "postalCode"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
+
+    body("phone", "Укажите корректный номер телефона").isMobilePhone("any"),
+
+    body("email").isEmail().withMessage("Введите корректный E-Mail").bail().normalizeEmail(),
+
+    body("flat", "Укажите номер в цифрах").isNumeric(),
+
+    body("postalCode", "Укажите корректный индекс").isPostalCode("any")
+
+  ],
+  isAuth, userController.postEditOrder
+);
 
 router.post("/delete-order", userController.postDeleteOrder);
+
+router.get("/orders", isAuth, userController.getUserOrders);
 
 export default router;
