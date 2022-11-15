@@ -40,11 +40,11 @@ router.get("/edit-product/:productId", adminController.getEditProduct);
 
 router.post("/edit-product", [
 
-    body(["productTitle", "productPrice", "productDescription"]).exists({ checkNull: true, checkFalsy: true }).withMessage("Поле должно быть заполнено"),
+    body(["title", "price", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
-    body("productTitle", "Название от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
+    body("title", "Название от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
 
-    body("productPrice").isFloat().withMessage("Укажите стоимость в цифрах").bail().custom(value => {
+    body("price").isFloat().withMessage("Укажите стоимость в цифрах").bail().custom(value => {
       if (value < 0) {
         return Promise.reject("Стоимость не может быть меньше ноля");
       } else {
@@ -52,7 +52,7 @@ router.post("/edit-product", [
       }
     }),
 
-    body("productDescription", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim()
+    body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim()
   ],
   adminController.postEditProduct
 );
@@ -61,26 +61,43 @@ router.post("/remove-product", adminController.postRemoveProduct);
 
 router.get("/show-product/:productId", adminController.getShowProduct);
 
-router.get("/products", adminController.getProducts);
+router.get("/catalog", adminController.getProducts);
 
 // Categories
 router.get("/create-category", adminController.getCreateCategory);
 
 router.post("/create-category", [
 
-    body(["title", "description"]).exists({ checkNull: true, checkFalsy: true }).withMessage("Поле должно быть заполнено"),
+    body(["title", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
     body("title", "Название от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
 
-    body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim()
-    
+    body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim(),
+
+    body("validateImage").custom((value, { req }) => {
+      if (!req.file) {
+        return Promise.reject(value);
+      } else {
+        return Promise.resolve();
+      }
+    })
   ], 
   adminController.postCreateCategory
 );
 
 router.get("/edit-category/:catId", adminController.getEditCategory);
 
-router.post("/edit-category", adminController.postEditCategory);
+router.post("/edit-category", [
+
+    body(["title", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
+
+    body("title", "Название от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
+
+    body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim()
+
+  ], 
+  adminController.postEditCategory
+);
 
 router.post("/delete-category", adminController.postDeleteCategory);
 

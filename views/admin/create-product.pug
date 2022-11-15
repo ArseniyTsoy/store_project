@@ -22,9 +22,13 @@ html(lang="ru")
               input.box(type="text", name="title", required, placeholder="Наименование товара", value=(hasError ? oldInput.title : ""))
 
             select(class=(errors.categoryId ? "invalid" : "box"), name="categoryId", required)
-              option(value="", selected, disabled) Выберите категорию
-              each cat in categories
-                option(value=cat.id) #{cat.title}
+              if (!hasError || errors.categoryId)
+                option(value=null, selected, disabled) Выберите категорию
+                each cat in categories
+                  option(value=cat.id) #{cat.title}
+              else 
+                each cat in categories
+                  option(value=cat.id, selected=(oldInput.categoryId === cat.id ? true : false)) #{cat.title}
             if (errors.categoryId)
               span.error-message #{errors.categoryId.msg}
           
@@ -37,6 +41,7 @@ html(lang="ru")
               input.box(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=(hasError ? oldInput.price : ""))
 
             input(type="hidden", name="validateImage", value="Добавьте изображение")
+            input(type="hidden", name="categories", value=categories)
 
             if (errors.validateImage)
               input.invalid(type="file", name="image", required)

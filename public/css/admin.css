@@ -205,6 +205,10 @@
    margin:1rem 0;
 }
 
+.update-product form .box.invalid{
+   border: .2rem solid #bf5f5f;
+}
+
 .placed-orders .box-container{
    display: grid;
    grid-template-columns: repeat(auto-fit, 33rem);

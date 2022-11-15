@@ -49,6 +49,7 @@
 }
 
 .products .box-container .box{
+   height: 52rem;
    padding:2rem;
    text-align: center;
    border:var(--border);
@@ -93,7 +94,9 @@
 }
 
 .products .box-container .box img{
+   height: 50%;
    width: 100%;
+   object-fit: contain; 
    margin-bottom: 1rem;
 }
 
@@ -292,6 +295,7 @@
 }
 
 .wishlist .box-container .box{
+   height: 52rem;
    padding:2rem;
    text-align: center;
    border:var(--border);
@@ -348,7 +352,9 @@
 }
 
 .wishlist .box-container .box img{
+   height: 50%;
    width: 100%;
+   object-fit: contain;
    margin-bottom: 1rem;
 }
 
@@ -399,6 +405,7 @@
 }
 
 .shopping-cart .box-container .box{
+   height: 60rem;
    padding:2rem;
    text-align: center;
    border:var(--border);
@@ -455,7 +462,9 @@
 }
 
 .shopping-cart .box-container .box img{
+   height: 50%;
    width: 100%;
+   object-fit: contain;
    margin-bottom: 1rem;
 }
 
@@ -571,12 +580,12 @@
 .checkout-orders form .flex .inputBox .box{
    width: 100%;
    border:var(--border);
+   background-color: var(--light-bg);
    border-radius: .5rem;
+   padding:1.2rem 1.4rem;
    font-size: 1.8rem;
    color:var(--black);
-   padding:1.2rem 1.4rem;
    margin:1rem 0;
-   background-color: var(--light-bg);
 }
 
 .checkout-orders form .flex .inputBox label{

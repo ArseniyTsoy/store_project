@@ -7,32 +7,63 @@ html(lang="ru")
 
     section.update-profile
 
-      h1.title Редактировать профиль
-      form(action="/user/edit-profile/" + user.id, method="POST", enctype="multipart/form-data")
-        img(src="/" + user.imageUrl, alt=user.name)
-        div.flex
-          div.inputBox
-            label(for="name") Ваше имя:
-            input.box(type="text", name="name", value=user.name, placeholder=user.name, required)#name
-            label(for="email") Ваш Email:
-            input.box(type="email", name="email", value=user.email, placeholder=user.email, required)#email
-            label(for="image") Фото профиля:
-            input.box(type="file", name="image")#image
-            input(type="hidden", name="oldImage", value=user.imageUrl)
+      if hasUser
 
-          div.inputBox
-            input(type="hidden", name="old_pass", value=user.password)
-            label(for="update_pass") Старый пароль:
-            input.box(type="password", name="update_pass", placeholder="Введите ваш старый пароль")#update_pass
-            label(for="new_pass") Новый пароль:
-            input.box(type="password", name="new_pass", placeholder="Введите новый пароль")#new_pass
-            label(for="confirm_pass") Подтверждение пароля:
-            input.box(type="password", name="confirm_pass", placeholder="Введите новый пароль еще раз")#confirm_pass
-            
-        div.flex-btn
-          input(type="hidden", name="_csrf", value=csrfToken)
-          input.btn(type="submit", value="Сохранить" name="update_profile")
-          a.option-btn(href="/") На главную
+        h1.title #{pageTitle}
+
+        form(action="/user/edit-profile", method="POST", enctype="multipart/form-data", novalidate)
+
+          img(src="/" + user.imageUrl, alt=user.name)
+
+          div.flex
+
+            div.inputBox
+
+              label(for="name") Ваше имя:
+              input(class=(errors.name ? "box invalid" : "box"), type="text", name="name", required, placeholder=(errors.name ? errors.name.msg : null), value=(errors.name ? null: user.name))#name
+              //- if (errors.name) 
+              //-   span.error-message #{errors.name.msg}
+
+              label(for="email") Ваш Email:
+              input(class=(errors.name ? "box invalid" : "box"), type="email", name="email", required, placeholder=(errors.email ? errors.email.msg : null), value=(errors.email ? null: user.email))#email
+              //- if (errors.email) 
+              //-   span.error-message #{errors.email.msg}
+
+              label(for="image") Фото профиля:
+              input.box(type="file", name="image")#image
+              input(type="hidden", name="oldImageUrl", value=user.imageUrl)
+
+            div.inputBox
+
+              input(type="hidden", name="password", value=user.password)
+
+              label(for="oldPasswordConfirm") Старый пароль:
+              input(class=(errors.oldPasswordConfirm ? "box invalid" : "box"), type="password", name="oldPasswordConfirm", placeholder=(errors.oldPasswordConfirm ? errors.oldPasswordConfirm.msg : "Введите ваш старый пароль"))#oldPasswordConfirm
+              //- if (errors.oldPasswordConfirm) 
+              //-   span.error-message #{errors.oldPasswordConfirm.msg}
+
+              label(for="newPassword") Новый пароль:
+              input(class=(errors.newPassword ? "box invalid" : "box"), type="password", name="newPassword", placeholder=(errors.newPassword ? errors.newPassword.msg : "Введите новый пароль"))#newPassword
+              //- if (errors.newPassword) 
+              //-   span.error-message #{errors.newPassword.msg}
+              
+              label(for="newPasswordConfirm") Подтверждение пароля:
+              input(class=(errors.newPasswordConfirm ? "box invalid" : "box"),type="password", name="newPasswordConfirm", placeholder=(errors.newPasswordConfirm ? errors.newPasswordConfirm.msg : "Введите новый пароль еще раз"))#newPasswordConfirm
+              //- if (errors.newPasswordConfirm) 
+              //-   span.error-message #{errors.newPasswordConfirm.msg}
+              
+          div.flex-btn
+
+            input(type="hidden", name="_csrf", value=csrfToken)
+
+            input(type="hidden", name="id", value=user.id)
+
+            input.btn(type="submit", value="Сохранить")
+
+            a.option-btn(href="/") На главную
+
+      else 
+        p.empty Профиль не найден
 
     include ../includes/footer.pug
     script(src="/js/script.js")

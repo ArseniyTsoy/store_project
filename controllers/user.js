@@ -2,23 +2,30 @@ import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
 import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
 
 // User profile
 async function getEditProfile(req, res) {
-  const userId = req.params.id;
-
   try {
-    const rawUser = await User.findById(userId);
+    const userId = parseInt(req.params.id);
 
-    if (!rawUser) {
-      throw new Error("No user found!");
+    // Сообщение
+    if (userId !== req.session.user.id) {
+      console.log("Wrong user!");
+      return res.redirect("/");
     }
 
-    const processedUser = rawUser[0][0];
+    const [ rows ] = await User.findById("users", userId);
+    const user = rows[0];
 
-    res.render("user/edit-profile", {
+    const hasUser = user ? true: false;
+
+    return res.render("user/edit-profile", {
       pageTitle: "Редактирование профиля",
-      user: processedUser
+      hasUser,
+      user,
+      hasError: false,
+      errors: {}
     });
   } catch(err) {
     throw new Error(err);
@@ -26,10 +33,51 @@ async function getEditProfile(req, res) {
 }
 
 async function postEditProfile(req, res) {
-  const userId = req.params.userId;
-  const updatedTitle = req.body.title;
-  const updatedEmail = req.body.email;
-  const image = req.file;
+  try {
+    const { id, name, email, password } = req.body;
+    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.render("user/edit-profile", {
+        pageTitle: "Редактирование профиля",
+        hasUser: true,
+        user: {
+          id, 
+          name, 
+          email, 
+          password,
+          imageUrl
+        },
+        hasError: false,
+        errors: errors.mapped()
+      });
+    }
+
+    let editedUser = new User(id, name, email, imageUrl);
+
+    if (req.body.newPassword) {
+      editedUser.password = await bcrypt.hash(req.body.newPassword, 12);
+    } else {
+      editedUser.password = password;
+    }
+
+    editedUser.resetToken = null;
+    editedUser.resetTokenExpiration = null;
+
+    await editedUser.update("users");
+    
+    req.session.user = {
+      id: editedUser.id,
+      name: editedUser.name,
+      imageUrl: editedUser.imageUrl
+    };
+    
+    return res.redirect("/");
+  } catch(err) {
+    throw new Error(err);
+  }
 }
 
 // Cart
@@ -382,6 +430,7 @@ async function getUserOrders(req, res) {
 
 export default {
   getEditProfile,
+  postEditProfile,
   getCart,
   postAddToCart,
   postChangeQty,

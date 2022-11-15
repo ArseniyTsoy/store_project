@@ -496,6 +496,10 @@ section {
   background-color: var(--light-bg);
 }
 
+.update-profile form .inputBox .box.invalid {
+  border: .2rem solid #bf5f5f;
+}
+
 .footer {
   background-color: var(--white);
 }

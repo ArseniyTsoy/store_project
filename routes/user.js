@@ -3,10 +3,60 @@ const router = express.Router();
 import userController from "../controllers/user.js";
 import isAuth from "../middleware/is-auth.js";
 import { body } from "express-validator";
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
 
 // User profile
 router.get("/edit-profile/:id", isAuth, userController.getEditProfile);
-// Валидатор под POST
+
+router.post("/edit-profile", isAuth, [
+
+    body(["name", "email", "oldPasswordConfirm", "newPassword", "newPasswordConfirm"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
+
+    body("name", "Имя от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
+
+    body("email")
+      .isEmail()
+      .withMessage("Введите корректный E-Mail")
+      .bail()
+      .normalizeEmail()
+      .custom(async (value, { req }) => {
+        const [ rows ] = await User.findByField("users", "email", value);
+        const user = rows[0];
+
+        if(user && user.id !== req.session.user.id) {
+          return Promise.reject("E-Mail уже зарегистрирован");
+        } else {
+          return Promise.resolve();
+        }
+      }
+    ),
+
+    body("oldPasswordConfirm").custom(async (value, { req }) => {
+      const [ rows ] = await User.findById("users", req.body.id);
+      const user = rows[0];
+      const compareResult = await bcrypt.compare(value, user.password);
+
+      if (!compareResult) {
+        return Promise.reject("Неверный старый пароль");
+      } else {
+        return Promise.resolve();
+      }
+    }),
+
+    body("newPassword", "Буквы и цифры (от 5 до 30 шт.)").isLength({ min: 5, max: 30 }).isAlphanumeric(),
+
+    body("newPasswordConfirm").custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        return Promise.reject("Пароли не совпадают");
+      } else {
+        return Promise.resolve();
+      }
+    })
+
+  ], 
+  userController.postEditProfile
+);
 
 // Cart
 router.get("/cart", isAuth, userController.getCart);

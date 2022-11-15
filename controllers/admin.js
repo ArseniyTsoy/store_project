@@ -5,39 +5,55 @@ import Category from "../models/Category.js";
 import { validationResult } from "express-validator";
 
 // Products
-function getCreateProduct(req, res) {
-  return res.render("admin/create-product", {
-    pageTitle: "Добавить новый товар",
-    hasError: false,
-    errors: {}
-  });
+async function getCreateProduct(req, res) {
+  try {
+    let categories = [];
+    const [ rows ] = await Category.findAll("categories");
+
+    for (let cat of rows) {
+      categories.push({
+        id: cat.id,
+        title: cat.title
+      });
+    }
+
+    return res.render("admin/create-product", {
+      pageTitle: "Добавить новый товар",
+      categories,
+      hasError: false,
+      errors: {}
+    });
+  } catch(err) {
+    throw new Error(err);
+  }
 }
 
 async function postCreateProduct(req, res) {
   try {
-    const { 
-      title, 
-      price, 
-      description 
-    }  = req.body;
+    const { title, price, description }  = req.body;
+    const categoryId = parseInt(req.body.categoryId);
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+
+      const categories = JSON.parse(req.body.categories);
+
       return res.render("admin/create-product", {
         pageTitle: "Добавить новый товар",
+        categories,
         hasError: true,
         oldInput: {
-          title: title,
-          price: price,
-          description: description
+          title,
+          price,
+          description,
+          categoryId
         },
         errors: errors.mapped()
       });
     }
     
     const imageUrl = req.file.path;
-    const categoryId = req.body.categoryId;
 
     const newProduct = new Product(
       null,
@@ -50,16 +66,15 @@ async function postCreateProduct(req, res) {
 
     await newProduct.create();
 
-    return res.redirect("/admin/products");
+    return res.redirect("/admin/catalog");
   } catch (err) {
     throw new Error(err);
   }
 }
 
 async function getEditProduct(req, res) {
-  const productId = req.params.productId;
-
   try {
+    const productId = req.params.productId;
     const [ rows ] = await Product.findById("products", productId);
     const product = rows[0];
     const hasProduct = product ? true : false;
@@ -70,7 +85,8 @@ async function getEditProduct(req, res) {
       pageTitle: "Редактирование товара",
       hasProduct,
       product,
-      categories
+      categories,
+      errors: {}
     });
   } catch(err) {
     throw new Error(err);
@@ -78,18 +94,33 @@ async function getEditProduct(req, res) {
 }
 
 async function postEditProduct(req, res) {
-  const { 
-    productId , 
-    productTitle, 
-    productPrice, 
-    productCategoryId, 
-    productDescription 
-  } = req.body;
+  const { id, title, price, description } = req.body;
+  const categoryId = parseInt(req.body.categoryId);
+  const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
 
-  const productImageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const categories = JSON.parse(req.body.categories);
+
+    return res.render("admin/edit-product", {
+      pageTitle: "Редактирование товара",
+      hasProduct: true,
+      product: {
+        id,
+        title,
+        price,
+        imageUrl,
+        description,
+        categoryId        
+      },
+      categories,
+      errors: errors.mapped()
+    });
+  }
 
   try {
-    const [ rows ] = await Product.findById("products", productId);
+    const [ rows ] = await Product.findById("products", id);
 
     const product = rows[0];
 
@@ -97,14 +128,7 @@ async function postEditProduct(req, res) {
       throw new Error("Товар не обнаружен!");
     } 
 
-    const editedProduct = new Product(
-      productId , 
-      productTitle, 
-      productPrice, 
-      productImageUrl, 
-      productDescription, 
-      productCategoryId
-    );
+    const editedProduct = new Product(id, title, price, imageUrl, description, categoryId);
 
     const result = await editedProduct.update();
 
@@ -112,7 +136,7 @@ async function postEditProduct(req, res) {
       throw new Error("Product editing failed!");
     }
 
-    return res.redirect(`/show-product/${productId}`);
+    return res.redirect("/admin/show-product/" + id);
   } catch(err) {
     throw new Error(err);
   }
@@ -190,6 +214,7 @@ function getCreateCategory(req, res) {
   return res.render("admin/form-category", {
     pageTitle: "Добавить новую категорию",
     edit: false,
+    category: {},
     hasError: false,
     errors: {}
   });
@@ -198,6 +223,8 @@ function getCreateCategory(req, res) {
 async function postCreateCategory(req, res) {
   try {
     const { title, description } = req.body;
+    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -205,15 +232,14 @@ async function postCreateCategory(req, res) {
         pageTitle: "Добавить новую категорию",
         edit: false,
         hasError: true,
-        oldInput: {
+        category: {
           title, 
-          description
+          description,
+          imageUrl
         },
         errors: errors.mapped()
       });
     }
-
-    const imageUrl = req.file.path;
 
     const newCategory = new Category(
       null,
@@ -236,12 +262,9 @@ async function getEditCategory(req, res) {
     const [ rows ] = await Category.findById("categories", catId);
     const category = rows[0];
 
-    const hasCategory = category ? true : false;
-
     return res.render("admin/form-category", {
       pageTitle: "Редактировать категорию",
       edit: true,
-      hasCategory,
       category,
       hasError: false,
       errors: {}
@@ -253,40 +276,35 @@ async function getEditCategory(req, res) {
 
 async function postEditCategory(req, res) {
   try {
-    const updatedTitle = req.body.title; 
-    const updatedDescription = req.body.description; 
-    const catId = req.body.catId;
+    const { title, description, catId } = req.body;
+    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-      const [ rows ] = await Category.findById("categories", catId);
-      const category = rows[0];
-
-      const hasCategory = category ? true : false;
-
       return res.render("admin/form-category", {
         pageTitle: "Редактировать категорию",
-        hasCategory,
-        category,
-        hasError,
-        oldInput: {
-          title: updatedTitle,
-          description: updatedDescription
+        edit: true,
+        category: {
+          title,
+          description,
+          imageUrl,
+          catId
         },
+        hasError: true,
         errors: errors.mapped()
       })
     }
 
-    const updatedImageUrl = req.file.path;
+    const editedCategory = new Category(catId, title, description, imageUrl);
 
-    const updatedCategory = new Category(catId, updatedTitle, updatedDescription, updatedImageUrl);
-
-    const result = await updatedCategory.update();
+    const result = await editedCategory.update();
 
     if (!result) {
       throw new Error("Failed to update category!");
     }
 
+    // Show category
     return res.redirect("/admin/categories");
   } catch(err) {
     throw new Error(err);

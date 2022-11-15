@@ -9,34 +9,31 @@ html(lang="ru")
 
       if hasProduct
       
-        h1.title Редактирование товара   
+        h1.title #{pageTitle}   
 
-        form(action="/admin/edit-product", method="post", enctype="multipart/form-data")
+        form(action="/admin/edit-product", method="POST", enctype="multipart/form-data", novalidate)
         
           img(src="/" + product.imageUrl, alt=product.title)
-          input.box(type="file", name="image", accept="image/jpg, image/jpeg, image/png")
+          input.box(type="file", name="image")
           input(type="hidden", name="oldImageUrl", value=product.imageUrl)
 
-          label(for="productTitle") Наименование
-          input.box(type="text", name="productTitle", placeholder=product.title, required, value=product.title)#productTitle
+          label(for="title") Наименование
+          input(class=(errors.title ? "box invalid" : "box"), type="text", name="title", required, value=(errors.title ? null : product.title), placeholder=(errors.title ? errors.title.msg : null))#title
 
-          label(for="productPrice") Цена
-          input.box(type="number", name="productPrice", step="0.01", min="0", placeholder=product.price, required, value=product.price)#productPrice
+          label(for="price") Цена
+          input(class=(errors.price ? "box invalid" : "box"), type="number", name="price", step="0.01", min="0", required, value=(errors.price ? null : product.price), placeholder=(errors.price ? errors.price.msg : null))#price
 
-          label(for="productCategoryId") Категория
-          select.box(name="productCategoryId", required)#productCategoryId
-            each category in categories
-              if category.id === product.categoryId
-                option(value=category.id, selected) #{category.title}
-              else
-                option(value=category.id) #{category.title}
+          label(for="categoryId") Категория
+          select.box(name="categoryId", required)#categoryId
+            each cat in categories
+              option(value=cat.id, selected=(cat.id === product.categoryId ? true : false)) #{cat.title}
+          input(type="hidden", name="categories", value=categories)
 
-          label(for="productDescription") Краткое описание
-          textarea.box(name="productDescription", required, placeholder=product.description, cols="30", rows="10")#productDescription
-          
+          label(for="description") Краткое описание
+          textarea(class=(errors.description ? "box invalid" : "box"), name="description", required, cols="30", rows="10", placeholder=(errors.description ? errors.description.msg : null), id="description")|#{errors.description ? null : product.description}
           div.flex-btn
             input(type="hidden", name="_csrf", value=csrfToken)
-            input(type="hidden", name="productId", value=product.id)
+            input(type="hidden", name="id", value=product.id)
             input.btn(type="submit", value="Сохранить")
             a.option-btn(href="/catalog") Назад
       
