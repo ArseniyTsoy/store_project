@@ -101,11 +101,11 @@ async function getCart(req, res) {
 }
 
 async function postAddToCart(req, res) {
-  const userId = req.session.user.id;
-  const productId = req.body.productId;
-  const quantity = +req.body.qty;
-
   try {
+    const userId = req.session.user.id;
+    const productId = req.body.productId;
+    const quantity = parseInt(req.body.qty);
+
     const productCheck = await Product.findById("products", productId);
 
     if (!productCheck) {

@@ -9,8 +9,13 @@ html(lang="ru")
 
       if hasCategories
 
+        if filteredBy 
+          a.reload(href="/catalog") Сбросить
         each cat in categories
-          a(href=`/catalog?catId=${cat.id}`) #{cat.title}
+          a(
+            class=(filteredBy === cat.id ? "active" : null), 
+            href=`/catalog?catId=${cat.id}`
+          ) #{cat.title}
           
       else 
         p.empty Категории не обнаружены
@@ -30,7 +35,10 @@ html(lang="ru")
               div.price 
                   span #{product.price} руб.
               a.fa-solid.fa-eye(href="/show-product/" + product.id)
-              img(src="/" + product.imageUrl, alt=product.title)
+
+              a(href="/show-product/" + product.id)
+                img(src="/" + product.imageUrl, alt=product.title)
+              
               div.name #{product.title}
 
               form(action="/user/cart-add", method="POST")

@@ -4,6 +4,20 @@ html(lang="ru")
     include ../includes/admin-head
   body 
     include ../includes/admin-navigation
+
+    section.p-category
+
+      if filteredBy 
+        a.reload(href="/admin/orders") Сбросить
+      a(
+        class=(filteredBy === "В обработке" ? "active" : null), href="/admin/orders?status=В%20обработке"
+      ) В обработке
+      
+      a(
+        class=(filteredBy === "Выполнен" ? "active" : null),
+        href="/admin/orders?status=Выполнен"
+      ) Выполнен
+
     section.placed-orders 
       if hasOrders
         h1.title Заказы

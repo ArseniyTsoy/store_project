@@ -15,13 +15,14 @@ html(lang="ru")
     
     if hasCategories
       
-      section.list-categories
+      section.home-category
       
         h1.title Выберите категорию
         div.box-container
           each cat in categories
             div.box
-              img(src="/" + cat.imageUrl, alt=cat.title)
+              a(href=`/category?catId=${cat.id}&catTitle=${cat.title}`)
+                img(src="/" + cat.imageUrl, alt=cat.title)
               h3 #{cat.title}
               p #{cat.description}        
               a.btn(href=`/category?catId=${cat.id}&catTitle=${cat.title}`) Товары
@@ -34,16 +35,23 @@ html(lang="ru")
         div.box-container
           each product in products
             div.box
+
               div.price 
                 span #{product.price} руб.
+
               a.fa-solid.fa-eye(href="/show-product/" + product.id)
-              img(src=product.imageUrl, alt=product.title)
+
+              a(href="/show-product/" + product.id)
+                img(src=product.imageUrl, alt=product.title)
+
               div.name #{product.title}
+
               form(action="/user/cart-add", method="POST")
                 input(type="hidden", name="productId", value=product.id)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input.qty(type="number", min="1", value="1", name="qty")
                 input.btn(type="submit", value="В корзину")
+
               form(action="/user/wishlist-add", method="POST")
                 input(type="hidden", name="productId", value=product.id)
                 input(type="hidden", name="_csrf", value=csrfToken)

@@ -44,7 +44,15 @@ router.post("/edit-profile", isAuth, [
       }
     }),
 
-    body("newPassword", "Буквы и цифры (от 5 до 30 шт.)").isLength({ min: 5, max: 30 }).isAlphanumeric(),
+    body("newPassword")
+      .isLength({ min: 8, max: 30 })
+      .withMessage("От 8 до 30 символов")
+      .isStrongPassword({  
+        minUppercase: 0, 
+        minNumbers: 1, 
+        minSymbols: 1
+      })
+      .withMessage("Слабый пароль"),
 
     body("newPasswordConfirm").custom((value, { req }) => {
       if (value !== req.body.newPassword) {

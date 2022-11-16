@@ -6,7 +6,7 @@ html(lang="ru")
     include ../includes/navigation
 
     section.form-container
-      form(action=(path === "/signup") ? "/auth/signup" : "/auth/login", enctype="multipart/form-data", method="POST")
+      form(action=(path === "/signup") ? "/auth/signup" : "/auth/login", enctype="multipart/form-data", method="POST", novalidate)
         h3 #{pageTitle}
         if path === "/signup"
 

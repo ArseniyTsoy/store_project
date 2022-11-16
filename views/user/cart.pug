@@ -18,8 +18,12 @@ html(lang="ru")
             div.box
 
               a.fas.fa-eye(href="/show-product/" + item.productId)
-              img(src="/" + item.imageUrl, alt=item.title)
+
+              a(href="/show-product/" + item.productId)
+                img(src="/" + item.imageUrl, alt=item.title)
+
               div.name #{item.title}
+              
               div.price Цена: #{item.price} руб.
               
               form(action="/user/cart-delete", method="POST")

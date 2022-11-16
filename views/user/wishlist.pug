@@ -16,7 +16,8 @@ html(lang="ru")
                 button(href="/user/wishlist-delete", onclick="return confirm('Удалить товар из списка?');")
                   i.fas.fa-times
               a.fas.fa-eye(href="/show-product/" + item.productId)
-              img(src="/" + item.imageUrl, alt=item.title)
+              a(href="/show-product/" + item.productId)
+                img(src="/" + item.imageUrl, alt=item.title)
               div.name #{item.title}
               div.price #{item.price} руб.
 

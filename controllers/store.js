@@ -49,13 +49,14 @@ function getAbout(req, res) {
 }
 
 async function getCatalog(req, res) {
-  const catId = req.query.catId;
-
   try {
-    let products;
+    let products = null;
+    let filteredBy = null;
+    const catId = parseInt(req.query.catId);
 
     if (catId) {
       [ products ] = await Product.findByField("products", "categoryId", catId);
+      filteredBy = catId;
     } else {
       [ products ] = await Product.findAll("products");
     }
@@ -71,7 +72,8 @@ async function getCatalog(req, res) {
       hasProducts,
       products,
       hasCategories,
-      categories
+      categories,
+      filteredBy
     });
   } catch (err) {
     throw new Error(err);

@@ -1,9 +1,9 @@
 doctype html 
 html(lang="ru")
   head 
-    include ../includes/admin-head
+    include ../../includes/admin-head
   body 
-    include ../includes/admin-navigation
+    include ../../includes/admin-navigation
       
     section.list-categories
       
@@ -11,8 +11,9 @@ html(lang="ru")
 
       div.box-container
 
-        div.box
-          img(src="/images/service/add-new.png", alt="Создать категорию")       
+        div.box.add-category
+          a(href="/admin/create-category")
+            img(src="/images/service/add-new.png", alt="Создать категорию")       
           a.option-btn(href="/admin/create-category") Добавить новую категорию
 
         if hasCategories
@@ -20,12 +21,14 @@ html(lang="ru")
           each cat in categories
 
             div.box
-              img(src="/" + cat.imageUrl, alt=cat.title)
+              a(href=`/admin/catalog?catId=${cat.id}`)
+                img(src="/" + cat.imageUrl, alt=cat.title)
               h3 #{cat.title}
               p #{cat.description}        
               a.edit-btn(href="/admin/edit-category/" + cat.id) Редактировать
-
               form(action="/admin/delete-category", method="POST")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="catId", value=cat.id)
                 button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
+
+    script(src="/js/script.js")

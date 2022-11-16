@@ -13,7 +13,7 @@ html(lang="ru")
         div.box-container
           each user in users
 
-            div.box(style=(user.id == admin_id) ? "display:none" : "")
+            div.box
               img(src="/" + user.imageUrl, alt=user.name)
               p ID пользователя: 
                 span #{user.id}

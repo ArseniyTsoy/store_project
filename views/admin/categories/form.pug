@@ -1,15 +1,15 @@
 doctype html 
 html(lang="ru")
   head 
-    include ../includes/admin-head
+    include ../../includes/admin-head
   body 
-    include ../includes/admin-navigation
+    include ../../includes/admin-navigation
 
     section.add-products
 
       h1.title #{pageTitle}
 
-      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data", novalidate)
+      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data")
 
         if edit
           img(src="/" + category.imageUrl, alt=category.title)
@@ -22,9 +22,12 @@ html(lang="ru")
 
           div.inputBox
             label(for="image") Загрузите изображение
-            input(class=(errors.validateImage ? "box invalid" : "box"), type="file", name="image", required)#image
-            input(type="hidden", name="oldImageUrl", required, value=(edit ? category.imageUrl : null))
-            input(type="hidden", name="validateImage", value="Добавьте изображение")
+            input(class=(errors.validateImage ? "box invalid" : "box"), type="file", name="image", required=(edit ? false : true))#image
+            
+            if edit
+              input(type="hidden", name="oldImageUrl", required, value=category.imageUrl)
+            else
+              input(type="hidden", name="validateImage", value="Добавьте изображение")
 
         label(for="description") Краткое описание
         textarea(class=(errors.description ? "box invalid" : "box"), name="description", required, placeholder=(errors.description ? errors.description.msg : "Краткое описание категории"), cols="30", rows="10")#description|#{errors.description ? null : category.description}

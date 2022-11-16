@@ -4,12 +4,14 @@
   --green:#27ae60;
   --orange:#f39c12;
   --red:#e74c3c;
+  --pink:#bf5f5f;
   --blue: #473fe3;
   --black:#333;
   --light-color:#666;
   --white:#fff;
   --light-bg:#f6f6f6;
   --border:.2rem solid var(--black);
+  --border-inv:.2rem solid var(--pink);
   --box-shadow:0 .5rem 1rem rgba(0,0,0,.1);
 }
 
@@ -70,7 +72,8 @@ section {
 .btn,
 .delete-btn,
 .option-btn,
-.edit-btn {
+.edit-btn,
+.add-btn {
   display: inline-block;
   margin-top: 1rem;
   border-radius: .5rem;
@@ -99,10 +102,15 @@ section {
   background-color: var(--blue);
 }
 
+.add-btn {
+  background-color: var(--pink);
+}
+
 .btn:hover,
 .delete-btn:hover,
 .option-btn:hover,
-.edit-btn:hover {
+.edit-btn:hover,
+.add-btn {
   background-color: var(--black);
 }
 
@@ -209,7 +217,7 @@ section {
   width: 100%;
   margin: 1rem 0 0 0;
   border-radius: .5rem;
-  border: .2rem solid #bf5f5f;
+  border: var(--border-inv);
   padding:1.2rem 1.4rem;
   font-size: 1.8rem;
   color:var(--black);
@@ -347,44 +355,46 @@ section {
   color: var(--blue);
 }
 
-.list-categories .box-container{
+.p-category{
   display: grid;
-  grid-template-columns: repeat(auto-fit, 27rem);
+  grid-template-columns: repeat(auto-fit, minmax(27rem, 1fr));
   gap:1.5rem;
   justify-content: center;
   align-items: flex-start;
 }
 
-.list-categories .box-container .box{
-  padding:2rem;
+.p-category{
+  padding-bottom: 0;
+}
+
+.p-category a{
+  padding:1.5rem;
   text-align: center;
   border:var(--border);
   background-color: var(--white);
   box-shadow: var(--box-shadow);
   border-radius: .5rem;
-}
-
-.list-categories .box-container .box img{
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.list-categories .box-container .box h3{
-  text-transform: uppercase;
-  color:var(--black);
-  padding:1rem 0;
   font-size: 2rem;
+  color:var(--black);
 }
 
-.list-categories .box-container .box p{
-  line-height: 2;
-  font-size: 1.5rem;
-  color:var(--light-color);
-  padding:.5rem 0;
+.p-category a.active{
+  background-color: var(--pink);
 }
 
-.list-categories{
-  padding-bottom: 0;
+.p-category a.reload{
+  background-color: var(--green);
+}
+
+.p-category a.new{
+  background-color: #b77ae6;
+}
+
+.p-category a:hover,
+.p-category a.active:hover,
+.p-category a.reload:hover {
+  background-color: var(--black);
+  color: var(--white);
 }
 
 .quick-view .box{
@@ -497,7 +507,7 @@ section {
 }
 
 .update-profile form .inputBox .box.invalid {
-  border: .2rem solid #bf5f5f;
+  border: var(--border-inv);
 }
 
 .footer {
@@ -612,10 +622,6 @@ section {
 
   .title {
     font-size: 3rem;
-  }
-
-  .list-categories .box-container{
-    grid-template-columns: 1fr;
   }
 
   .quick-view .box img{

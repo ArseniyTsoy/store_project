@@ -28,7 +28,15 @@ router.post("/signup", [
       }
     ),
 
-    body("password", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric(),
+    body("password")
+      .isLength({ min: 8, max: 30 })
+      .withMessage("От 8 до 30 символов")
+      .isStrongPassword({  
+        minUppercase: 0, 
+        minNumbers: 1, 
+        minSymbols: 1
+      })
+      .withMessage("Слабый пароль. Используйте буквы, цифры и символы"),
 
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
@@ -73,7 +81,7 @@ router.post(
       }
     ),
 
-    body("password", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric()
+    body("password", "Пароль должен быть от 8 до 30 символов и содержать только буквы и цифры").isLength({ min: 8, max: 30 })
     
   ],
   authController.postLogin
@@ -112,7 +120,15 @@ router.post("/new-password", [
 
     body(["newPassword", "confirmPassword"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
-    body("newPassword", "Пароль должен быть от 5 до 30 символов и содержать только буквы и цифры").isLength({ min: 5, max: 30 }).isAlphanumeric(),
+    body("newPassword")
+      .isLength({ min: 8, max: 30 })
+      .withMessage("От 8 до 30 символов")
+      .isStrongPassword({  
+        minUppercase: 0, 
+        minNumbers: 1, 
+        minSymbols: 1
+      })
+      .withMessage("Слабый пароль. Используйте буквы, цифры и символы"),
 
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {

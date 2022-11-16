@@ -17,7 +17,7 @@ async function getCreateProduct(req, res) {
       });
     }
 
-    return res.render("admin/create-product", {
+    return res.render("admin/products/create", {
       pageTitle: "Добавить новый товар",
       categories,
       hasError: false,
@@ -39,7 +39,7 @@ async function postCreateProduct(req, res) {
 
       const categories = JSON.parse(req.body.categories);
 
-      return res.render("admin/create-product", {
+      return res.render("admin/products/create", {
         pageTitle: "Добавить новый товар",
         categories,
         hasError: true,
@@ -79,9 +79,17 @@ async function getEditProduct(req, res) {
     const product = rows[0];
     const hasProduct = product ? true : false;
 
-    const [ categories ] = await Category.findAll("categories");
+    let categories = [];
+    const [ results ] = await Category.findAll("categories");
 
-    return res.render("admin/edit-product", {
+    for (let cat of results) {
+      categories.push({
+        id: cat.id,
+        title: cat.title
+      });
+    }
+
+    return res.render("admin/products/edit", {
       pageTitle: "Редактирование товара",
       hasProduct,
       product,
@@ -103,7 +111,7 @@ async function postEditProduct(req, res) {
   if (!errors.isEmpty()) {
     const categories = JSON.parse(req.body.categories);
 
-    return res.render("admin/edit-product", {
+    return res.render("admin/products/edit", {
       pageTitle: "Редактирование товара",
       hasProduct: true,
       product: {
@@ -170,7 +178,7 @@ async function getShowProduct(req, res) {
     const [ cats ] = await Category.findById("categories", product.categoryId);
     const category = cats[0].title;
 
-    return res.render("admin/show-product", {
+    return res.render("admin/products/show", {
       pageTitle: "Быстрый просмотр/Админ",
       hasProduct,
       product,
@@ -183,26 +191,39 @@ async function getShowProduct(req, res) {
 
 async function getProducts(req, res) {
   try {
-    const [ products ] = await Product.findAll("products");
+    let products = null;
+    let filteredBy = null;
+    const catId = parseInt(req.query.catId);
+
+    if (catId) {
+      [ products ] = await Product.findByField("products", "categoryId", catId);
+      filteredBy = catId;
+    } else {
+      [ products ] = await Product.findAll("products");
+    }
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
-    let processedCategories = [];
-    const [ categories ] = await Category.findAll("categories");
+    let categories = [];
+    const [ rows ] = await Category.findAll("categories");
     
     // Add check
-    for (let item of categories) {
-      processedCategories.push({
+    for (let item of rows) {
+      categories.push({
         id: item.id,
         title: item.title
       });
     }
 
-    return res.render("admin/products", {
+    const hasCategories = (categories.length > 0) ? true : false;
+
+    return res.render("admin/products/all", {
       pageTitle: "Каталог/Админ",
       hasProducts,
       products,
-      categories: processedCategories
+      hasCategories,
+      categories,
+      filteredBy
     });
   } catch(err) {
     throw new Error(err);
@@ -211,7 +232,7 @@ async function getProducts(req, res) {
 
 // Categories
 function getCreateCategory(req, res) {
-  return res.render("admin/form-category", {
+  return res.render("admin/categories/form", {
     pageTitle: "Добавить новую категорию",
     edit: false,
     category: {},
@@ -223,12 +244,11 @@ function getCreateCategory(req, res) {
 async function postCreateCategory(req, res) {
   try {
     const { title, description } = req.body;
-    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("admin/form-category", {
+      return res.render("admin/categories/form", {
         pageTitle: "Добавить новую категорию",
         edit: false,
         hasError: true,
@@ -240,6 +260,8 @@ async function postCreateCategory(req, res) {
         errors: errors.mapped()
       });
     }
+
+    const imageUrl = req.file.path;
 
     const newCategory = new Category(
       null,
@@ -262,7 +284,7 @@ async function getEditCategory(req, res) {
     const [ rows ] = await Category.findById("categories", catId);
     const category = rows[0];
 
-    return res.render("admin/form-category", {
+    return res.render("admin/categories/form", {
       pageTitle: "Редактировать категорию",
       edit: true,
       category,
@@ -282,7 +304,7 @@ async function postEditCategory(req, res) {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-      return res.render("admin/form-category", {
+      return res.render("admin/categories/form", {
         pageTitle: "Редактировать категорию",
         edit: true,
         category: {
@@ -332,7 +354,7 @@ async function getCategories(req, res) {
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
-    return res.render("admin/categories", {
+    return res.render("admin/categories/all", {
       pageTitle: "Категории/Админ",
       hasCategories,
       categories
@@ -377,8 +399,16 @@ async function postDeleteUser(req, res) {
 // Admin orders
 async function getOrders(req, res) {
   try {
+    let orders = null;
+    let filteredBy = null;
+    const status = req.query.status;
 
-    let [ orders ] = await Order.findAll("orders");
+    if (status) {
+      [ orders ] = await Order.findByField("orders", "status", status);
+      filteredBy = status;
+    } else {
+      [ orders ] = await Order.findAll("orders");
+    }
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
 
@@ -389,7 +419,8 @@ async function getOrders(req, res) {
 
     return res.render("admin/orders", {
       hasOrders,
-      orders
+      orders,
+      filteredBy
     });
 
   } catch(err) {
@@ -425,11 +456,6 @@ async function postDeleteOrder(req, res) {
     }
 
     return res.redirect("back");
-
-    // return res.render("utils/message", {
-    //   pageTitle: "Заказ удален",
-    //   message: "Выбранный вами заказ был успешно удален"
-    // });
   } catch(err) {
     throw new Error(err);
   }

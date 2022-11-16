@@ -1,0 +1,59 @@
+doctype html 
+html(lang="ru")
+  head
+    include ../../includes/admin-head
+  body 
+    include ../../includes/admin-navigation
+
+    section.p-category
+
+      if hasCategories
+
+        if filteredBy 
+          a.reload(href="/admin/catalog") Сбросить
+        else  
+          a.new(href="/admin/create-product") Добавить товар
+        each cat in categories
+          a(
+            class=(filteredBy === cat.id ? "active" : null),
+            href=`/admin/catalog?catId=${cat.id}`
+          ) #{cat.title}
+          
+      else 
+        p.empty Категории не обнаружены
+
+    section.show-products
+
+      if hasProducts
+
+        h1.title Товары
+
+        div.box-container
+
+          each product in products
+          
+            div.box
+
+              div.price #{product.price} руб.
+
+              a.fa-solid.fa-eye(href="/admin/show-product/" + product.id)
+
+              a(href="/admin/show-product/" + product.id)
+                img(src="/" + product.imageUrl, alt=product.title)
+
+              div.name #{product.title}
+
+              div.cat #{(categories.find(el => el.id === product.categoryId)).title}
+              
+              div.details #{product.description}
+  
+              a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
+
+              form(action="/admin/delete-product", method="POST")
+                input(type="hidden", name="productId", value=product.id)
+                button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
+                  
+      else 
+        p.empty Товары не обнаружены
+
+    script(src="/js/script.js")
