@@ -24,9 +24,9 @@ router.post("/create-product", [
 
     body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim(),
 
-    body("validateImage").custom((value, { req }) => {
+    body("image").custom((value, { req }) => {
       if (!req.file) {
-        return Promise.reject(value);
+        return Promise.reject("Добавьте изображение");
       } else {
         return Promise.resolve();
       }
@@ -53,6 +53,7 @@ router.post("/edit-product", [
     }),
 
     body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim()
+
   ],
   adminController.postEditProduct
 );
@@ -74,13 +75,14 @@ router.post("/create-category", [
 
     body("description", "Описание от 10 до 200 символов").isLength({ min: 10, max: 200 }).bail().trim(),
 
-    body("validateImage").custom((value, { req }) => {
+    body("image").custom((value, { req }) => {
       if (!req.file) {
-        return Promise.reject(value);
+        return Promise.reject("Добавьте изображение");
       } else {
         return Promise.resolve();
       }
     })
+
   ], 
   adminController.postCreateCategory
 );

@@ -6,42 +6,40 @@ html(lang="ru")
     include ../includes/navigation
 
     section.form-container
-      form(action=(path === "/signup") ? "/auth/signup" : "/auth/login", enctype="multipart/form-data", method="POST", novalidate)
+      form(action=(path === "/signup") ? "/auth/signup" : "/auth/login", enctype="multipart/form-data", method="POST")
         h3 #{pageTitle}
         if path === "/signup"
 
           if (errors.name)
-            input.invalid(type="text", name="name", placeholder="Ваше имя", value=oldInput.name, required)
+            input.box.invalid(type="text", name="name", placeholder="Ваше имя", value=oldInput.name, required)
             span.error-message #{errors.name.msg}
           else 
             input.box(type="text", name="name", placeholder="Ваше имя", value=(hasError ? oldInput.name : null), required)
 
         if (errors.email) 
-          input.invalid(type="email", name="email", placeholder="E-Mail", value=oldInput.email, required)
+          input.box.invalid(type="email", name="email", placeholder="E-Mail", value=oldInput.email, required)
           span.error-message #{errors.email.msg}
         else 
           input.box(type="email", name="email", placeholder="E-Mail", value=(hasError ? oldInput.email : null), required)
 
         if (errors.password)
-          input.invalid(type="password", name="password", placeholder="Пароль", required)
+          input.box.invalid(type="password", name="password", placeholder="Пароль", required)
           span.error-message #{errors.password.msg}
         else 
           input.box(type="password", name="password", placeholder="Пароль", required)
 
         if path === "/signup"
           if (errors.confirmPassword) 
-            input.invalid(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
+            input.box.invalid(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
             span.error-message #{errors.confirmPassword.msg}
           else 
             input.box(type="password", name="confirmPassword", placeholder="Подтвердите пароль", required)
 
-          input(type="hidden", name="validateImage", value="Добавьте изображение")
-
-          if (errors.validateImage) 
-            input.invalid(type="file", name="image", required)
-            span.error-message #{errors.validateImage.msg}
+          if (errors.image) 
+            input.box.invalid(type="file", name="image", required, accept=".jpg,.jpeg,.png")
+            span.error-message #{errors.image.msg}
           else 
-            input.box(type="file", name="image", required)
+            input.box(type="file", name="image", required, accept=".jpg,.jpeg,.png")
 
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", name="submit", value="Отправить")

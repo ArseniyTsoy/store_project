@@ -1,5 +1,6 @@
 import mysql from "mysql2/promise";
 let _pool;
+import equipError from "./equipError.js";
 
 export async function poolConnect(cb) {
   try {
@@ -16,7 +17,7 @@ export async function poolConnect(cb) {
     _pool = newPool;
     cb();
   } catch(err) {
-    throw new Error(err);
+    throw equipError(err);
   }
 }
 

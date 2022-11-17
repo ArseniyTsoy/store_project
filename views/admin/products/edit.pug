@@ -11,10 +11,11 @@ html(lang="ru")
       
         h1.title #{pageTitle}   
 
-        form(action="/admin/edit-product", method="POST", enctype="multipart/form-data", novalidate)
+        form(action="/admin/edit-product", method="POST", enctype="multipart/form-data")
         
           img(src="/" + product.imageUrl, alt=product.title)
-          input.box(type="file", name="image")
+          input(class=(errors.image ? "box invalid" : "box"), type="file", name="image", accept=".jpg,.jpeg,.png")
+
           input(type="hidden", name="oldImageUrl", value=product.imageUrl)
 
           label(for="title") Наименование

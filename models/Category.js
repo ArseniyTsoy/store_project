@@ -1,5 +1,6 @@
 import BaseModel from "./BaseModel.js";
 import { getPool } from "../utils/db.js";
+import equipError from "../utils/equipError.js";
 
 export default class Category extends BaseModel {
   constructor(id, title, description, imageUrl) {
@@ -25,7 +26,7 @@ export default class Category extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -43,7 +44,7 @@ export default class Category extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 };

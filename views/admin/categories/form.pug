@@ -5,11 +5,11 @@ html(lang="ru")
   body 
     include ../../includes/admin-navigation
 
-    section.add-products
+    section.add-categories
 
       h1.title #{pageTitle}
 
-      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data")
+      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data", novalidate)
 
         if edit
           img(src="/" + category.imageUrl, alt=category.title)
@@ -22,12 +22,10 @@ html(lang="ru")
 
           div.inputBox
             label(for="image") Загрузите изображение
-            input(class=(errors.validateImage ? "box invalid" : "box"), type="file", name="image", required=(edit ? false : true))#image
+            input(class=(errors.image ? "box invalid" : "box"), type="file", name="image", required=(edit ? false : true), accept=".jpg,.jpeg,.png")#image
             
             if edit
               input(type="hidden", name="oldImageUrl", required, value=category.imageUrl)
-            else
-              input(type="hidden", name="validateImage", value="Добавьте изображение")
 
         label(for="description") Краткое описание
         textarea(class=(errors.description ? "box invalid" : "box"), name="description", required, placeholder=(errors.description ? errors.description.msg : "Краткое описание категории"), cols="30", rows="10")#description|#{errors.description ? null : category.description}

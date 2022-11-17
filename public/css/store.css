@@ -609,20 +609,14 @@
    margin:1rem 0;
 }
 
+.checkout-orders form .flex .inputBox .box.invalid{
+   border:var(--border-inv);
+   margin:1rem 0 0 0;
+}
+
 .checkout-orders form .flex .inputBox label{
    font-size: 1.8rem;
    color:var(--light-color);
-}
-
-.checkout-orders form .flex .inputBox .invalid{
-   width: 100%;
-   border:var(--border-inv);
-   border-radius: .5rem;
-   font-size: 1.8rem;
-   color:var(--black);
-   padding:1.2rem 1.4rem;
-   margin:1rem 0 0 0;
-   background-color: var(--light-bg);
 }
 
 .checkout-orders form .flex .inputBox .error-message {

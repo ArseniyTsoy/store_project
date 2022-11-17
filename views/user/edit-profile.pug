@@ -11,7 +11,7 @@ html(lang="ru")
 
         h1.title #{pageTitle}
 
-        form(action="/user/edit-profile", method="POST", enctype="multipart/form-data", novalidate)
+        form(action="/user/edit-profile", method="POST", enctype="multipart/form-data")
 
           img(src="/" + user.imageUrl, alt=user.name)
 
@@ -30,7 +30,7 @@ html(lang="ru")
               //-   span.error-message #{errors.email.msg}
 
               label(for="image") Фото профиля:
-              input.box(type="file", name="image")#image
+              input(class=(errors.image ? "box invalid" : "box"), type="file", name="image", accept=".jpg,.jpeg,.png")#image
               input(type="hidden", name="oldImageUrl", value=user.imageUrl)
 
             div.inputBox

@@ -9,7 +9,7 @@ html(lang="ru")
       form(action="/auth/reset", method="POST")
         h3 Введите E-Mail, на который зарегистрирован ваш аккаунт
 
-        input(class=(errors.email ? "invalid" : "box"), type="email", name="email", placeholder="Введите ваш E-Mail", value=(errors.email ? providedEmail : null), required)
+        input(class=(errors.email ? "box invalid" : "box"), type="email", name="email", placeholder="Введите ваш E-Mail", value=(errors.email ? providedEmail : null), required)
         if (errors.email)
           span.error-message #{errors.email.msg}
 

@@ -3,13 +3,14 @@ import Product from "../models/Product.js";
 import Order from "../models/Order.js";
 import { validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
+import equipError from "../utils/equipError.js";
 
 // User profile
-async function getEditProfile(req, res) {
+async function getEditProfile(req, res, next) {
   try {
     const userId = parseInt(req.params.id);
 
-    // Сообщение
+    // Сообщение. Статус 403
     if (userId !== req.session.user.id) {
       console.log("Wrong user!");
       return res.redirect("/");
@@ -28,11 +29,11 @@ async function getEditProfile(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postEditProfile(req, res) {
+async function postEditProfile(req, res, next) {
   try {
     const { id, name, email, password } = req.body;
     const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
@@ -40,7 +41,7 @@ async function postEditProfile(req, res) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("user/edit-profile", {
+      return res.status(422).render("user/edit-profile", {
         pageTitle: "Редактирование профиля",
         hasUser: true,
         user: {
@@ -76,12 +77,12 @@ async function postEditProfile(req, res) {
     
     return res.redirect("/");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
 // Cart
-async function getCart(req, res) {
+async function getCart(req, res, next) {
   const currentUser = new User(req.session.user.id);
 
   try {
@@ -96,11 +97,11 @@ async function getCart(req, res) {
       cart
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postAddToCart(req, res) {
+async function postAddToCart(req, res, next) {
   try {
     const userId = req.session.user.id;
     const productId = req.body.productId;
@@ -121,11 +122,11 @@ async function postAddToCart(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postChangeQty(req, res) {
+async function postChangeQty(req, res, next) {
   const newQty = req.body.qty;
   const product = new Product(req.body.productId);
   const userId = req.session.user.id;
@@ -139,11 +140,11 @@ async function postChangeQty(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteFromCart(req, res) {
+async function postDeleteFromCart(req, res, next) {
   const product = new Product(req.body.itemId);
 
   try {
@@ -153,11 +154,11 @@ async function postDeleteFromCart(req, res) {
 
     return res.redirect("/user/cart");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getCleanCart(req, res) {
+async function getCleanCart(req, res, next) {
   const currentUser = new User(req.session.user.id);
 
   try {
@@ -168,12 +169,12 @@ async function getCleanCart(req, res) {
 
     return res.redirect("/user/cart");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
 // Wishlist
-async function getWishlist(req, res) {
+async function getWishlist(req, res, next) {
   const currentUser = new User(req.session.user.id);
 
   try {
@@ -188,11 +189,11 @@ async function getWishlist(req, res) {
       wishlist
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postAddToWishlist(req, res) {
+async function postAddToWishlist(req, res, next) {
   try {
     const userId = req.session.user.id;
     const productId = req.body.productId;
@@ -212,11 +213,11 @@ async function postAddToWishlist(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteFromWishlist(req, res) {
+async function postDeleteFromWishlist(req, res, next) {
   try {
     const product = new Product(req.body.itemId);
 
@@ -226,11 +227,11 @@ async function postDeleteFromWishlist(req, res) {
 
     return res.redirect("/user/wishlist");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getCleanWishlist(req, res) {
+async function getCleanWishlist(req, res, next) {
   const currentUser = new User(req.session.user.id);
 
   try {
@@ -241,12 +242,12 @@ async function getCleanWishlist(req, res) {
 
     return res.redirect("/user/wishlist");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
 // Orders
-async function getCheckout(req, res) {
+async function getCheckout(req, res, next) {
   try {
     const currentUser = new User(req.session.user.id);
 
@@ -280,11 +281,11 @@ async function getCheckout(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postCreateOrder(req, res) {
+async function postCreateOrder(req, res, next) {
   try {
     const { name, phone, email, method, country, city, street, house, flat, postalCode, totalPrice } = req.body;
 
@@ -295,7 +296,7 @@ async function postCreateOrder(req, res) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("user/order-form", {
+      return res.status(422).render("user/order-form", {
         edit: false,
         cartHasItems: true,
         oldInput: { name, phone, email, method, address },
@@ -322,13 +323,13 @@ async function postCreateOrder(req, res) {
     await currentUser.clean("cart");
     req.session.cartItems = 0;
     
-    return res.redirect("/user/orders");
+    return res.status(201).redirect("/user/orders");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getEditOrder(req, res) {
+async function getEditOrder(req, res, next) {
   try {
     const orderId = req.params.orderId;
     const [ rows ] = await Order.findById("orders", orderId);
@@ -350,11 +351,11 @@ async function getEditOrder(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postEditOrder(req, res) {
+async function postEditOrder(req, res, next) {
   try {
     const { orderId, name, phone, email, method, country, city, street, house, flat, postalCode } = req.body;
 
@@ -363,7 +364,7 @@ async function postEditOrder(req, res) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("user/order-form", {
+      return res.status(422).render("user/order-form", {
         pageTitle: "Редактировать заказ",
         edit: true,
         hasError: true,
@@ -382,11 +383,11 @@ async function postEditOrder(req, res) {
     await newOrder.update();
     return res.redirect("/user/orders");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteOrder(req, res) {
+async function postDeleteOrder(req, res, next) {
   const orderId = req.body.orderId;
 
   try {
@@ -396,16 +397,16 @@ async function postDeleteOrder(req, res) {
       throw new Error("Failed to delete the order!");
     }
     // Уведомить админа об отмене заказа
-    return res.render("utils/message", {
+    return res.render("messages/casual", {
       pageTitle: "Заказ отменен",
       message: "Ваш заказ был успешно отменен"
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   } 
 }
 
-async function getUserOrders(req, res) {
+async function getUserOrders(req, res, next) {
   const userId = req.session.user.id;
 
   try {
@@ -424,7 +425,7 @@ async function getUserOrders(req, res) {
       orders
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 

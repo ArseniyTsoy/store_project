@@ -5,7 +5,12 @@ html(lang="ru")
   body 
     include ../includes/navigation
     
-    p.empty Что-то пошло не так! Приносим свои извинения:(
+    section.show-message
+
+      div.box
+        a(href=outerLink)
+          img(src=innerLink, alt=pageTitle) 
+        p.msg #{message}
 
     include ../includes/footer.pug
     script(src="/js/script.js") 

@@ -213,15 +213,9 @@ section {
   background-color: var(--light-bg);
 }
 
-.form-container form .invalid {
-  width: 100%;
+.form-container form .box.invalid {
   margin: 1rem 0 0 0;
-  border-radius: .5rem;
   border: var(--border-inv);
-  padding:1.2rem 1.4rem;
-  font-size: 1.8rem;
-  color:var(--black);
-  background-color: var(--light-bg);
 }
 
 .form-container form .error-message {
@@ -260,7 +254,7 @@ section {
 .header .flex{
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   padding: 2rem;
   margin: 0 auto;
   max-width: 1200px;
@@ -510,6 +504,34 @@ section {
   border: var(--border-inv);
 }
 
+.show-message {
+  display: grid;
+  place-items: center;
+}
+
+.show-message .box {
+  width: 60%;
+  text-align: center;
+  border:var(--border);
+  box-shadow: var(--box-shadow);
+  background-color: var(--white);
+  border-radius: .5rem;
+  margin: 2rem;
+}
+
+.show-message .box img {
+  width: 80%;
+  object-fit: contain;
+  margin-bottom: 2rem;
+}
+
+.show-message .box .msg {
+  line-height: 1.5;
+  font-size: 3rem;
+  color:var(--black);
+  margin-bottom: 2rem;
+}
+
 .footer {
   background-color: var(--white);
 }
@@ -607,6 +629,10 @@ section {
   .update-profile form .flex .inputBox {
     width: 100%;
   }
+
+  .show-message .box .msg {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width:450px) {
@@ -627,6 +653,10 @@ section {
   .quick-view .box img{
     height: auto;
     width: 100%;
+  }
+
+  .show-message .box .msg {
+    font-size: 1.5rem;
   }
 
 }

@@ -16,12 +16,12 @@ html(lang="ru")
           div.inputBox
 
             if (errors.title)
-              input.invalid(type="text", name="title", required, placeholder="Наименование товара", value=oldInput.title)
+              input.box.invalid(type="text", name="title", required, placeholder="Наименование товара", value=oldInput.title)
               span.error-message #{errors.title.msg}
             else
-              input.box(type="text", name="title", required, placeholder="Наименование товара", value=(hasError ? oldInput.title : ""))
+              input.box(type="text", name="title", required, placeholder="Наименование товара", value=(hasError ? oldInput.title : null))
 
-            select(class=(errors.categoryId ? "invalid" : "box"), name="categoryId", required)
+            select(class=(errors.categoryId ? "box invalid" : "box"), name="categoryId", required)
               if (!hasError || errors.categoryId)
                 option(value=null, selected, disabled) Выберите категорию
                 each cat in categories
@@ -35,25 +35,24 @@ html(lang="ru")
           div.inputBox
 
             if (errors.price)
-              input.invalid(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=oldInput.price)
+              input.box.invalid(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=oldInput.price)
               span.error-message #{errors.price.msg}
             else
-              input.box(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=(hasError ? oldInput.price : ""))
+              input.box(type="number", step="0.01", min="0", name="price", required, placeholder="Стоимость товара", value=(hasError ? oldInput.price : null))
 
-            input(type="hidden", name="validateImage", value="Добавьте изображение")
             input(type="hidden", name="categories", value=categories)
 
-            if (errors.validateImage)
-              input.invalid(type="file", name="image", required)
-              span.error-message #{errors.validateImage.msg}
+            if (errors.image)
+              input.box.invalid(type="file", name="image", required, accept=".jpg,.jpeg,.png")
+              span.error-message #{errors.image.msg}
             else
-              input.box(type="file", name="image", required)
+              input.box(type="file", name="image", required, accept=".jpg,.jpeg,.png")
 
         if (errors.description)
-          textarea.invalid(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{oldInput.description}
+          textarea.box.invalid(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{oldInput.description}
           span.error-message #{errors.description.msg}
         else
-          textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{hasError ? oldInput.description : ""}
+          textarea.box(name="description", required, placeholder="Краткое описание товара", cols="30", rows="10") #{hasError ? oldInput.description : null}
 
         input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Создать")

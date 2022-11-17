@@ -1,4 +1,5 @@
 import { getPool } from "../utils/db.js";
+import equipError from "../utils/equipError.js";
 
 export default class BaseModel {
   static async count(tableName) {
@@ -15,7 +16,7 @@ export default class BaseModel {
 
       return (rows[0])["COUNT (*)"];
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -30,7 +31,7 @@ export default class BaseModel {
 
       return pool.execute(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -45,7 +46,7 @@ export default class BaseModel {
       
       return pool.execute(`SELECT * FROM ${tableName} WHERE ${fieldName} = ? ORDER BY id DESC`, [value]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -60,7 +61,7 @@ export default class BaseModel {
       
       return pool.execute(`SELECT * FROM ${tableName} ORDER BY id DESC`);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -75,7 +76,7 @@ export default class BaseModel {
 
       return pool.execute(`DELETE FROM ${tableName} WHERE id =?`, [id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 };

@@ -1,7 +1,8 @@
 import Product from "../models/Product.js";
 import Category from "../models/Category.js";
+import equipError from "../utils/equipError.js";
 
-async function getSingleProduct(req, res) {
+async function getSingleProduct(req, res, next) {
   const id = req.params.id;
 
   try {
@@ -15,12 +16,12 @@ async function getSingleProduct(req, res) {
       productIsFound,
       product,
     });
-  } catch (err) {
-    throw new Error(err);
+  } catch(err) {
+    return next(equipError(err));
   }
 }
 
-async function getIndex(req, res) {
+async function getIndex(req, res, next) {
   try {
     const [ products ] = await Product.findAll("products");
 
@@ -38,7 +39,7 @@ async function getIndex(req, res) {
       categories
     });
   } catch (err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
@@ -48,7 +49,7 @@ function getAbout(req, res) {
   });
 }
 
-async function getCatalog(req, res) {
+async function getCatalog(req, res, next) {
   try {
     let products = null;
     let filteredBy = null;
@@ -76,11 +77,11 @@ async function getCatalog(req, res) {
       filteredBy
     });
   } catch (err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getCategory(req, res) {
+async function getCategory(req, res, next) {
   const { catId, catTitle } = req.query;
 
   try {
@@ -96,7 +97,7 @@ async function getCategory(req, res) {
       products
     });
   } catch (err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
@@ -107,7 +108,7 @@ function getSearch(req, res) {
   });
 }
 
-async function postSearch(req, res) {
+async function postSearch(req, res, next) {
   try {
     const searchString = req.body.searchString;
 
@@ -124,7 +125,7 @@ async function postSearch(req, res) {
       searchResults,
     }); 
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 

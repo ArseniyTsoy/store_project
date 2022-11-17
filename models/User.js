@@ -1,5 +1,6 @@
 import BaseModel from "./BaseModel.js";
 import { getPool } from "../utils/db.js";
+import equipError from "../utils/equipError.js";
 
 export default class User extends BaseModel {
   constructor(id, name, email, imageUrl, password, resetToken, resetTokenExpiration) {
@@ -29,7 +30,7 @@ export default class User extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -58,28 +59,9 @@ export default class User extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
-
-  // async updateField(fieldName) {
-  //   try {
-  //     // Проверка на строку
-  //     if (!fieldName) {
-  //       throw new Error("Поле не указано!");
-  //     }
-
-  //     const pool = await getPool();
-        
-  //     const sql = `UPDATE users SET ${fieldName} = ? WHERE id = ?`; 
-
-  //     const values = [this[fieldName], this.id];
-
-  //     return pool.execute(sql, values);
-  //   } catch(err) {
-  //     throw new Error(err);
-  //   }
-  // }
 
   async getEverythingFrom(tableName) {
     try {
@@ -102,7 +84,7 @@ export default class User extends BaseModel {
 
       return pool.execute(sql, [this.id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -117,7 +99,7 @@ export default class User extends BaseModel {
 
       return pool.execute(`SELECT COUNT (*) FROM ${tableName} WHERE userId = ?`, [this.id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -133,7 +115,7 @@ export default class User extends BaseModel {
       return pool.execute(`DELETE FROM ${tableName} WHERE userId = ?`, [this.id]);
 
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 };

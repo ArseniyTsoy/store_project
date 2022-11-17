@@ -3,9 +3,10 @@ import User from "../models/User.js";
 import Order from "../models/Order.js";
 import Category from "../models/Category.js";
 import { validationResult } from "express-validator";
+import equipError from "../utils/equipError.js";
 
 // Products
-async function getCreateProduct(req, res) {
+async function getCreateProduct(req, res, next) {
   try {
     let categories = [];
     const [ rows ] = await Category.findAll("categories");
@@ -24,11 +25,11 @@ async function getCreateProduct(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postCreateProduct(req, res) {
+async function postCreateProduct(req, res, next) {
   try {
     const { title, price, description }  = req.body;
     const categoryId = parseInt(req.body.categoryId);
@@ -39,7 +40,7 @@ async function postCreateProduct(req, res) {
 
       const categories = JSON.parse(req.body.categories);
 
-      return res.render("admin/products/create", {
+      return res.status(422).render("admin/products/create", {
         pageTitle: "Добавить новый товар",
         categories,
         hasError: true,
@@ -66,13 +67,13 @@ async function postCreateProduct(req, res) {
 
     await newProduct.create();
 
-    return res.redirect("/admin/catalog");
+    return res.status(201).redirect("/admin/catalog");
   } catch (err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getEditProduct(req, res) {
+async function getEditProduct(req, res, next) {
   try {
     const productId = req.params.productId;
     const [ rows ] = await Product.findById("products", productId);
@@ -97,11 +98,11 @@ async function getEditProduct(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postEditProduct(req, res) {
+async function postEditProduct(req, res, next) {
   const { id, title, price, description } = req.body;
   const categoryId = parseInt(req.body.categoryId);
   const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
@@ -111,7 +112,7 @@ async function postEditProduct(req, res) {
   if (!errors.isEmpty()) {
     const categories = JSON.parse(req.body.categories);
 
-    return res.render("admin/products/edit", {
+    return res.status(422).render("admin/products/edit", {
       pageTitle: "Редактирование товара",
       hasProduct: true,
       product: {
@@ -146,11 +147,11 @@ async function postEditProduct(req, res) {
 
     return res.redirect("/admin/show-product/" + id);
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postRemoveProduct(req, res) {
+async function postRemoveProduct(req, res, next) {
   const productId = req.body.productId;
 
   try {
@@ -162,11 +163,11 @@ async function postRemoveProduct(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getShowProduct(req, res) {
+async function getShowProduct(req, res, next) {
   try {
     const productId = req.params.productId;
 
@@ -185,11 +186,11 @@ async function getShowProduct(req, res) {
       category
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getProducts(req, res) {
+async function getProducts(req, res, next) {
   try {
     let products = null;
     let filteredBy = null;
@@ -226,7 +227,7 @@ async function getProducts(req, res) {
       filteredBy
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
@@ -241,21 +242,21 @@ function getCreateCategory(req, res) {
   });
 }
 
-async function postCreateCategory(req, res) {
+async function postCreateCategory(req, res, next) {
   try {
     const { title, description } = req.body;
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("admin/categories/form", {
+      return res.status(422).render("admin/categories/form", {
         pageTitle: "Добавить новую категорию",
         edit: false,
         hasError: true,
         category: {
           title, 
           description,
-          imageUrl
+          // imageUrl
         },
         errors: errors.mapped()
       });
@@ -272,13 +273,13 @@ async function postCreateCategory(req, res) {
 
     await newCategory.create();
 
-    return res.redirect("/admin/categories");
+    return res.status(201).redirect("/admin/categories");
   } catch (err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getEditCategory(req, res) {
+async function getEditCategory(req, res, next) {
   try {
     const catId = req.params.catId;
     const [ rows ] = await Category.findById("categories", catId);
@@ -292,11 +293,11 @@ async function getEditCategory(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postEditCategory(req, res) {
+async function postEditCategory(req, res, next) {
   try {
     const { title, description, catId } = req.body;
     const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
@@ -304,7 +305,7 @@ async function postEditCategory(req, res) {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-      return res.render("admin/categories/form", {
+      return res.status(422).render("admin/categories/form", {
         pageTitle: "Редактировать категорию",
         edit: true,
         category: {
@@ -329,11 +330,11 @@ async function postEditCategory(req, res) {
     // Show category
     return res.redirect("/admin/categories");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteCategory(req, res) {
+async function postDeleteCategory(req, res, next) {
   try {
     const catId = req.body.catId;
     const result = await Category.deleteById("categories", catId);
@@ -344,11 +345,11 @@ async function postDeleteCategory(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getCategories(req, res) {
+async function getCategories(req, res, next) {
   try {
     const [ categories ] = await Category.findAll("categories");
 
@@ -360,12 +361,12 @@ async function getCategories(req, res) {
       categories
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
 // Administer user accounts
-async function getUsers(req, res) {
+async function getUsers(req, res, next) {
   try {
     const [ users ] = await User.findAll("users");
 
@@ -376,11 +377,11 @@ async function getUsers(req, res) {
       users
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteUser(req, res) {
+async function postDeleteUser(req, res, next) {
   const userId = req.body.userId;
 
   try {
@@ -392,12 +393,12 @@ async function postDeleteUser(req, res) {
       throw new Error("Failed to delete the user!");
     }
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
 // Admin orders
-async function getOrders(req, res) {
+async function getOrders(req, res, next) {
   try {
     let orders = null;
     let filteredBy = null;
@@ -424,11 +425,11 @@ async function getOrders(req, res) {
     });
 
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postSetOrderStatus(req, res) {
+async function postSetOrderStatus(req, res, next) {
   try {
     const order = new Order(req.body.orderId);
     const newStatus = req.body.orderStatus;
@@ -441,11 +442,11 @@ async function postSetOrderStatus(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postDeleteOrder(req, res) {
+async function postDeleteOrder(req, res, next) {
   const orderId = req.body.orderId;
 
   try {
@@ -457,7 +458,7 @@ async function postDeleteOrder(req, res) {
 
     return res.redirect("back");
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
@@ -465,15 +466,20 @@ async function postDeleteOrder(req, res) {
 async function getDashboard(req, res) {
   let total = {};
 
-  total.orders = await Order.count("orders");
-  total.products = await Product.count("products");
-  total.users = await User.count("users");
-  total.categories = await Category.count("categories");
+  try {
 
-  return res.render("admin/index", {
-    pageTitle: "Панель администратора",
-    total
-  });
+    total.orders = await Order.count("orders");
+    total.products = await Product.count("products");
+    total.users = await User.count("users");
+    total.categories = await Category.count("categories");
+
+    return res.render("admin/index", {
+      pageTitle: "Панель администратора",
+      total
+    });
+  } catch(err) {
+    return next(equipError(err));
+  }
 }
 
 export default {

@@ -1,6 +1,5 @@
 import express from "express";
 const router = express.Router();
-
 import authController from "../controllers/auth.js";
 import User from "../models/User.js";
 import { body } from "express-validator";
@@ -46,9 +45,9 @@ router.post("/signup", [
       }
     }),
 
-    body("validateImage").custom((value, { req }) => {
+    body("image").custom((value, { req }) => {
       if (!req.file) {
-        return Promise.reject(value);
+        return Promise.reject("Добавьте изображение");
       } else {
         return Promise.resolve();
       }
@@ -130,8 +129,8 @@ router.post("/new-password", [
       })
       .withMessage("Слабый пароль. Используйте буквы, цифры и символы"),
 
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password) {
+    body("confirmPassword").custom((value, { req }) => { 
+      if (value !== req.body.newPassword) {
         return Promise.reject("Пароли не совпадают");
       } else {
         return Promise.resolve();

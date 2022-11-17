@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import transporter from "../utils/mailer.js";
 import crypto from "crypto";
 import { validationResult } from "express-validator";
+import equipError from "../utils/equipError.js";
 
 // Signup
 function getSignup(_, res) {
@@ -16,7 +17,7 @@ function getSignup(_, res) {
   });
 }
 
-async function postSignup(req, res) {
+async function postSignup(req, res, next) {
   try {
     const { name, email, password } = req.body;
     const errors = validationResult(req);
@@ -48,7 +49,7 @@ async function postSignup(req, res) {
       throw new Error("Failed to create a new account!");
     }
 
-    res.redirect("/auth/login");
+    res.status(201).redirect("/auth/login");
 
     return transporter.sendMail({
       from: process.env.MAIL_ADDR,
@@ -61,7 +62,7 @@ async function postSignup(req, res) {
         <p>Ваш аккаунт был успешно зарегистрирован!</p>`
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
@@ -124,7 +125,7 @@ async function postLogin(req, res, next) {
 
     return res.redirect("/");
   } catch(err) {
-    return next(err);
+    next(err);
   }
 }
 
@@ -146,7 +147,7 @@ function getResetPassword(req, res) {
   });
 }
 
-async function postResetPassword(req, res) {
+async function postResetPassword(req, res, next) {
   try {
     const providedEmail = req.body.email;
     let resetToken;
@@ -155,7 +156,7 @@ async function postResetPassword(req, res) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("auth/reset", {
+      return res.status(422).render("auth/reset", {
         pageTitle: "Сброс пароля",
         providedEmail,
         errors: errors.mapped()
@@ -207,16 +208,18 @@ async function postResetPassword(req, res) {
       throw new Error("Не удалось выслать письмо!");
     }
 
-    return res.render("utils/message", {
+    return res.render("messages/casual", {
       pageTitle: "Проверьте вашу почту",
-      message: `На указанный вами адрес ${providedEmail} было выслано сообщение. Пожалуйста, проверьте вашу почту`
+      outerLink: "https://www.freepik.com/free-vector/message-sent-concept-illustration_9936445.htm#query=email%20sent&position=1&from_view=search&track=sph",
+      innerLink: "/images/service/email.jpg",
+      message: `На указанный адрес ${providedEmail} было выслано сообщение. Пожалуйста, проверьте вашу почту`
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function getNewPassword(req, res) {
+async function getNewPassword(req, res, next) {
   try {
     const { resetToken, providedEmail } = req.params;
     const [rows] = await User.findByField("users", "email", providedEmail);
@@ -242,11 +245,11 @@ async function getNewPassword(req, res) {
       errors: {}
     });
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 
-async function postNewPassword(req, res) {
+async function postNewPassword(req, res, next) {
   try {
     const { newPassword, userId, resetToken } = req.body;
     const errors = validationResult(req);
@@ -291,12 +294,14 @@ async function postNewPassword(req, res) {
       throw new Error("Не удалось изменить пароль!");
     }
 
-    return res.render("utils/message", {
+    return res.render("messages/casual", {
       pageTitle: "Пароль успешно изменен",
+      outerLink: "https://www.freepik.com/free-vector/account-concept-illustration_5464649.htm#page=2&position=42&from_view=author",
+      innerLink: "/images/service/password-changed.jpg",
       message: "Ваш пароль был успешно изменен"
     })
   } catch(err) {
-    throw new Error(err);
+    return next(equipError(err));
   }
 }
 

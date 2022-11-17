@@ -1,5 +1,6 @@
 import BaseModel from "./BaseModel.js";
 import { getPool } from "../utils/db.js";
+import equipError from "../utils/equipError.js";
 
 export default class Product extends BaseModel {
   constructor(id, title, price, imageUrl, description, categoryId) {
@@ -29,7 +30,7 @@ export default class Product extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -56,7 +57,7 @@ export default class Product extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -66,7 +67,7 @@ export default class Product extends BaseModel {
 
       return pool.execute("UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?", [newQty, userId, this.id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -106,7 +107,7 @@ export default class Product extends BaseModel {
         return false;
       }
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -121,7 +122,7 @@ export default class Product extends BaseModel {
       
       return pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [this.id]);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 
@@ -144,7 +145,7 @@ export default class Product extends BaseModel {
 
       return pool.execute(sql, values);
     } catch(err) {
-      throw new Error(err);
+      throw equipError(err);
     }
   }
 };
