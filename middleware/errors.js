@@ -5,8 +5,10 @@ function get404(req, res) {
   });
 }
 
-function get500(req, res) {
-  return res.status(500).render("messages/error", {
+function getError(req, res) {
+  const statusCode = parseInt(req.params.statusCode);
+
+  return res.status(statusCode).render("messages/error", {
     pageTitle: "Серверная ошибка",
     statusCode: res.statusCode
   });
@@ -14,5 +16,5 @@ function get500(req, res) {
 
 export default {
   get404,
-  get500
+  getError
 };

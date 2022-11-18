@@ -3,6 +3,8 @@ const router = express.Router();
 import authController from "../controllers/auth.js";
 import User from "../models/User.js";
 import { body } from "express-validator";
+import bcrypt from "bcryptjs";
+import equipError from "../utils/equipError.js";
 
 router.get("/signup", authController.getSignup);
 
@@ -18,8 +20,15 @@ router.post("/signup", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findByField("users", "email", value);
-        if(rows[0]) {
+        let rows;
+
+        try {
+          [ rows ] = await User.findByField("users", "email", value);
+        } catch(err) {
+          return Promise.reject("Техническая ошибка. Попробуйте снова");
+        }
+
+        if (rows[0]) {
           return Promise.reject("Данный E-Mail уже зарегистрирован");
         } else {
           return Promise.resolve();
@@ -70,9 +79,15 @@ router.post(
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findByField("users", "email", value);
+        let rows;
 
-        if(!rows[0]) {
+        try {
+          [ rows ] = await User.findByField("users", "email", value);
+        } catch(err) {
+          return Promise.reject("Техническая ошибка. Попробуйте снова");
+        }
+
+        if (!rows[0]) {
           return Promise.reject("Пользователь с таким E-Mail не обнаружен");
         } else {
           return Promise.resolve();
@@ -80,7 +95,28 @@ router.post(
       }
     ),
 
-    body("password", "Пароль должен быть от 8 до 30 символов и содержать только буквы и цифры").isLength({ min: 8, max: 30 })
+    body("password", "Пароль должен быть от 8 до 30 символов и содержать только буквы и цифры").isLength({ min: 8, max: 30 }),
+
+    body("password").custom(async (value, { req }) => {
+      
+      let compareResult;
+
+      try {
+        const [ rows ] = await User.findByField("users", "email", req.body.email);
+        const user = rows[0];
+
+        compareResult = await bcrypt.compare(value, user.password);
+      } catch(err) {
+        equipError(err);
+        return Promise.reject("Техническая ошибка. Попробуйте еще раз!"); 
+      }
+
+      if (!compareResult) {
+        return Promise.reject("Неверный пароль!");
+      } else {
+        return Promise.resolve();
+      }
+    })
     
   ],
   authController.postLogin
@@ -100,7 +136,13 @@ router.post("/reset", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        const [ rows ] = await User.findByField("users", "email", value);
+        let rows; 
+
+        try {
+          [ rows ] = await User.findByField("users", "email", value);
+        } catch(err) {
+          return Promise.reject("Техническая ошибка. Попробуйте снова");
+        }
 
         if(!rows[0]) {
           return Promise.reject("E-Mail не найден");

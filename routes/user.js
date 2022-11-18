@@ -21,7 +21,14 @@ router.post("/edit-profile", isAuth, [
       .bail()
       .normalizeEmail()
       .custom(async (value, { req }) => {
-        const [ rows ] = await User.findByField("users", "email", value);
+        let rows;
+
+        try {
+          [ rows ] = await User.findByField("users", "email", value);
+        } catch(err) {
+          return Promise.reject("Техническая ошибка. Попробуйте снова");
+        }
+
         const user = rows[0];
 
         if(user && user.id !== req.session.user.id) {
@@ -33,9 +40,18 @@ router.post("/edit-profile", isAuth, [
     ),
 
     body("oldPasswordConfirm").custom(async (value, { req }) => {
-      const [ rows ] = await User.findById("users", req.body.id);
-      const user = rows[0];
-      const compareResult = await bcrypt.compare(value, user.password);
+      let rows;
+      let compareResult;
+
+      try {
+        [ rows ] = await User.findById("users", req.body.id);
+
+        const user = rows[0];
+
+        compareResult = await bcrypt.compare(value, user.password);
+      } catch(err) {
+        return Promise.reject("Техническая ошибка. Попробуйте снова");
+      }
 
       if (!compareResult) {
         return Promise.reject("Неверный старый пароль");

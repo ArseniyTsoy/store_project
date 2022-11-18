@@ -14,6 +14,13 @@ html(lang="ru")
             img(src="/images/service/404.jpg", alt="404") 
           p.msg Страница потерялась:(
 
+      else if (statusCode === 403)
+
+        div.box
+          a(href="https://ru.freepik.com/free-vector/403-error-forbidden-with-police-concept-illustration_7967796.htm#query=forbidden&position=1&from_view=search&track=sph")
+            img(src="/images/service/403.jpg", alt="403") 
+          p.msg У вас нет прав администратора
+
       else
 
         div.box

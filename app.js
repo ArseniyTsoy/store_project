@@ -13,6 +13,8 @@ import adminRoutes from "./routes/admin.js";
 import storeRoutes from "./routes/store.js";
 import userRoutes from "./routes/user.js";
 import errorController from "./middleware/errors.js";
+import morgan from "morgan";
+import fs from "fs";
 
 const MySQLStore = expressSession(session);
 
@@ -29,6 +31,14 @@ dotenv.config({
 
 // Creating a new app instance
 const app = express();
+
+// Logs
+let accessLogStream = fs.createWriteStream(path.join(__dirname, "logs", "access.log"), { flags: "a" });
+
+app.use(morgan("short", { 
+  immediate: true,
+  stream: accessLogStream
+}));
 
 // Uploading image files
 const fileStorage = multer.diskStorage({
@@ -105,12 +115,14 @@ app.use("/user", userRoutes);
 app.use(storeRoutes);
 
 // Error handling
-app.use("/500", errorController.get500);
+app.use("/error/:statusCode", errorController.getError);
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
   console.log(error);
-  return res.redirect("/500");
+  const statusCode = error.httpStatusCode;
+
+  return res.redirect("/error/" + statusCode);
 });
 
 // Launching the server

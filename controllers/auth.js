@@ -130,12 +130,13 @@ async function postLogin(req, res, next) {
 }
 
 // Logout
-function postLogout(req, res) {
+function postLogout(req, res, next) {
   return req.session.destroy(err => {
     if (err) {
-      console.log(err);
+      return next(equipError(err));
+    } else {
+      return res.redirect("/");
     }
-    res.redirect("/");
   });
 }
 
@@ -290,6 +291,7 @@ async function postNewPassword(req, res, next) {
 
     const result = await updatedUser.update();
 
+    // Заменить на валидацию
     if (!result) {
       throw new Error("Не удалось изменить пароль!");
     }
