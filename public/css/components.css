@@ -532,6 +532,32 @@ section {
   margin-bottom: 2rem;
 }
 
+.pagination {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.pagination a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: var(--blue);
+  border: .2rem solid var(--blue);
+  border-radius: 50%;
+  padding: .5rem 1rem;
+  margin: 0 1rem;
+}
+
+.pagination a.first {
+  padding: .5rem 1.1rem;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+  background: var(--blue);
+  color: var(--white);
+}
+
 .footer {
   background-color: var(--white);
 }

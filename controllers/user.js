@@ -84,17 +84,22 @@ async function postEditProfile(req, res, next) {
 // Cart
 async function getCart(req, res, next) {
   const currentUser = new User(req.session.user.id);
+  let totalSum = 0;
 
   try {
-    const rawCartData = await currentUser.getEverythingFrom("cart");
-    const cart = rawCartData[0];
+    const [ cart ] = await currentUser.getEverythingFrom("cart");
 
     const hasCart = (cart && cart.length > 0) ? true : false;
+
+    for (let item of cart) {
+      totalSum += item.price * item.quantity;
+    }
 
     return res.render("user/cart", {
       pageTitle: "Корзина",
       hasCart,
-      cart
+      cart,
+      totalSum
     });
   } catch(err) {
     return next(equipError(err));
@@ -176,17 +181,28 @@ async function getCleanCart(req, res, next) {
 // Wishlist
 async function getWishlist(req, res, next) {
   const currentUser = new User(req.session.user.id);
+  const currentPage = parseInt(req.query.page) || 1;
+  const limit = 3;
+  const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
   try {
-    const rawListData = await currentUser.getEverythingFrom("wishlist");
-    const wishlist = rawListData[0];
+    const [ wishlist ] = await currentUser.getEverythingFrom("wishlist", limit, offset);
 
-    const hasItems = (wishlist && wishlist.length > 0) ? true : false;
+    const totalItems = await currentUser.countItemsInside("wishlist");
+
+    const hasItems = (wishlist && totalItems > 0) ? true : false;
 
     return res.render("user/wishlist", {
       pageTitle: "Список желаемого",
       hasItems,
-      wishlist
+      wishlist,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalItems,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalItems / limit)
     });
   } catch(err) {
     return next(equipError(err));
@@ -407,10 +423,16 @@ async function postDeleteOrder(req, res, next) {
 }
 
 async function getUserOrders(req, res, next) {
-  const userId = req.session.user.id;
+  const currentUser = req.session.user.id;
+  const currentPage = parseInt(req.query.page) || 1;
+  const limit = 3;
+  const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
   try {
-    const [ orders ] = await Order.findByField("orders", "userId", userId);
+    const [ orders ] = await Order.findByField("orders", "userId", currentUser, limit, offset);
+
+    // To the User model (non-static)
+    const totalOrders = await Order.countByField("orders", "userId", currentUser);
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
 
@@ -422,7 +444,14 @@ async function getUserOrders(req, res, next) {
     return res.render("user/orders", {
       pageTitle: "Ваши заказы",
       hasOrders,
-      orders
+      orders,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalOrders,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalOrders / limit)
     });
   } catch(err) {
     return next(equipError(err));

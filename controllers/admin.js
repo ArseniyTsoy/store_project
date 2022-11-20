@@ -192,15 +192,22 @@ async function getShowProduct(req, res, next) {
 
 async function getProducts(req, res, next) {
   try {
-    let products = null;
-    let filteredBy = null;
-    const catId = parseInt(req.query.catId);
+    let products;
+    let totalProducts;
 
-    if (catId) {
-      [ products ] = await Product.findByField("products", "categoryId", catId);
-      filteredBy = catId;
+    const filteredBy = parseInt(req.query.filteredBy) || null;
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
+
+    if (filteredBy) {
+      totalProducts = await Product.countByField("products", "categoryId", filteredBy);
+
+      [ products ] = await Product.findByField("products", "categoryId", filteredBy, limit, offset);
     } else {
-      [ products ] = await Product.findAll("products");
+      totalProducts = await Product.count("products");
+      
+      [ products ] = await Product.findAll("products", limit, offset);
     }
 
     const hasProducts = (products && products.length > 0) ? true : false;
@@ -224,7 +231,14 @@ async function getProducts(req, res, next) {
       products,
       hasCategories,
       categories,
-      filteredBy
+      filteredBy,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalProducts,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalProducts / limit)
     });
   } catch(err) {
     return next(equipError(err));
@@ -351,14 +365,27 @@ async function postDeleteCategory(req, res, next) {
 
 async function getCategories(req, res, next) {
   try {
-    const [ categories ] = await Category.findAll("categories");
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
+    
+    const totalCats = await Category.count("categories");
+
+    const [ categories ] = await Category.findAll("categories", limit, offset);
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
     return res.render("admin/categories/all", {
       pageTitle: "Категории/Админ",
       hasCategories,
-      categories
+      categories,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalCats,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalCats / limit)
     });
   } catch(err) {
     return next(equipError(err));
@@ -368,13 +395,27 @@ async function getCategories(req, res, next) {
 // Administer user accounts
 async function getUsers(req, res, next) {
   try {
-    const [ users ] = await User.findAll("users");
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
+
+    const totalUsers = await User.count("users");
+
+    const [ users ] = await User.findAll("users", limit, offset);
 
     const hasUsers = users ? true : false;
 
     return res.render("admin/users", {
+      pageTitle: "Зарегистрированные пользователи",
       hasUsers,
-      users
+      users,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalUsers,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalUsers / limit)
     });
   } catch(err) {
     return next(equipError(err));
@@ -400,15 +441,22 @@ async function postDeleteUser(req, res, next) {
 // Admin orders
 async function getOrders(req, res, next) {
   try {
-    let orders = null;
-    let filteredBy = null;
-    const status = req.query.status;
+    let orders;
+    let totalOrders;
+    
+    const filteredBy = req.query.filteredBy || null;
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
-    if (status) {
-      [ orders ] = await Order.findByField("orders", "status", status);
-      filteredBy = status;
+    if (filteredBy) {
+      [ orders ] = await Order.findByField("orders", "status", filteredBy, limit, offset);
+      
+      totalOrders = await Order.countByField("orders", "status", filteredBy);
     } else {
-      [ orders ] = await Order.findAll("orders");
+      [ orders ] = await Order.findAll("orders", limit, offset);
+
+      totalOrders = await Order.count("orders");
     }
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
@@ -421,9 +469,15 @@ async function getOrders(req, res, next) {
     return res.render("admin/orders", {
       hasOrders,
       orders,
-      filteredBy
+      filteredBy,
+      // Pagination
+      currentPage,
+      hasNextPage: (limit * currentPage) < totalOrders,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalOrders / limit)
     });
-
   } catch(err) {
     return next(equipError(err));
   }

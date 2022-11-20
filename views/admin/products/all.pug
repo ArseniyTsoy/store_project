@@ -16,7 +16,7 @@ html(lang="ru")
         each cat in categories
           a(
             class=(filteredBy === cat.id ? "active" : null),
-            href=`/admin/catalog?catId=${cat.id}`
+            href=`/admin/catalog?filteredBy=${cat.id}`
           ) #{cat.title}
           
       else 
@@ -52,8 +52,11 @@ html(lang="ru")
               form(action="/admin/delete-product", method="POST")
                 input(type="hidden", name="productId", value=product.id)
                 button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
-                  
+
       else 
         p.empty Товары не обнаружены
+
+      if (hasNextPage || hasPreviousPage)
+        include ../../includes/pagination
 
     script(src="/js/script.js")

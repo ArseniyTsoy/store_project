@@ -10,12 +10,12 @@ html(lang="ru")
       if filteredBy 
         a.reload(href="/admin/orders") Сбросить
       a(
-        class=(filteredBy === "В обработке" ? "active" : null), href="/admin/orders?status=В%20обработке"
+        class=(filteredBy === "В обработке" ? "active" : null), href="/admin/orders?filteredBy=В%20обработке"
       ) В обработке
       
       a(
         class=(filteredBy === "Выполнен" ? "active" : null),
-        href="/admin/orders?status=Выполнен"
+        href="/admin/orders?filteredBy=Выполнен"
       ) Выполнен
 
     section.placed-orders 
@@ -56,5 +56,11 @@ html(lang="ru")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="orderId", value=order.id)
                 button.delete-btn(type="submit", onclick="return confirm('Вы действительно желаете удалить этот заказ?');") Удалить
+
+      else 
+        p.empty Заказы не найдены
+
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination
 
     script(src="/js/script.js")

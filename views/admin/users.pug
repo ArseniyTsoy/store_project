@@ -27,5 +27,11 @@ html(lang="ru")
                 input(type="hidden", name="userId", value=user.id)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 button.delete-btn(type="submit", onclick="return confirm('Нажав это кнопку, вы удаляете профиль навсегда. Нажать?');") Удалить профиль
+
+      else
+        p.empty Пользователи не найдены
     
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination
+
     script(src="/js/script.js")

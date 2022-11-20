@@ -21,15 +21,18 @@ html(lang="ru")
         div.box-container
           each cat in categories
             div.box
-              a(href=`/category?catId=${cat.id}&catTitle=${cat.title}`)
+              a(href=`/category?filteredBy=${cat.id}&catTitle=${cat.title}`)
                 img(src="/" + cat.imageUrl, alt=cat.title)
               h3 #{cat.title}
               p #{cat.description}        
-              a.btn(href=`/category?catId=${cat.id}&catTitle=${cat.title}`) Товары
+              a.btn(href=`/category?filteredBy=${cat.id}&catTitle=${cat.title}`) Товары
 
-    if hasProducts  
-    
-      section.products
+    else
+      p.empty Категории не найдены
+
+    section.products
+
+      if hasProducts
       
         h1.title Свежие продукты
         div.box-container
@@ -56,6 +59,12 @@ html(lang="ru")
                 input(type="hidden", name="productId", value=product.id)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input.option-btn(type="submit", value="В список желаемого")
-                
+      
+      else
+        p.empty Товары не найдены
+
+      if hasProducts
+        include ../includes/pagination
+
     include ../includes/footer.pug
     script(src="/js/script.js") 

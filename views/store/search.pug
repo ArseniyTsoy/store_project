@@ -7,25 +7,24 @@ html(lang="ru")
 
     section.search-form
 
-      form(action="#", method="POST")
+      form(action="/search", method="GET")
 
         input.box(
           type="text", 
-          name="searchString", 
-          placeholder="Что будем искать?",
-          value=(searchString ? searchString: null)
+          name="filteredBy", 
+          placeholder=(error ? error : "Что будем искать?"),
+          value=filteredBy
         )
         
-        input(type="hidden", name="_csrf", value=csrfToken)
         input.btn(type="submit", value="Найти")
 
-    if searchPerformed
-
-      if hasResults
-
-        section.products(style="padding-top: 0; min-height:100vh;")
+    section.products(style="padding-top: 0; min-height:100vh;")
           
-          div.box-container
+      div.box-container
+
+        if searchPerformed
+
+          if hasResults
 
             each product in searchResults
       
@@ -51,9 +50,12 @@ html(lang="ru")
                   input(type="hidden", name="productId", value=product.id)
                   input(type="hidden", name="_csrf", value=csrfToken)
                   input.option-btn(type="submit", value="В список желаемого")
-                  
-      else 
-        p.empty Товары не найдены:(
+
+          else 
+            p.empty Товары не найдены:(
+      
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination
 
     include ../includes/footer.pug
     script(src="/js/script.js")

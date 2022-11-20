@@ -4,9 +4,13 @@ html(lang="ru")
     include ../includes/head
   body
     include ../includes/navigation
+    
     section.wishlist
+      
       if hasItems
+        
         h1.title Список желаемого
+        
         div.box-container
           each item in wishlist
             div.box
@@ -26,13 +30,14 @@ html(lang="ru")
                 input(type="hidden", name="productId", value=item.productId)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input.btn(type="submit", value="В корзину")
-               
+
+        if (hasNextPage || hasPreviousPage)
+          include ../includes/pagination
+
         div.wishlist-total
-          p Итого: 
-            span
           a.option-btn(href="/catalog") Продолжить покупки
-          //- Удаление предмета из корзины, если число меньше единицы
           a.delete-btn(href="/user/wishlist-clean") Очистить список
+      
       else
         p.empty Ваш список желаемого пуст
 

@@ -63,7 +63,7 @@ export default class User extends BaseModel {
     }
   }
 
-  async getEverythingFrom(tableName) {
+  async getEverythingFrom(tableName, limit, offset) {
     try {
 
       if (typeof tableName !== "string") {
@@ -72,7 +72,7 @@ export default class User extends BaseModel {
 
       const pool = await getPool();
 
-      const sql = `SELECT 
+      let sql = `SELECT 
           ${tableName}.*, 
           p.title, 
           p.price,  
@@ -81,6 +81,14 @@ export default class User extends BaseModel {
         ON ${tableName}.productId = p.id  
         WHERE ${tableName}.userId = ? 
         ORDER BY ${tableName}.id DESC`;
+
+      if (limit) {
+        sql += ` LIMIT ${limit}`;
+      }
+
+      if (offset) {
+        sql += ` OFFSET ${offset}`;
+      }
 
       return pool.execute(sql, [this.id]);
     } catch(err) {
@@ -97,7 +105,9 @@ export default class User extends BaseModel {
 
       const pool = await getPool();
 
-      return pool.execute(`SELECT COUNT (*) FROM ${tableName} WHERE userId = ?`, [this.id]);
+      const [ rows ] = await pool.execute(`SELECT COUNT (*) FROM ${tableName} WHERE userId = ?`, [this.id]);
+
+      return (rows[0])["COUNT (*)"];
     } catch(err) {
       throw equipError(err);
     }

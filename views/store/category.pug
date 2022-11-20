@@ -6,12 +6,14 @@ html(lang="ru")
     include ../includes/navigation
     
     section.products
-      h1.title #{catTitle}
+      h1.title #{pageTitle}
 
-      if hasProducts
+      div.box-container
 
-        div.box-container
+        if hasProducts
+          
           each product in products
+            
             div.box
 
               div.price 
@@ -35,8 +37,11 @@ html(lang="ru")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input.option-btn(type="submit", value="В список желаемого")
 
-      else 
-        p.empty Товары не обнаружены
+        else 
+          p.empty Товары не найдены
+
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination
         
     include ../includes/footer.pug
     script(src="/js/script.js")

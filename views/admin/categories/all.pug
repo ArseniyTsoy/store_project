@@ -30,5 +30,11 @@ html(lang="ru")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="catId", value=cat.id)
                 button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
+        
+        else 
+          p.empty Категории не найдены
+      
+      if (hasNextPage || hasPreviousPage) 
+        include ../../includes/pagination
 
     script(src="/js/script.js")

@@ -4,8 +4,11 @@ html(lang="ru")
     include ../includes/head
   body
     include ../includes/navigation
+    
     section.placed-orders
+      
       if hasOrders
+        
         h1.title Ваши заказы
         div.box-container
           each order in orders
@@ -35,8 +38,12 @@ html(lang="ru")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="orderId", value=order.id)
                 button.delete-btn(type="submit") Отменить заказ
+
       else
-        p.empty У вас нет заказов
+        p.empty Заказы не найдены
+
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination
 
     include ../includes/footer.pug
     script(src="/js/script.js")

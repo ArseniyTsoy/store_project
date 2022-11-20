@@ -10,8 +10,6 @@ router.get("/category", storeController.getCategory);
 
 router.get("/search", storeController.getSearch);
 
-router.post("/search", storeController.postSearch);
-
 router.get("/show-product/:id", storeController.getSingleProduct);
 
 router.get("/", storeController.getIndex);

@@ -1,0 +1,35 @@
+section.pagination
+
+  if (currentPage !== 1 && previousPage !== 1)
+
+    if (filteredBy)
+      a.pag.first(href=`?filteredBy=${filteredBy}&page=1`)|1
+    else 
+      a.pag.first(href="?page=1")|1
+
+  if hasPreviousPage
+
+    if (filteredBy)
+      a.pag(href=`?filteredBy=${filteredBy}&page=${previousPage}`) #{previousPage}
+    else
+      a.pag(href=`?page=${previousPage}`) #{previousPage}
+
+  // currentPage variable is always present
+  if(filteredBy)
+    a.pag.active(href=`?filteredBy=${filteredBy}&page=${currentPage}`) #{currentPage}
+  else
+    a.pag.active(href=`?page=${currentPage}`) #{currentPage}
+
+  if hasNextPage
+
+    if (filteredBy)
+      a.pag(href=`?filteredBy=${filteredBy}&page=${nextPage}`) #{nextPage}
+    else 
+      a.pag(href=`?page=${nextPage}`) #{nextPage}
+
+  if (lastPage !== currentPage && nextPage !== lastPage)
+  
+    if (filteredBy)
+      a.pag(href=(`?filteredBy=${filteredBy}&page=${lastPage}`)) #{lastPage}
+    else 
+      a.pag(href=`?page=${lastPage}`) #{lastPage}

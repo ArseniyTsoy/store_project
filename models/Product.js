@@ -126,17 +126,25 @@ export default class Product extends BaseModel {
     }
   }
 
-  static async search(searchString) {
+  static async search(searchString, limit = null, offset = null) {
     try {
       const pool = await getPool();
 
-      const sql = `SELECT 
+      let sql = `SELECT 
         p.id, p.title, p.price, p.imageUrl
         FROM products p
         INNER JOIN categories c
         ON p.categoryId = c.id
         WHERE p.title LIKE ? 
         OR c.title LIKE ? ORDER BY p.id DESC`;
+
+      if (limit) {
+        sql += ` LIMIT ${limit}`;
+      }
+
+      if (offset) {
+        sql += ` OFFSET ${offset}`;
+      }
 
       const values = [
         `%${searchString}%`, 

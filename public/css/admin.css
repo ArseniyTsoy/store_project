@@ -145,6 +145,10 @@
    resize: none;
 }
 
+.show-products {
+   margin-bottom: 5rem;
+}
+
 .show-products .box-container{
    display: grid;
    grid-template-columns: repeat(auto-fit, 35rem);

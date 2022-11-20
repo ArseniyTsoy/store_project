@@ -14,13 +14,12 @@ html(lang="ru")
         each cat in categories
           a(
             class=(filteredBy === cat.id ? "active" : null), 
-            href=`/catalog?catId=${cat.id}`
-          ) #{cat.title}
+            href=`/catalog?filteredBy=${cat.id}`
+          ) #{cat.title}    
           
       else 
-        p.empty Категории не обнаружены
+        p.empty Категории не найдены
     
-    //- Add pagination
     section.products
 
       if hasProducts 
@@ -61,7 +60,10 @@ html(lang="ru")
                   button.delete-btn(type="submit") Удалить из БД
 
       else 
-        p.empty Товары не обнаружены
+        p.empty Товары не найдены
+
+      if (hasNextPage || hasPreviousPage)
+        include ../includes/pagination  
           
     include ../includes/footer.pug
     script(src="/js/script.js")
