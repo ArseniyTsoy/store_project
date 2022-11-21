@@ -49,8 +49,10 @@ html(lang="ru")
   
               a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
 
-              form(action="/admin/delete-product", method="POST")
+              form(action="/admin/remove-product", method="POST")
                 input(type="hidden", name="productId", value=product.id)
+                input(type="hidden", name="imageUrl", value=product.imageUrl)
+                input(type="hidden", name="_csrf", value=csrfToken)
                 button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
 
       else 

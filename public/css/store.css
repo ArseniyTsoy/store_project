@@ -90,6 +90,11 @@
    padding-bottom: 0;
 }
 
+.products .more-products {
+   text-align: center;
+   margin: 2rem;
+}
+
 .products .box-container{
    display: grid;
    grid-template-columns: repeat(auto-fit, 35rem);

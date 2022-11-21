@@ -20,15 +20,16 @@ router.post("/signup", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        let rows;
+        let user;
 
         try {
-          [ rows ] = await User.findByField("users", "email", value);
+          const rows = await User.findByField("email", value);
+          user = rows[0];
         } catch(err) {
           return Promise.reject("Техническая ошибка. Попробуйте снова");
         }
 
-        if (rows[0]) {
+        if (user) {
           return Promise.reject("Данный E-Mail уже зарегистрирован");
         } else {
           return Promise.resolve();
@@ -79,15 +80,16 @@ router.post(
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        let rows;
+        let user;
 
         try {
-          [ rows ] = await User.findByField("users", "email", value);
+          const rows = await User.findByField("email", value);
+          user = rows[0];
         } catch(err) {
           return Promise.reject("Техническая ошибка. Попробуйте снова");
         }
 
-        if (!rows[0]) {
+        if (!user) {
           return Promise.reject("Пользователь с таким E-Mail не обнаружен");
         } else {
           return Promise.resolve();
@@ -98,11 +100,10 @@ router.post(
     body("password", "Пароль должен быть от 8 до 30 символов и содержать только буквы и цифры").isLength({ min: 8, max: 30 }),
 
     body("password").custom(async (value, { req }) => {
-      
       let compareResult;
 
       try {
-        const [ rows ] = await User.findByField("users", "email", req.body.email);
+        const rows = await User.findByField("email", req.body.email);
         const user = rows[0];
 
         compareResult = await bcrypt.compare(value, user.password);
@@ -136,15 +137,16 @@ router.post("/reset", [
       .bail()
       .normalizeEmail()
       .custom(async (value) => {
-        let rows; 
+        let user; 
 
         try {
-          [ rows ] = await User.findByField("users", "email", value);
+          const rows = await User.findByField("email", value);
+          user = rows[0];
         } catch(err) {
           return Promise.reject("Техническая ошибка. Попробуйте снова");
         }
 
-        if(!rows[0]) {
+        if(!user) {
           return Promise.reject("E-Mail не найден");
         } else {
           return Promise.resolve();

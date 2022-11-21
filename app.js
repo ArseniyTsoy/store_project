@@ -93,6 +93,7 @@ app.set("views", "views");
 
 // Request body parser
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // CSRF tokens
 app.use(csrfProtection);

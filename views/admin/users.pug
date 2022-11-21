@@ -9,22 +9,31 @@ html(lang="ru")
 
       if hasUsers
 
-        h1.title Зарегистрированные пользователи
+        h1.title #{pageTitle}
+
         div.box-container
+
           each user in users
 
             div.box
               img(src="/" + user.imageUrl, alt=user.name)
-              p ID пользователя: 
-                span #{user.id}
-              p Имя: 
-                span #{user.name}
-              p Email: 
-                span #{user.email}
-              p Тип пользователя: 
-                span(style="color:" + (user.type == "admin") ? "orange" : "green") #{user.type}
+
+              div.user-data
+                p ID пользователя: 
+                  span #{user.id}
+                p Имя: 
+                  span #{user.name}
+                p Email: 
+                  span #{user.email}
+                p Админ: 
+                  if (user.userType === "admin")
+                    span(style="color: var(--pink)") Да
+                  else 
+                    span Нет
+
               form(action="/admin/user-delete", method="POST")
                 input(type="hidden", name="userId", value=user.id)
+                input(type="hidden", name="imageUrl", value=user.imageUrl)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 button.delete-btn(type="submit", onclick="return confirm('Нажав это кнопку, вы удаляете профиль навсегда. Нажать?');") Удалить профиль
 

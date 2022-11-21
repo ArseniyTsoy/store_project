@@ -6,7 +6,13 @@ function get404(req, res) {
 }
 
 function getError(req, res) {
-  const statusCode = parseInt(req.params.statusCode);
+  let statusCode;
+
+  if (isNaN(req.params.statusCode)) {
+    statusCode = 500;
+  } else {
+    statusCode = parseInt(req.params.statusCode);
+  }
 
   return res.status(statusCode).render("messages/error", {
     pageTitle: "Серверная ошибка",

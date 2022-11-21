@@ -73,7 +73,8 @@ section {
 .delete-btn,
 .option-btn,
 .edit-btn,
-.add-btn {
+.add-btn,
+.main-btn {
   display: inline-block;
   margin-top: 1rem;
   border-radius: .5rem;
@@ -106,11 +107,19 @@ section {
   background-color: var(--pink);
 }
 
+.main-btn {
+  font-size: 3rem;
+  width: 20%;
+  border: var(--border);
+  color: var(--green);
+  background-color: var(--white);
+}
+
 .btn:hover,
 .delete-btn:hover,
 .option-btn:hover,
 .edit-btn:hover,
-.add-btn {
+.add-btn:hover {
   background-color: var(--black);
 }
 
@@ -292,9 +301,17 @@ section {
   color: var(--green);
 }
 
-.header .flex .icons a span,
-.header .flex .icons a i{
+.header .flex .icons a i span,
+.header .flex .icons a i {
    color:var(--light-color);
+}
+
+.header .flex .icons a .fa-heart .activeList {
+  color: var(--pink);
+}
+
+.header .flex .icons a .fa-cart-shopping .activeCart {
+  color: var(--blue);
 }
 
 .header .flex .icons a:hover span,
@@ -659,6 +676,10 @@ section {
   .show-message .box .msg {
     font-size: 2rem;
   }
+
+  .main-btn {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width:450px) {
@@ -682,6 +703,10 @@ section {
   }
 
   .show-message .box .msg {
+    font-size: 1.5rem;
+  }
+
+  .main-btn {
     font-size: 1.5rem;
   }
 

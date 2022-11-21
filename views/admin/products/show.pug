@@ -9,7 +9,7 @@ html(lang="ru")
       
       if hasProduct
 
-        h1.title Быстрый просмотр
+        h1.title #{product.title}
 
         div.box
           div.price 
@@ -19,8 +19,9 @@ html(lang="ru")
           div.cat #{category}
           div.details #{product.description}
           a.edit-btn(href="/admin/edit-product/" + product.id) Редактировать
-          form(action="/admin/delete-product", method="POST")
+          form(action="/admin/remove-product", method="POST")
             input(type="hidden", name="productId", value=product.id)
+            input(type="hidden", name="imageUrl", value=product.imageUrl)
             input(type="hidden", name="_csrf", value=csrfToken)
             button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
 

@@ -4,14 +4,15 @@ import Order from "../models/Order.js";
 import Category from "../models/Category.js";
 import { validationResult } from "express-validator";
 import equipError from "../utils/equipError.js";
+import deleteFile from "../utils/deleteFile.js";
 
 // Products
 async function getCreateProduct(req, res, next) {
   try {
     let categories = [];
-    const [ rows ] = await Category.findAll("categories");
+    const rawCats = await Category.findAll();
 
-    for (let cat of rows) {
+    for (let cat of rawCats) {
       categories.push({
         id: cat.id,
         title: cat.title
@@ -37,6 +38,9 @@ async function postCreateProduct(req, res, next) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
 
       const categories = JSON.parse(req.body.categories);
 
@@ -76,14 +80,13 @@ async function postCreateProduct(req, res, next) {
 async function getEditProduct(req, res, next) {
   try {
     const productId = req.params.productId;
-    const [ rows ] = await Product.findById("products", productId);
-    const product = rows[0];
+    const product = await Product.findById(productId);
     const hasProduct = product ? true : false;
 
     let categories = [];
-    const [ results ] = await Category.findAll("categories");
+    const rawCats = await Category.findAll();
 
-    for (let cat of results) {
+    for (let cat of rawCats) {
       categories.push({
         id: cat.id,
         title: cat.title
@@ -103,13 +106,16 @@ async function getEditProduct(req, res, next) {
 }
 
 async function postEditProduct(req, res, next) {
-  const { id, title, price, description } = req.body;
+  const { id, title, price, description, oldImageUrl } = req.body;
   const categoryId = parseInt(req.body.categoryId);
-  const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
 
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
+    if (req.file) {
+      deleteFile(req.file.path);
+    }
+
     const categories = JSON.parse(req.body.categories);
 
     return res.status(422).render("admin/products/edit", {
@@ -119,7 +125,7 @@ async function postEditProduct(req, res, next) {
         id,
         title,
         price,
-        imageUrl,
+        imageUrl: oldImageUrl,
         description,
         categoryId        
       },
@@ -128,10 +134,10 @@ async function postEditProduct(req, res, next) {
     });
   }
 
-  try {
-    const [ rows ] = await Product.findById("products", id);
+  const imageUrl = req.file ? req.file.path : oldImageUrl;
 
-    const product = rows[0];
+  try {
+    const product = await Product.findById(id);
 
     if (!product) {
       throw new Error("Товар не обнаружен!");
@@ -145,6 +151,10 @@ async function postEditProduct(req, res, next) {
       throw new Error("Product editing failed!");
     }
 
+    if (req.file) {
+      deleteFile(oldImageUrl);
+    }
+
     return res.redirect("/admin/show-product/" + id);
   } catch(err) {
     return next(equipError(err));
@@ -152,16 +162,18 @@ async function postEditProduct(req, res, next) {
 }
 
 async function postRemoveProduct(req, res, next) {
-  const productId = req.body.productId;
+  const { productId, imageUrl } = req.body;
 
   try {
-    const result = await Product.deleteById("products", productId);
+    const result = await Product.deleteById(productId);
 
     if (!result) {
       throw new Error("Deletion failed!");
     }
+    
+    deleteFile(imageUrl);
 
-    return res.redirect("back");
+    return res.redirect("/admin/catalog");
   } catch(err) {
     return next(equipError(err));
   }
@@ -171,13 +183,12 @@ async function getShowProduct(req, res, next) {
   try {
     const productId = req.params.productId;
 
-    const [ rows ] = await Product.findById("products", productId);
-    const product = rows[0];
+    const product = await Product.findById(productId);
 
     const hasProduct = product ? true : false;
 
-    const [ cats ] = await Category.findById("categories", product.categoryId);
-    const category = cats[0].title;
+    const rawCat = await Category.findById(product.categoryId);
+    const category = rawCat.title;
 
     return res.render("admin/products/show", {
       pageTitle: "Быстрый просмотр/Админ",
@@ -201,22 +212,23 @@ async function getProducts(req, res, next) {
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
     if (filteredBy) {
-      totalProducts = await Product.countByField("products", "categoryId", filteredBy);
+      totalProducts = await Product.countByField("categoryId", filteredBy);
 
-      [ products ] = await Product.findByField("products", "categoryId", filteredBy, limit, offset);
+      products = await Product.findByField("categoryId", filteredBy, limit, offset);
+
     } else {
-      totalProducts = await Product.count("products");
+      totalProducts = await Product.count();
       
-      [ products ] = await Product.findAll("products", limit, offset);
+      products = await Product.findAll(limit, offset);
     }
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
     let categories = [];
-    const [ rows ] = await Category.findAll("categories");
+    const rawCats = await Category.findAll();
     
     // Add check
-    for (let item of rows) {
+    for (let item of rawCats) {
       categories.push({
         id: item.id,
         title: item.title
@@ -263,14 +275,17 @@ async function postCreateCategory(req, res, next) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
+
       return res.status(422).render("admin/categories/form", {
         pageTitle: "Добавить новую категорию",
         edit: false,
         hasError: true,
         category: {
           title, 
-          description,
-          // imageUrl
+          description
         },
         errors: errors.mapped()
       });
@@ -296,8 +311,7 @@ async function postCreateCategory(req, res, next) {
 async function getEditCategory(req, res, next) {
   try {
     const catId = req.params.catId;
-    const [ rows ] = await Category.findById("categories", catId);
-    const category = rows[0];
+    const category = await Category.findById(catId);
 
     return res.render("admin/categories/form", {
       pageTitle: "Редактировать категорию",
@@ -313,25 +327,30 @@ async function getEditCategory(req, res, next) {
 
 async function postEditCategory(req, res, next) {
   try {
-    const { title, description, catId } = req.body;
-    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+    const { title, description, catId, oldImageUrl } = req.body;
 
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
+
       return res.status(422).render("admin/categories/form", {
         pageTitle: "Редактировать категорию",
         edit: true,
         category: {
           title,
           description,
-          imageUrl,
-          catId
+          imageUrl: oldImageUrl,
+          id: catId
         },
         hasError: true,
         errors: errors.mapped()
       })
     }
+
+    const imageUrl = req.file ? req.file.path : oldImageUrl;
 
     const editedCategory = new Category(catId, title, description, imageUrl);
 
@@ -339,6 +358,10 @@ async function postEditCategory(req, res, next) {
 
     if (!result) {
       throw new Error("Failed to update category!");
+    }
+
+    if (req.file) {
+      deleteFile(oldImageUrl);
     }
 
     // Show category
@@ -350,12 +373,14 @@ async function postEditCategory(req, res, next) {
 
 async function postDeleteCategory(req, res, next) {
   try {
-    const catId = req.body.catId;
-    const result = await Category.deleteById("categories", catId);
+    const { catId, imageUrl } = req.body;
+    const result = await Category.deleteById(catId);
 
     if (!result) {
       throw new Error("Failed to delete category!");
     }
+
+    deleteFile(imageUrl);
 
     return res.redirect("back");
   } catch(err) {
@@ -369,9 +394,9 @@ async function getCategories(req, res, next) {
     const limit = 3;
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
     
-    const totalCats = await Category.count("categories");
+    const totalCats = await Category.count();
 
-    const [ categories ] = await Category.findAll("categories", limit, offset);
+    const categories = await Category.findAll(limit, offset);
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
@@ -399,9 +424,9 @@ async function getUsers(req, res, next) {
     const limit = 3;
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
-    const totalUsers = await User.count("users");
+    const totalUsers = await User.count();
 
-    const [ users ] = await User.findAll("users", limit, offset);
+    const users = await User.findAll(limit, offset);
 
     const hasUsers = users ? true : false;
 
@@ -423,12 +448,13 @@ async function getUsers(req, res, next) {
 }
 
 async function postDeleteUser(req, res, next) {
-  const userId = req.body.userId;
+  const { userId, imageUrl } = req.body;
 
   try {
-    const result = await User.deleteById("users", userId);
+    const result = await User.deleteById(userId);
     
     if (result && result.length > 0) {
+      deleteFile(imageUrl);
       return res.redirect("/admin/users");
     } else {
       throw new Error("Failed to delete the user!");
@@ -450,13 +476,13 @@ async function getOrders(req, res, next) {
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
     if (filteredBy) {
-      [ orders ] = await Order.findByField("orders", "status", filteredBy, limit, offset);
+      orders = await Order.findByField("status", filteredBy, limit, offset);
       
-      totalOrders = await Order.countByField("orders", "status", filteredBy);
+      totalOrders = await Order.countByField("status", filteredBy);
     } else {
-      [ orders ] = await Order.findAll("orders", limit, offset);
+      orders = await Order.findAll(limit, offset);
 
-      totalOrders = await Order.count("orders");
+      totalOrders = await Order.count();
     }
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
@@ -467,6 +493,7 @@ async function getOrders(req, res, next) {
     }
 
     return res.render("admin/orders", {
+      pageTitle: "Заказы",
       hasOrders,
       orders,
       filteredBy,
@@ -504,7 +531,7 @@ async function postDeleteOrder(req, res, next) {
   const orderId = req.body.orderId;
 
   try {
-    const result = await Order.deleteById("orders", orderId);
+    const result = await Order.deleteById(orderId);
 
     if (!result) {
       throw new Error("Failed to delete the order!");
@@ -522,10 +549,10 @@ async function getDashboard(req, res) {
 
   try {
 
-    total.orders = await Order.count("orders");
-    total.products = await Product.count("products");
-    total.users = await User.count("users");
-    total.categories = await Category.count("categories");
+    total.orders = await Order.count();
+    total.products = await Product.count();
+    total.users = await User.count();
+    total.categories = await Category.count();
 
     return res.render("admin/index", {
       pageTitle: "Панель администратора",

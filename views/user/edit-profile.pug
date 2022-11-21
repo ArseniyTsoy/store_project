@@ -13,7 +13,7 @@ html(lang="ru")
 
         form(action="/user/edit-profile", method="POST", enctype="multipart/form-data")
 
-          img(src="/" + user.imageUrl, alt=user.name)
+          img(src=`/${user.imageUrl}`, alt=user.name)
 
           div.flex
 
@@ -21,16 +21,12 @@ html(lang="ru")
 
               label(for="name") Ваше имя:
               input(class=(errors.name ? "box invalid" : "box"), type="text", name="name", required, placeholder=(errors.name ? errors.name.msg : null), value=(errors.name ? null: user.name))#name
-              //- if (errors.name) 
-              //-   span.error-message #{errors.name.msg}
 
               label(for="email") Ваш Email:
               input(class=(errors.name ? "box invalid" : "box"), type="email", name="email", required, placeholder=(errors.email ? errors.email.msg : null), value=(errors.email ? null: user.email))#email
-              //- if (errors.email) 
-              //-   span.error-message #{errors.email.msg}
 
               label(for="image") Фото профиля:
-              input(class=(errors.image ? "box invalid" : "box"), type="file", name="image", accept=".jpg,.jpeg,.png")#image
+              input.box(type="file", name="image", accept=".jpg,.jpeg,.png")#image
               input(type="hidden", name="oldImageUrl", value=user.imageUrl)
 
             div.inputBox
@@ -39,18 +35,12 @@ html(lang="ru")
 
               label(for="oldPasswordConfirm") Старый пароль:
               input(class=(errors.oldPasswordConfirm ? "box invalid" : "box"), type="password", name="oldPasswordConfirm", placeholder=(errors.oldPasswordConfirm ? errors.oldPasswordConfirm.msg : "Введите ваш старый пароль"))#oldPasswordConfirm
-              //- if (errors.oldPasswordConfirm) 
-              //-   span.error-message #{errors.oldPasswordConfirm.msg}
 
               label(for="newPassword") Новый пароль:
               input(class=(errors.newPassword ? "box invalid" : "box"), type="password", name="newPassword", placeholder=(errors.newPassword ? errors.newPassword.msg : "Введите новый пароль"))#newPassword
-              //- if (errors.newPassword) 
-              //-   span.error-message #{errors.newPassword.msg}
               
               label(for="newPasswordConfirm") Подтверждение пароля:
               input(class=(errors.newPasswordConfirm ? "box invalid" : "box"),type="password", name="newPasswordConfirm", placeholder=(errors.newPasswordConfirm ? errors.newPasswordConfirm.msg : "Введите новый пароль еще раз"))#newPasswordConfirm
-              //- if (errors.newPasswordConfirm) 
-              //-   span.error-message #{errors.newPasswordConfirm.msg}
               
           div.flex-btn
 

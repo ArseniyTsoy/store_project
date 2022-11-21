@@ -20,7 +20,7 @@ export default class BaseModel {
     }
   }
 
-  static async countByField(tableName, fieldName, fieldValue) {
+  static async countByField(fieldName, fieldValue, tableName) {
     try {
       
       if (typeof tableName !== "string") {
@@ -39,7 +39,7 @@ export default class BaseModel {
     }
   }
 
-  static async findById(tableName, id) {
+  static async findById(id, tableName) {
     try {
 
       if (typeof tableName !== "string") {
@@ -48,13 +48,16 @@ export default class BaseModel {
 
       const pool = await getPool();
 
-      return pool.execute(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
+      const [ result ] = await pool.execute(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
+
+      return result[0];
+
     } catch(err) {
       throw equipError(err);
     }
   }
 
-  static async findByField(tableName, fieldName, fieldValue, limit = null, offset = null) {
+  static async findByField(fieldName, fieldValue, limit = null, offset = null, tableName) {
     try {
 
       if (typeof tableName !== "string" || typeof fieldName !== "string") {
@@ -73,15 +76,19 @@ export default class BaseModel {
         sql += ` OFFSET ${offset}`;
       }
       
-      return pool.execute(sql, [fieldValue]);
+      const [ results ] = await pool.execute(sql, [fieldValue]);
+
+      return results;
+
     } catch(err) {
       throw equipError(err);
     }
   }
 
-  static async findAll(tableName, limit = null, offset = null) {
+  static async findAll(limit = null, offset = null, tableName) {
+    
     try {
-      
+
       if (typeof tableName !== "string") {
         throw new Error("Wrong argument type for the table name! A string is required!");
       }
@@ -98,13 +105,16 @@ export default class BaseModel {
 
       const pool = await getPool();
       
-      return pool.execute(sql);
+      const [ results ] = await pool.execute(sql);
+
+      return results;
+      
     } catch(err) {
       throw equipError(err);
     }
   }
 
-  static async deleteById(tableName, id) {
+  static async deleteById(id, tableName) {
     try {
 
       if (typeof tableName !== "string") {
@@ -113,7 +123,10 @@ export default class BaseModel {
 
       const pool = await getPool();
 
-      return pool.execute(`DELETE FROM ${tableName} WHERE id =?`, [id]);
+      const result = await pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
+
+      return result;
+      
     } catch(err) {
       throw equipError(err);
     }

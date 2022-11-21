@@ -4,6 +4,7 @@ import transporter from "../utils/mailer.js";
 import crypto from "crypto";
 import { validationResult } from "express-validator";
 import equipError from "../utils/equipError.js";
+import deleteFile from "../utils/deleteFile.js";
 
 // Signup
 function getSignup(_, res) {
@@ -23,6 +24,11 @@ async function postSignup(req, res, next) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+      
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
+
       return res.status(422).render("auth/form", {
         path: "/signup",
         pageTitle: "Регистрация",
@@ -38,6 +44,7 @@ async function postSignup(req, res, next) {
     }
 
     const imageUrl = req.file.path;
+    
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = new User(null, name, email, imageUrl, hashedPassword);
@@ -52,14 +59,14 @@ async function postSignup(req, res, next) {
     res.status(201).redirect("/auth/login");
 
     return transporter.sendMail({
-      from: process.env.MAIL_ADDR,
+      from: {
+        name: "Groco Pet Project",
+        address: process.env.MAIL_ADDR
+      },
       to: email,
-      subject: "Signup Succeeded! Регистрация прошла успешно!",
-      // Сверстать темплате и сунуть в public
-      html: `<h1>Congratulations!</h1>
-        <p>You have successfully signed up!</p>
-        <h1>Поздравляем!</h2>
-        <p>Ваш аккаунт был успешно зарегистрирован!</p>`
+      subject: "Регистрация прошла успешно! Signup Succeeded!",
+      html: `<h3>Поздравляем! Congratulations!</h3>
+      <p>Ваш аккаунт был успешно зарегистрирован! You have successfully signed up!</p>`
     });
   } catch(err) {
     return next(equipError(err));
@@ -97,7 +104,7 @@ async function postLogin(req, res, next) {
       });
     }
 
-    const [ rows ] = await User.findByField("users", "email", email);
+    const rows = await User.findByField("email", email);
     const user = rows[0];
 
     const compareResult = await bcrypt.compare(password, user.password);
@@ -118,14 +125,16 @@ async function postLogin(req, res, next) {
     }
 
     const userForCounts = new User(user.id);
+
     const cartItems = await userForCounts.countItemsInside("cart");
-    req.session.cartItems = (cartItems[0][0])["COUNT (*)"];
+    req.session.cartItems = cartItems;
+
     const wishlistItems = await userForCounts.countItemsInside("wishlist");
-    req.session.wishlistItems = (wishlistItems[0][0])["COUNT (*)"];
+    req.session.wishlistItems = wishlistItems;
 
     return res.redirect("/");
   } catch(err) {
-    next(err);
+    next(equipError(err));
   }
 }
 
@@ -174,7 +183,7 @@ async function postResetPassword(req, res, next) {
       }
     });
 
-    const [rows] = await User.findByField("users", "email", providedEmail);
+    const rows = await User.findByField("email", providedEmail);
 
     let user = rows[0];
 
@@ -196,12 +205,15 @@ async function postResetPassword(req, res, next) {
     }
 
     const sendMailCheck = await transporter.sendMail({
-      from: process.env.MAIL_ADDR,
+      from: {
+        name: "Groco Pet Project",
+        address: process.env.MAIL_ADDR
+      },
       to: providedEmail,
-      subject: "Ссылка для изменения пароля!",
-      // Сверстать темплате и сунуть в public
-      html: `<h3>Вы запросили сброс пароля!</h3>
-        <p>Пожалуйста, перейдите по этой <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>`
+      subject: "Ссылка для изменения пароля! Link for resetting your password!",
+      html: `<h3>Вы запросили сброс пароля! You requested a password reset!</h3>
+      <p>Пожалуйста, перейдите по этой <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>
+      <p>Please, follow this <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">link</a> to change your password. Ignore this message, if you haven't requested any password reset.</p>`
     });
 
     // Better check
@@ -223,8 +235,7 @@ async function postResetPassword(req, res, next) {
 async function getNewPassword(req, res, next) {
   try {
     const { resetToken, providedEmail } = req.params;
-    const [rows] = await User.findByField("users", "email", providedEmail);
-
+    const rows = await User.findByField("email", providedEmail);
     const user = rows[0];
 
     if (!user) {
@@ -264,8 +275,7 @@ async function postNewPassword(req, res, next) {
       });
     }
 
-    const [rows] = await User.findById("users", userId);
-    let user = rows[0];
+    const user = await User.findById(userId);
 
     if (!user) {
       throw new Error("Пользователь не найден!");

@@ -4,11 +4,12 @@ import Order from "../models/Order.js";
 import { validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import equipError from "../utils/equipError.js";
+import deleteFile from "../utils/deleteFile.js";
 
 // User profile
 async function getEditProfile(req, res, next) {
   try {
-    const userId = parseInt(req.params.id);
+    const userId = req.params.id;
 
     // Сообщение. Статус 403
     if (userId !== req.session.user.id) {
@@ -16,8 +17,7 @@ async function getEditProfile(req, res, next) {
       return res.redirect("/");
     }
 
-    const [ rows ] = await User.findById("users", userId);
-    const user = rows[0];
+    const user = await User.findById(userId);
 
     const hasUser = user ? true: false;
 
@@ -35,12 +35,15 @@ async function getEditProfile(req, res, next) {
 
 async function postEditProfile(req, res, next) {
   try {
-    const { id, name, email, password } = req.body;
-    const imageUrl = req.file ? req.file.path : req.body.oldImageUrl;
+    const { id, name, email, password, oldImageUrl } = req.body;
 
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
+
       return res.status(422).render("user/edit-profile", {
         pageTitle: "Редактирование профиля",
         hasUser: true,
@@ -49,12 +52,14 @@ async function postEditProfile(req, res, next) {
           name, 
           email, 
           password,
-          imageUrl
+          imageUrl: oldImageUrl
         },
-        hasError: false,
+        hasError: true,
         errors: errors.mapped()
       });
     }
+
+    const imageUrl = req.file ? req.file.path : oldImageUrl;
 
     let editedUser = new User(id, name, email, imageUrl);
 
@@ -69,6 +74,10 @@ async function postEditProfile(req, res, next) {
 
     await editedUser.update("users");
     
+    if (req.file) {
+      deleteFile(oldImageUrl);
+    }
+
     req.session.user = {
       id: editedUser.id,
       name: editedUser.name,
@@ -111,8 +120,9 @@ async function postAddToCart(req, res, next) {
     const userId = req.session.user.id;
     const productId = req.body.productId;
     const quantity = parseInt(req.body.qty);
+    let alreadyIn = true;
 
-    const productCheck = await Product.findById("products", productId);
+    const productCheck = await Product.findById(productId);
 
     if (!productCheck) {
       throw new Error("Product isn't found!");
@@ -123,9 +133,14 @@ async function postAddToCart(req, res, next) {
 
     if (newItemAdded) {
       ++req.session.cartItems;
+      alreadyIn = false;
     }
 
-    return res.redirect("back");
+    // return res.redirect("back");
+    return res.status(200).json({
+      itemsInCart: req.session.cartItems,
+      alreadyIn
+    });
   } catch(err) {
     return next(equipError(err));
   }
@@ -213,10 +228,11 @@ async function postAddToWishlist(req, res, next) {
   try {
     const userId = req.session.user.id;
     const productId = req.body.productId;
+    let alreadyIn = true;
 
-    const [ productCheck ] = await Product.findById("products", productId);
+    const productCheck = await Product.findById(productId);
 
-    if (!productCheck[0]) {
+    if (!productCheck) {
       throw new Error("Product isn't found!");
     }
 
@@ -225,9 +241,13 @@ async function postAddToWishlist(req, res, next) {
 
     if (newItemAdded) {
       ++req.session.wishlistItems;
+      alreadyIn = false;
     }
 
-    return res.redirect("back");
+    return res.status(200).json({
+      itemsInWishlist: req.session.wishlistItems,
+      alreadyIn
+    });
   } catch(err) {
     return next(equipError(err));
   }
@@ -289,6 +309,7 @@ async function getCheckout(req, res, next) {
     }
 
     return res.render("user/order-form", {
+      pageTitle: "Оформление заказа",
       edit: false,
       cartHasItems,
       orderContent,
@@ -348,8 +369,7 @@ async function postCreateOrder(req, res, next) {
 async function getEditOrder(req, res, next) {
   try {
     const orderId = req.params.orderId;
-    const [ rows ] = await Order.findById("orders", orderId);
-    const order = rows[0];
+    const order = await Order.findById(orderId);
 
     if (order.userId !== req.session.user.id) {
       throw new Error("Wrong user!");
@@ -407,7 +427,7 @@ async function postDeleteOrder(req, res, next) {
   const orderId = req.body.orderId;
 
   try {
-    const result = await Order.deleteById("orders", orderId);
+    const result = await Order.deleteById(orderId);
 
     if (!result) {
       throw new Error("Failed to delete the order!");
@@ -415,6 +435,8 @@ async function postDeleteOrder(req, res, next) {
     // Уведомить админа об отмене заказа
     return res.render("messages/casual", {
       pageTitle: "Заказ отменен",
+      outerLink: "https://freepik.com/free-vector/_8673474.htm#query=cancelled&position=12&from_view=search&track=sph",
+      innerLink: "/images/service/order-cancelled.jpg",
       message: "Ваш заказ был успешно отменен"
     });
   } catch(err) {
@@ -429,10 +451,10 @@ async function getUserOrders(req, res, next) {
   const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
   try {
-    const [ orders ] = await Order.findByField("orders", "userId", currentUser, limit, offset);
+    const orders = await Order.findByField("userId", currentUser, limit, offset);
 
     // To the User model (non-static)
-    const totalOrders = await Order.countByField("orders", "userId", currentUser);
+    const totalOrders = await Order.countByField("userId", currentUser);
 
     const hasOrders = (orders && orders.length > 0) ? true : false;
 

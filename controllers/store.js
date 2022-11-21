@@ -6,8 +6,7 @@ async function getSingleProduct(req, res, next) {
   const id = req.params.id;
 
   try {
-    const [ rows ] = await Product.findById("products", id);
-    const product = rows[0];
+    const product = await Product.findById(id);
 
     const productIsFound = product ? true : false;
 
@@ -23,11 +22,11 @@ async function getSingleProduct(req, res, next) {
 
 async function getIndex(req, res, next) {
   try {
-    const [ products ] = await Product.findAll("products");
+    const products = await Product.findAll(6);
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
-    const [ categories ] = await Category.findAll("categories");
+    const categories = await Category.findAll();
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
 
@@ -60,21 +59,21 @@ async function getCatalog(req, res, next) {
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
     if (filteredBy) {
-      totalProducts = await Product.countByField("products", "categoryId", filteredBy);
+      totalProducts = await Product.countByField("categoryId", filteredBy);
 
-      [ products ] = await Product.findByField("products", "categoryId", filteredBy, limit, offset);
+      products = await Product.findByField("categoryId", filteredBy, limit, offset);
     } else {
-      totalProducts = await Product.count("products");
+      totalProducts = await Product.count();
 
-      [ products ] = await Product.findAll("products", limit, offset);
+      products = await Product.findAll(limit, offset);
     }
 
     const hasProducts = (products && products.length > 0) ? true : false;
 
     const categories = [];
-    const [ rawCategories ] = await Category.findAll("categories");
+    const rawCats = await Category.findAll();
 
-    for (let item of rawCategories) {
+    for (let item of rawCats) {
       categories.push({
         id: item.id,
         title: item.title
@@ -110,9 +109,9 @@ async function getCategory(req, res, next) {
     const limit = 3;
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
-    const totalProducts = await Product.countByField("products", "categoryId", filteredBy);
+    const totalProducts = await Product.countByField("categoryId", filteredBy);
   
-    const [ products ] = await Product.findByField("products", "categoryId", filteredBy, limit, offset);
+    const products = await Product.findByField("categoryId", filteredBy, limit, offset);
 
     const hasProducts = (products && products.length > 0) ? true : false;
 

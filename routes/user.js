@@ -11,8 +11,6 @@ router.get("/edit-profile/:id", isAuth, userController.getEditProfile);
 
 router.post("/edit-profile", isAuth, [
 
-    body(["name", "email", "oldPasswordConfirm", "newPassword", "newPasswordConfirm"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
-
     body("name", "Имя от 3 до 30 символов").isLength({ min: 3, max: 30 }).bail().trim(),
 
     body("email")
@@ -21,17 +19,16 @@ router.post("/edit-profile", isAuth, [
       .bail()
       .normalizeEmail()
       .custom(async (value, { req }) => {
-        let rows;
+        let user;
 
         try {
-          [ rows ] = await User.findByField("users", "email", value);
+          const rows = await User.findByField("email", value);
+          user = rows[0];
         } catch(err) {
           return Promise.reject("Техническая ошибка. Попробуйте снова");
         }
 
-        const user = rows[0];
-
-        if(user && user.id !== req.session.user.id) {
+        if(user && user.id !== parseInt(req.session.user.id)) {
           return Promise.reject("E-Mail уже зарегистрирован");
         } else {
           return Promise.resolve();
@@ -40,13 +37,14 @@ router.post("/edit-profile", isAuth, [
     ),
 
     body("oldPasswordConfirm").custom(async (value, { req }) => {
-      let rows;
+      if (!value) {
+        return Promise.resolve();
+      }
+
       let compareResult;
 
       try {
-        [ rows ] = await User.findById("users", req.body.id);
-
-        const user = rows[0];
+        const user = await User.findById(req.body.id);
 
         compareResult = await bcrypt.compare(value, user.password);
       } catch(err) {
@@ -61,6 +59,7 @@ router.post("/edit-profile", isAuth, [
     }),
 
     body("newPassword")
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ min: 8, max: 30 })
       .withMessage("От 8 до 30 символов")
       .isStrongPassword({  

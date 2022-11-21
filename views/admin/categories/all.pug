@@ -7,7 +7,7 @@ html(lang="ru")
       
     section.list-categories
       
-      h1.title Категории
+      h1.title #{pageTitle}
 
       div.box-container
 
@@ -29,6 +29,7 @@ html(lang="ru")
               form(action="/admin/delete-category", method="POST")
                 input(type="hidden", name="_csrf", value=csrfToken)
                 input(type="hidden", name="catId", value=cat.id)
+                input(type="hidden", name="imageUrl", value=cat.imageUrl)
                 button.delete-btn(type="submit", onclick="return confirm('Удалить выбранный товар?');") Удалить
         
         else 

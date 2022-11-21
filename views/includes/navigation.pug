@@ -17,10 +17,16 @@ header.header
         a.fa-solid.fa-magnifying-glass(href="/search")
         a(href="/user/wishlist")
           i.fa-solid.fa-heart
-            span (#{wishlistItems})
+            if (wishlistItems !== 0)
+              span.activeList(id="wishlist-count") (#{wishlistItems})
+            else
+              span(id="wishlist-count") (#{wishlistItems})
         a(href="/user/cart")
           i.fa-solid.fa-cart-shopping
-            span (#{cartItems})
+            if (cartItems !== 0)
+              span.activeCart(id="cart-count") (#{cartItems})
+            else
+              span(id="cart-count") (#{cartItems})
       div.admin
         a.delete-btn(href="/admin") Админ
       div.profile
