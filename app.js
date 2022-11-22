@@ -32,6 +32,14 @@ dotenv.config({
 // Creating a new app instance
 const app = express();
 
+// CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, OPTIONS, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  next();
+});
+
 // Logs
 let accessLogStream = fs.createWriteStream(path.join(__dirname, "logs", "access.log"), { flags: "a" });
 

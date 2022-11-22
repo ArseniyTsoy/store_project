@@ -26,6 +26,7 @@ async function addToCart(btn) {
   try {
     let result = await fetch("/user/cart-add", {
       method: "POST",
+      mode: "cors",
       headers: {
         "Content-Type": "application/json",
         "csrf-token": csrf
@@ -60,6 +61,7 @@ async function addToWishlist(btn) {
   try {
     let result = await fetch("/user/wishlist-add", {
       method: "POST",
+      mode: "cors",
       headers: {
         "Content-Type": "application/json",
         "csrf-token": csrf

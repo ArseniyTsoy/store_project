@@ -9,7 +9,7 @@ import deleteFile from "../utils/deleteFile.js";
 // User profile
 async function getEditProfile(req, res, next) {
   try {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
 
     // Сообщение. Статус 403
     if (userId !== req.session.user.id) {

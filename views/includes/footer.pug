@@ -1,48 +1,45 @@
 footer.footer 
-  section.box-container 
-    div.box 
-      h3 Quick Links 
-      a(href="/")
-        i.fa-solid.fa-angle-right Home
-      a(href="/shop")
-        i.fa-solid.fa-angle-right Shop
-      a(href="/about")
-        i.fa-solid.fa-angle-right About
-      a(href="/contact")
-        i.fa-solid.fa-angle-right Contact
-    div.box 
-      h3 Extra Links 
-      a(href="/cart")
-        i.fa-solid.fa-angle-right Cart
-      a(href="/wishlist")
-        i.fa-solid.fa-angle-right Wishlist
-      a(href="/login")
-        i.fa-solid.fa-angle-right Login
-      a(href="/register")
-        i.fa-solid.fa-angle-right Register
-    div.box 
-      h3 Contact Info 
-      p
-        i.fa-solid.fa-phone +123-456-7890
-      p
-        i.fa-solid.fa-phone +111-222-3333
-      p
-        i.fa-solid.fa-envelope shaikhanas@gmail.com
-      p
-        i.fa-solid.fa-map-marker-alt mumbai, india - 400104
-    div.box 
-      h3 Follow Us 
-      a(href="#")
-        i.fa-solid.fa-file hh.ru
-      a(href="#")
-        i.fa-brands.fa-github GitHub
-      a(href="#")
-        i.fa-brands.fa-linkedin LinkedIn
-      a(href="#")
-        i.fa-brands.fa-vk VK
-  p.credit 
-    | &copy; copyright @ DATE HERE by 
-    span 
-      | Mr. Web Designer
-    | all rights reserved!
+  
+  section.container 
+
+    div.row
+
+      div.footer-col
+        h4 Навигация
+        ul
+          li
+            a(href="/") Главная
+          li
+            a(href="/catalog") Каталог
+          li
+            a(href="/orders") Ваши заказы
+          li
+            a(href="/contacts") Связаться
+
+      div.footer-col
+        h4 Заимствованы
+        ul
+          li
+            a(href="https://www.youtube.com/watch?v=F8OpKveD5pk&ab_channel=Mr.WebDesigner", target="_blank", rel="noopener noreferrer") Макет от 
+              span|Mr. Web Designer
+          li
+            a(href="https://www.youtube.com/watch?v=YOb67OKw62s&ab_channel=TheWebShala", target="_blank", rel="noopener noreferrer") Футер от 
+              span|TheWebShala
+          li
+            a(href="https://ru.freepik.com/author/stories", target="_blank", rel="noopener noreferrer") Изображения от 
+              span|storyset
+          li
+            a(href="/contacts") Бэкенд полностью мой
+
+      div.footer-col
+        h4 Контакты
+        div.social-links
+          a(href="#", target="_blank", rel="noopener noreferrer")
+            i.fa-solid.fa-file
+          a(href="#", target="_blank", rel="noopener noreferrer")
+            i.fa-brands.fa-github       
+          a(href="#", target="_blank", rel="noopener noreferrer")
+            i.fa-brands.fa-linkedin    
+          a(href="#", target="_blank", rel="noopener noreferrer")
+            i.fa-brands.fa-vk
     

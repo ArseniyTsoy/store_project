@@ -2,12 +2,14 @@ import express from "express";
 const router = express.Router();
 import adminController from "../controllers/admin.js";
 import { body } from "express-validator";
+import isAuth from "../middleware/is-auth.js";
 import isAdmin from "../middleware/is-admin.js";
 
 // Products
-router.get("/create-product", isAdmin, adminController.getCreateProduct);
+router.get("/create-product", isAuth, isAdmin, adminController.getCreateProduct);
 
-router.post("/create-product", [
+router.post("/create-product", isAuth, isAdmin, 
+  [
 
     body(["title", "price", "description"]).exists({ checkNull: true, checkFalsy: true }).withMessage("Поле должно быть заполнено"),
 
@@ -37,9 +39,10 @@ router.post("/create-product", [
   adminController.postCreateProduct
 );
 
-router.get("/edit-product/:productId", adminController.getEditProduct);
+router.get("/edit-product/:productId", isAuth, isAdmin, adminController.getEditProduct);
 
-router.post("/edit-product", [
+router.post("/edit-product", isAuth, isAdmin, 
+  [
 
     body(["title", "price", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
@@ -59,16 +62,17 @@ router.post("/edit-product", [
   adminController.postEditProduct
 );
 
-router.post("/remove-product", adminController.postRemoveProduct);
+router.post("/remove-product", isAuth, isAdmin, adminController.postRemoveProduct);
 
-router.get("/show-product/:productId", adminController.getShowProduct);
+router.get("/show-product/:productId", isAuth, isAdmin, adminController.getShowProduct);
 
-router.get("/catalog", adminController.getProducts);
+router.get("/catalog", isAuth, isAdmin, adminController.getProducts);
 
 // Categories
-router.get("/create-category", adminController.getCreateCategory);
+router.get("/create-category", isAuth, isAdmin, adminController.getCreateCategory);
 
-router.post("/create-category", [
+router.post("/create-category", isAuth, isAdmin, 
+  [
 
     body(["title", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
@@ -88,9 +92,10 @@ router.post("/create-category", [
   adminController.postCreateCategory
 );
 
-router.get("/edit-category/:catId", adminController.getEditCategory);
+router.get("/edit-category/:catId", isAuth, isAdmin, adminController.getEditCategory);
 
-router.post("/edit-category", [
+router.post("/edit-category", isAuth, isAdmin, 
+  [
 
     body(["title", "description"], "Поле должно быть заполнено").exists({ checkNull: true, checkFalsy: true }),
 
@@ -102,23 +107,23 @@ router.post("/edit-category", [
   adminController.postEditCategory
 );
 
-router.post("/delete-category", adminController.postDeleteCategory);
+router.post("/delete-category", isAuth, isAdmin, adminController.postDeleteCategory);
 
-router.get("/categories", adminController.getCategories);
+router.get("/categories", isAuth, isAdmin, adminController.getCategories);
 
 // Users
-router.get("/users", adminController.getUsers);
+router.get("/users", isAuth, isAdmin, adminController.getUsers);
 
-router.post("/user-delete", adminController.postDeleteUser);
+router.post("/user-delete", isAuth, isAdmin, adminController.postDeleteUser);
 
 // Orders
-router.get("/orders", adminController.getOrders);
+router.get("/orders", isAuth, isAdmin, adminController.getOrders);
 
-router.post("/order-status", adminController.postSetOrderStatus);
+router.post("/order-status", isAuth, isAdmin, adminController.postSetOrderStatus);
 
-router.post("/delete-order", adminController.postDeleteOrder);
+router.post("/delete-order", isAuth, isAdmin, adminController.postDeleteOrder);
 
 // Dashboard
-router.get("/", adminController.getDashboard);
+router.get("/", isAuth, isAdmin, adminController.getDashboard);
 
 export default router;
