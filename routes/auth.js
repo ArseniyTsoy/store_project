@@ -1,10 +1,11 @@
 import express from "express";
-const router = express.Router();
 import authController from "../controllers/auth.js";
 import User from "../models/User.js";
 import { body } from "express-validator";
 import bcrypt from "bcryptjs";
 import equipError from "../utils/equipError.js";
+
+const router = express.Router();
 
 router.get("/signup", authController.getSignup);
 

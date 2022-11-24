@@ -49,7 +49,8 @@ export default class Order extends BaseModel {
         this.dateCreated
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -76,7 +77,8 @@ export default class Order extends BaseModel {
         this.id
       ];
       
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -86,7 +88,8 @@ export default class Order extends BaseModel {
     try {
       const pool = await getPool();
 
-      return pool.execute("UPDATE orders SET status = ? WHERE id = ?", [newStatus, this.id]);
+      const [ result ] = await pool.execute("UPDATE orders SET status = ? WHERE id = ?", [newStatus, this.id]);
+      return result;
     } catch(err) {
       throw equipError(err);
     }

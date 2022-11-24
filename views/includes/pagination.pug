@@ -14,7 +14,6 @@ section.pagination
     else
       a.pag(href=`?page=${previousPage}`) #{previousPage}
 
-  // currentPage variable is always present
   if(filteredBy)
     a.pag.active(href=`?filteredBy=${filteredBy}&page=${currentPage}`) #{currentPage}
   else

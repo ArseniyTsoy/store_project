@@ -9,7 +9,7 @@ html(lang="ru")
 
       h1.title #{pageTitle}
 
-      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data", novalidate)
+      form(action=(edit ? "/admin/edit-category" : "/admin/create-category"), method="POST", enctype="multipart/form-data")
 
         if edit
           img(src="/" + category.imageUrl, alt=category.title)

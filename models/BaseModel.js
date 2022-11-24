@@ -2,18 +2,18 @@ import { getPool } from "../utils/db.js";
 import equipError from "../utils/equipError.js";
 
 export default class BaseModel {
+  
   static async count(tableName) {
     try {
       
       if (typeof tableName !== "string") {
-        throw new Error("Wrong argument type for the table name! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
       const sql = `SELECT COUNT (*) FROM ${tableName}`;
 
       const [ rows ] = await pool.query(sql);
-
       return (rows[0])["COUNT (*)"];
     } catch(err) {
       throw equipError(err);
@@ -24,7 +24,7 @@ export default class BaseModel {
     try {
       
       if (typeof tableName !== "string") {
-        throw new Error("Wrong argument type for the table name! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
@@ -32,7 +32,6 @@ export default class BaseModel {
       const sql = `SELECT COUNT (*) FROM ${tableName} WHERE ${fieldName} = ?`;
 
       const [ rows ] = await pool.execute(sql, [fieldValue]);
-
       return (rows[0])["COUNT (*)"];
     } catch(err) {
       throw equipError(err);
@@ -43,15 +42,14 @@ export default class BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong argument type for the table name! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
 
       const [ result ] = await pool.execute(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
-
+      
       return result[0];
-
     } catch(err) {
       throw equipError(err);
     }
@@ -61,7 +59,7 @@ export default class BaseModel {
     try {
 
       if (typeof tableName !== "string" || typeof fieldName !== "string") {
-        throw new Error("Wrong argument type! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
@@ -77,20 +75,18 @@ export default class BaseModel {
       }
       
       const [ results ] = await pool.execute(sql, [fieldValue]);
-
+      
       return results;
-
     } catch(err) {
       throw equipError(err);
     }
   }
 
   static async findAll(limit = null, offset = null, tableName) {
-    
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong argument type for the table name! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       let sql = `SELECT * FROM ${tableName} ORDER BY id DESC`;
@@ -106,9 +102,7 @@ export default class BaseModel {
       const pool = await getPool();
       
       const [ results ] = await pool.execute(sql);
-
       return results;
-      
     } catch(err) {
       throw equipError(err);
     }
@@ -118,15 +112,14 @@ export default class BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong argument type for the table name! A string is required!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
 
-      const result = await pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
-
-      return result;
+      const [ result ] = await pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
       
+      return result;
     } catch(err) {
       throw equipError(err);
     }

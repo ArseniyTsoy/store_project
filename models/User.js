@@ -30,7 +30,8 @@ export default class User extends BaseModel {
         this.password
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -59,7 +60,8 @@ export default class User extends BaseModel {
         this.id
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -69,7 +71,7 @@ export default class User extends BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error(err);
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
@@ -92,7 +94,9 @@ export default class User extends BaseModel {
         sql += ` OFFSET ${offset}`;
       }
 
-      return pool.execute(sql, [this.id]);
+      const [ results ] = await pool.execute(sql, [this.id]);
+
+      return results;
     } catch(err) {
       throw equipError(err);
     }
@@ -102,7 +106,7 @@ export default class User extends BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong type!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
@@ -119,13 +123,14 @@ export default class User extends BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong type!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
       
-      return pool.execute(`DELETE FROM ${tableName} WHERE userId = ?`, [this.id]);
+      const [ result ] = await pool.execute(`DELETE FROM ${tableName} WHERE userId = ?`, [this.id]);
 
+      return result;
     } catch(err) {
       throw equipError(err);
     }

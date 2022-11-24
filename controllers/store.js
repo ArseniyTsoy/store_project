@@ -3,9 +3,8 @@ import Category from "../models/Category.js";
 import equipError from "../utils/equipError.js";
 
 async function getSingleProduct(req, res, next) {
-  const id = req.params.id;
-
   try {
+    const id = req.params.id;
     const product = await Product.findById(id);
 
     const productIsFound = product ? true : false;
@@ -53,6 +52,7 @@ async function getCatalog(req, res, next) {
     let products;
     let totalProducts;
     
+    // Pagination
     const filteredBy = parseInt(req.query.filteredBy) || null;
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
@@ -64,7 +64,6 @@ async function getCatalog(req, res, next) {
       products = await Product.findByField("categoryId", filteredBy, limit, offset);
     } else {
       totalProducts = await Product.count();
-
       products = await Product.findAll(limit, offset);
     }
 
@@ -72,6 +71,10 @@ async function getCatalog(req, res, next) {
 
     const categories = [];
     const rawCats = await Category.findAll();
+
+    if (!rawCats) {
+      throw new Error("Не удалось получить доступ к списку категорий");
+    }
 
     for (let item of rawCats) {
       categories.push({
@@ -104,6 +107,7 @@ async function getCatalog(req, res, next) {
 
 async function getCategory(req, res, next) {
   try {
+    // Pagination
     const filteredBy = parseInt(req.query.filteredBy);
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
@@ -133,8 +137,15 @@ async function getCategory(req, res, next) {
   }
 }
 
+function getContacts(req, res) {
+  return res.render("store/contacts", {
+    pageTitle: "Контактные данные",
+  });
+}
+
 async function getSearch(req, res, next) {
   try {
+    // Pagination
     const filteredBy = req.query.filteredBy || null;
 
     if (filteredBy) {
@@ -152,9 +163,9 @@ async function getSearch(req, res, next) {
       const limit = 3;
       const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
-      const [ searchResults ] = await Product.search(filteredBy, limit, offset);
+      const searchResults = await Product.search(filteredBy, limit, offset);
 
-      const [ rows ] = await Product.search(filteredBy);
+      const rows = await Product.search(filteredBy);
       const totalFound = rows.length;
 
       const hasResults = (searchResults && searchResults.length > 0) ? true : false;
@@ -191,5 +202,6 @@ export default {
   getAbout,
   getCatalog,
   getCategory,
+  getContacts,
   getSearch
 };

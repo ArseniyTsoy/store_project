@@ -6,8 +6,8 @@ import { validationResult } from "express-validator";
 import equipError from "../utils/equipError.js";
 import deleteFile from "../utils/deleteFile.js";
 
-// Signup
-function getSignup(_, res) {
+// Authentication
+function getSignup(req, res) {
   return res.render("auth/form", {
     path: "/signup",
     pageTitle: "Регистрация",
@@ -44,21 +44,17 @@ async function postSignup(req, res, next) {
     }
 
     const imageUrl = req.file.path;
-    
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = new User(null, name, email, imageUrl, hashedPassword);
     
     const result = await newUser.create("users");
 
-    // Нужна ли эта проверка при try-catch?
     if (!result) {
-      throw new Error("Failed to create a new account!");
+      throw new Error("Не удалось зарегистрировать аккаунт");
     }
 
-    res.status(201).redirect("/auth/login");
-
-    return transporter.sendMail({
+    const sendMailCheck = await transporter.sendMail({
       from: {
         name: "Groco Pet Project",
         address: process.env.MAIL_ADDR
@@ -68,12 +64,17 @@ async function postSignup(req, res, next) {
       html: `<h3>Поздравляем! Congratulations!</h3>
       <p>Ваш аккаунт был успешно зарегистрирован! You have successfully signed up!</p>`
     });
+
+    if (!sendMailCheck) {
+      throw new Error("Не удалось выслать письмо");
+    }
+
+    return res.status(201).redirect("/auth/login");
   } catch(err) {
     return next(equipError(err));
   }
 }
 
-// Login
 function getLogin(_, res) {
   res.render("auth/form", {
     path: "/login",
@@ -107,6 +108,10 @@ async function postLogin(req, res, next) {
     const rows = await User.findByField("email", email);
     const user = rows[0];
 
+    if (!user) {
+      throw new Error("Не удалось найти выбранного пользователя");
+    }
+
     const compareResult = await bcrypt.compare(password, user.password);
 
     if (!compareResult) {
@@ -134,11 +139,10 @@ async function postLogin(req, res, next) {
 
     return res.redirect("/");
   } catch(err) {
-    next(equipError(err));
+    return next(equipError(err));
   }
 }
 
-// Logout
 function postLogout(req, res, next) {
   return req.session.destroy(err => {
     if (err) {
@@ -149,7 +153,7 @@ function postLogout(req, res, next) {
   });
 }
 
-// Reset password
+// Resetting password
 function getResetPassword(req, res) {
   return res.render("auth/reset", {
     pageTitle: "Сброс пароля",
@@ -175,20 +179,18 @@ async function postResetPassword(req, res, next) {
 
     crypto.randomBytes(32, (err, buffer) => {
       if (err) {
-        console.log(err);
-        return res.redirect("/reset");
-      }else {
+        throw new Error(err);
+      } else {
         resetToken = buffer.toString("hex");
         resetTokenExpiration = Date.now() + 3600000;
       }
     });
 
     const rows = await User.findByField("email", providedEmail);
-
     let user = rows[0];
 
     if (!user) {
-      throw new Error("Пользователь не обнаружен!");
+      throw new Error("Не удалось найти пользователя");
     }
 
     const { id, name, email, imageUrl, password } = user;
@@ -199,9 +201,8 @@ async function postResetPassword(req, res, next) {
 
     const saveResult = await user.update();
 
-    // Better check
     if (!saveResult) {
-      throw new Error("Saving token failed!");
+      throw new Error("Не удалось внестит токен в БД");
     }
 
     const sendMailCheck = await transporter.sendMail({
@@ -212,11 +213,10 @@ async function postResetPassword(req, res, next) {
       to: providedEmail,
       subject: "Ссылка для изменения пароля! Link for resetting your password!",
       html: `<h3>Вы запросили сброс пароля! You requested a password reset!</h3>
-      <p>Пожалуйста, перейдите по этой <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>
-      <p>Please, follow this <a href="http://localhost:8080/auth/new-password/${resetToken}/${providedEmail}">link</a> to change your password. Ignore this message, if you haven't requested any password reset.</p>`
+      <p>Пожалуйста, перейдите по этой <a href="http://${process.env.HOST}:${process.env.PORT}/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>
+      <p>Please, follow this <a href="http://${process.env.HOST}:${process.env.PORT}/auth/new-password/${resetToken}/${providedEmail}">link</a> to change your password. Ignore this message, if you haven't requested any password reset.</p>`
     });
 
-    // Better check
     if (!sendMailCheck) {
       throw new Error("Не удалось выслать письмо!");
     }
@@ -239,15 +239,15 @@ async function getNewPassword(req, res, next) {
     const user = rows[0];
 
     if (!user) {
-      throw new Error("User wasn't found!");
+      throw new Error("Не удалось найти пользователя");
     }
 
     if (user.resetToken !== resetToken) {
-      throw new Error("Reset tokens don't match!");
+      throw new Error("Токены не совпадают");
     }
 
     if (user.resetTokenExpiration <= Date.now()) {
-      throw new Error("Token is expired!");
+      throw new Error("Срок действия токена истек");
     }
 
     return res.render("auth/new-password", {
@@ -278,15 +278,15 @@ async function postNewPassword(req, res, next) {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new Error("Пользователь не найден!");
+      throw new Error("Не удалось найти пользователя");
     }
 
     if (user.resetToken !== resetToken) {
-      throw new Error("Tokens do not match!");
+      throw new Error("Токены не совпадают");
     }
     
     if (user.resetTokenExpiration <= Date.now()) {
-      throw new Error("Token is expired!");
+      throw new Error("Срок действия токена истек");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 12);
@@ -301,7 +301,6 @@ async function postNewPassword(req, res, next) {
 
     const result = await updatedUser.update();
 
-    // Заменить на валидацию
     if (!result) {
       throw new Error("Не удалось изменить пароль!");
     }

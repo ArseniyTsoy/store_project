@@ -1,9 +1,10 @@
 import express from "express";
-const router = express.Router();
 import adminController from "../controllers/admin.js";
 import { body } from "express-validator";
 import isAuth from "../middleware/is-auth.js";
 import isAdmin from "../middleware/is-admin.js";
+
+const router = express.Router();
 
 // Products
 router.get("/create-product", isAuth, isAdmin, adminController.getCreateProduct);

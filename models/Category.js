@@ -26,7 +26,8 @@ export default class Category extends BaseModel {
         this.imageUrl
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -44,7 +45,8 @@ export default class Category extends BaseModel {
 
       const values = [this.title, this.description, this.imageUrl, this.id];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }

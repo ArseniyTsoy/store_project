@@ -25,7 +25,6 @@ html(lang="ru")
               div.name #{item.title}
               div.price #{item.price} руб.
 
-              //- form(action="/user/cart-add", method="POST")
               input.qty(type="number", min="1", value="1", name="qty")
               input(type="hidden", name="productId", value=item.productId)
               input(type="hidden", name="_csrf", value=csrfToken)

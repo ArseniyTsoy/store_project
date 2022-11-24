@@ -27,14 +27,21 @@ html(lang="ru")
 
               div.name #{product.title}
 
-              input(type="hidden", name="productId", value=`${product.id}`)
-              input(type="hidden", name="_csrf", value=csrfToken)
-              input.qty(type="number", min="1", value="1", name="qty")
-              button.btn(type="button", onclick="addToCart(this)") В корзину
+              if (!isAuthenticated)
+                input.qty(type="number", min="1", value="1", name="qty")
+                a.btn(href="/auth/login") В корзину
+              else
+                input(type="hidden", name="productId", value=`${product.id}`)
+                input(type="hidden", name="_csrf", value=csrfToken)
+                input.qty(type="number", min="1", value="1", name="qty")
+                button.btn(type="button", onclick="addToCart(this)") В корзину
                 
-              input(type="hidden", name="productId", value=`${product.id}`)
-              input(type="hidden", name="_csrf", value=csrfToken)
-              button.option-btn(type="button", onclick="addToWishlist(this)") В список желаемого
+              if (!isAuthenticated)
+                a.option-btn(href="/auth/login") В список желаемого
+              else
+                input(type="hidden", name="productId", value=`${product.id}`)
+                input(type="hidden", name="_csrf", value=csrfToken)
+                button.option-btn(type="button", onclick="addToWishlist(this)") В список желаемого
 
         else 
           p.empty Товары не найдены

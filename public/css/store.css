@@ -260,32 +260,66 @@
    font-size: 2rem;
 }
 
-.contact form{
-   margin:0 auto;
-   max-width: 50rem;
-   padding:2rem;
+.contacts h3 {
+   padding:1rem 0;
+   font-size: 2.5rem;
+   text-transform: uppercase;
+   color:var(--black);
+}
+
+.contacts img {
+   display: block;
+   height: 25rem;
+   width: 25rem;
+   border-radius: 50%;
+   object-fit: cover;
+   margin: 2rem auto;
    text-align: center;
-   border:var(--border);
+}
+
+.contacts .container {
+   display: flex;
+   flex-wrap: wrap;
+   gap:1.5rem;
+   justify-content: center;
+   align-items: flex-start;
+}
+
+.contacts .container .box {
+   padding: 2rem;
+   border: var(--border);
    background-color: var(--white);
    box-shadow: var(--box-shadow);
    border-radius: .5rem;
-   padding-top: 1rem;
 }
 
-.contact form .box{
-   width: 100%;
-   padding:1.2rem 1.4rem;
-   border:var(--border);
-   margin:1rem 0;
-   background-color: var(--light-bg);
-   font-size: 1.8rem;
+.contacts .container .box p {
+   padding:1rem 2rem;
+   font-size: 2rem;
+   color:var(--light-color);
+   line-height: 2;
+   text-align: justify;
+}
+
+.contacts .container .box p .cite {
+   color: var(--green);
+}
+
+.contacts .container .box ul {
+   list-style: none;
+   padding: 2rem;
+   font-size: 2rem;
    color:var(--black);
-   border-radius: .5rem;
+   line-height: 2;
+   text-align: start;
 }
 
-.contact form textarea{
-   height: 15rem;
-   resize: none;
+ul li:before {
+   content: '✓ ';
+ }
+
+.contacts .container .box li .link {
+   color:var(--blue);
 }
 
 .search-form form{
@@ -673,6 +707,11 @@
       width: 100%;
    }
 
+   .contacts .container .box p,
+   .contacts .container .box ul {
+      font-size: 1.5rem;
+   }
+
 }
 
 @media (max-width:450px){
@@ -696,6 +735,11 @@
 
    .wishlist .box-container{
       grid-template-columns: 1fr;
+   }
+
+   .contacts .container .box p,
+   .contacts .container .box ul {
+      font-size: 1rem;
    }
 
 }

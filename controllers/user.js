@@ -10,11 +10,10 @@ import deleteFile from "../utils/deleteFile.js";
 async function getEditProfile(req, res, next) {
   try {
     const userId = parseInt(req.params.id);
+    const currentUser = parseInt(req.session.user.id);
 
-    // Сообщение. Статус 403
-    if (userId !== req.session.user.id) {
-      console.log("Wrong user!");
-      return res.redirect("/");
+    if (userId !== currentUser) {
+      throw new Error("Профили не совпадают")
     }
 
     const user = await User.findById(userId);
@@ -36,7 +35,6 @@ async function getEditProfile(req, res, next) {
 async function postEditProfile(req, res, next) {
   try {
     const { id, name, email, password, oldImageUrl } = req.body;
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -72,7 +70,11 @@ async function postEditProfile(req, res, next) {
     editedUser.resetToken = null;
     editedUser.resetTokenExpiration = null;
 
-    await editedUser.update("users");
+    const result = await editedUser.update("users");
+
+    if (!result) {
+      throw new Error("Не удалось обновить профиль");
+    }
     
     if (req.file) {
       deleteFile(oldImageUrl);
@@ -92,11 +94,11 @@ async function postEditProfile(req, res, next) {
 
 // Cart
 async function getCart(req, res, next) {
-  const currentUser = new User(req.session.user.id);
-  let totalSum = 0;
-
   try {
-    const [ cart ] = await currentUser.getEverythingFrom("cart");
+    const currentUser = new User(req.session.user.id);
+    let totalSum = 0;
+    
+    const cart = await currentUser.getEverythingFrom("cart");
 
     const hasCart = (cart && cart.length > 0) ? true : false;
 
@@ -125,7 +127,7 @@ async function postAddToCart(req, res, next) {
     const productCheck = await Product.findById(productId);
 
     if (!productCheck) {
-      throw new Error("Product isn't found!");
+      throw new Error("Не удалось найти выбранный товар");
     }
 
     const product = new Product(productId);
@@ -136,7 +138,6 @@ async function postAddToCart(req, res, next) {
       alreadyIn = false;
     }
 
-    // return res.redirect("back");
     return res.status(200).json({
       itemsInCart: req.session.cartItems,
       alreadyIn
@@ -147,15 +148,15 @@ async function postAddToCart(req, res, next) {
 }
 
 async function postChangeQty(req, res, next) {
-  const newQty = req.body.qty;
-  const product = new Product(req.body.productId);
-  const userId = req.session.user.id;
-
   try {
+    const newQty = req.body.qty;
+    const product = new Product(req.body.productId);
+    const userId = req.session.user.id;
+
     const result = await product.setQuantity(newQty, userId);
 
     if (!result) {
-      throw new Error("Failed to change item quantity!");
+      throw new Error("Не удалось изменить число выбранного товара");
     }
 
     return res.redirect("back");
@@ -165,10 +166,13 @@ async function postChangeQty(req, res, next) {
 }
 
 async function postDeleteFromCart(req, res, next) {
-  const product = new Product(req.body.itemId);
-
   try {
-    await product.deleteFrom("cart");
+    const product = new Product(req.body.itemId);  
+    const result = await product.deleteFrom("cart");
+
+    if (!result) {
+      throw new Error("Не удалось удалить товар из корзины");
+    }
     
     --req.session.cartItems;
 
@@ -179,11 +183,13 @@ async function postDeleteFromCart(req, res, next) {
 }
 
 async function getCleanCart(req, res, next) {
-  const currentUser = new User(req.session.user.id);
-
   try {
-    // Проверку на очистку
-    await currentUser.clean("cart");
+    const currentUser = new User(req.session.user.id);
+    const result = await currentUser.clean("cart");
+
+    if (!result) {
+      throw new Error("Не удалось очистить корзину");
+    }
     
     req.session.cartItems = 0;
 
@@ -195,13 +201,14 @@ async function getCleanCart(req, res, next) {
 
 // Wishlist
 async function getWishlist(req, res, next) {
-  const currentUser = new User(req.session.user.id);
-  const currentPage = parseInt(req.query.page) || 1;
-  const limit = 3;
-  const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
-
   try {
-    const [ wishlist ] = await currentUser.getEverythingFrom("wishlist", limit, offset);
+    // Pagination
+    const currentUser = new User(req.session.user.id);
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
+
+    const wishlist = await currentUser.getEverythingFrom("wishlist", limit, offset);
 
     const totalItems = await currentUser.countItemsInside("wishlist");
 
@@ -233,7 +240,7 @@ async function postAddToWishlist(req, res, next) {
     const productCheck = await Product.findById(productId);
 
     if (!productCheck) {
-      throw new Error("Product isn't found!");
+      throw new Error("Не удалось найти товар");
     }
 
     const product = new Product(productId);
@@ -256,8 +263,11 @@ async function postAddToWishlist(req, res, next) {
 async function postDeleteFromWishlist(req, res, next) {
   try {
     const product = new Product(req.body.itemId);
+    const result = await product.deleteFrom("wishlist");
 
-    await product.deleteFrom("wishlist");
+    if (!result) {
+      throw new Error("Не удалось удалить товар из списка желаемого");
+    }
     
     --req.session.wishlistItems;
 
@@ -268,11 +278,13 @@ async function postDeleteFromWishlist(req, res, next) {
 }
 
 async function getCleanWishlist(req, res, next) {
-  const currentUser = new User(req.session.user.id);
-
   try {
-    // Проверку на очистку
-    await currentUser.clean("wishlist");
+    const currentUser = new User(req.session.user.id);
+    const result = await currentUser.clean("wishlist");
+
+    if (!result) {
+      throw new Error("Не удалось очистить список");
+    }
     
     req.session.wishlistItems = 0;
 
@@ -285,13 +297,12 @@ async function getCleanWishlist(req, res, next) {
 // Orders
 async function getCheckout(req, res, next) {
   try {
-    const currentUser = new User(req.session.user.id);
-
-    // Может корзину в сессию после логина, новые тоже в сессию, сессию сохранять вручную в стор после добавления.
-    const [ cart ] = await currentUser.getEverythingFrom("cart");
     let cartHasItems = false;
     let orderContent = [];
     let totalPrice = 0;
+
+    const currentUser = new User(req.session.user.id);
+    const cart = await currentUser.getEverythingFrom("cart");
 
     if (cart && cart.length > 0) {
       cartHasItems = true;
@@ -354,8 +365,11 @@ async function postCreateOrder(req, res, next) {
 
     const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, orderContent, totalPrice, dateCreated);
 
-    // Добавить проверку
-    await newOrder.create();
+    const result = await newOrder.create();
+
+    if (!result) {
+      throw new Error("Не удалось создать заказ");
+    }
 
     await currentUser.clean("cart");
     req.session.cartItems = 0;
@@ -368,14 +382,16 @@ async function postCreateOrder(req, res, next) {
 
 async function getEditOrder(req, res, next) {
   try {
-    const orderId = req.params.orderId;
+    const orderId = parseInt(req.params.orderId);
     const order = await Order.findById(orderId);
 
-    if (order.userId !== req.session.user.id) {
-      throw new Error("Wrong user!");
+    if (!order) {
+      throw new Error("Не удалось найти выбранный заказ");
     }
 
-    // hasOrder
+    if (order.userId !== req.session.user.id) {
+      throw new Error("Профили не совпадают");
+    }
 
     order.address = JSON.parse(order.address);
 
@@ -410,13 +426,16 @@ async function postEditOrder(req, res, next) {
     }
 
     address = JSON.stringify(address);
-
     const userId = req.session.user.id;
 
     const newOrder = new Order(orderId, userId, name, phone, email, method, address);
 
-    // Добавить проверку
-    await newOrder.update();
+    const result = await newOrder.update();
+
+    if (!result) {
+      throw new Error("Не удалось обновить заказ");
+    }
+
     return res.redirect("/user/orders");
   } catch(err) {
     return next(equipError(err));
@@ -430,9 +449,9 @@ async function postDeleteOrder(req, res, next) {
     const result = await Order.deleteById(orderId);
 
     if (!result) {
-      throw new Error("Failed to delete the order!");
+      throw new Error("Не удалось удалить заказ");
     }
-    // Уведомить админа об отмене заказа
+    
     return res.render("messages/casual", {
       pageTitle: "Заказ отменен",
       outerLink: "https://freepik.com/free-vector/_8673474.htm#query=cancelled&position=12&from_view=search&track=sph",
@@ -445,12 +464,13 @@ async function postDeleteOrder(req, res, next) {
 }
 
 async function getUserOrders(req, res, next) {
-  const currentUser = req.session.user.id;
-  const currentPage = parseInt(req.query.page) || 1;
-  const limit = 3;
-  const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
-
   try {
+    // Pagination
+    const currentUser = req.session.user.id;
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
+
     const orders = await Order.findByField("userId", currentUser, limit, offset);
 
     // To the User model (non-static)

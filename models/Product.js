@@ -30,7 +30,8 @@ export default class Product extends BaseModel {
         this.categoryId
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -57,7 +58,8 @@ export default class Product extends BaseModel {
         this.id
       ];
 
-      return pool.execute(sql, values);
+      const [ result ] = await pool.execute(sql, values);
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -67,7 +69,9 @@ export default class Product extends BaseModel {
     try {
       const pool = await getPool();
 
-      return pool.execute("UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?", [newQty, userId, this.id]);
+      const [ result ] = await pool.execute("UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?", [newQty, userId, this.id]);
+      
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -77,7 +81,7 @@ export default class Product extends BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong type!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
@@ -91,7 +95,7 @@ export default class Product extends BaseModel {
         const [ result ] = await pool.execute(`INSERT INTO ${tableName} (userId, productId) VALUES (?, ?)`, [userId, this.id]);
 
         if (!result) {
-
+          throw new Error("Не удалость добавить выбранынный товар");
         }
 
         if (tableName === "cart") {
@@ -99,6 +103,7 @@ export default class Product extends BaseModel {
         }
 
         return true;
+      
       } else {
 
         if (tableName === "cart") {
@@ -117,12 +122,14 @@ export default class Product extends BaseModel {
     try {
 
       if (typeof tableName !== "string") {
-        throw new Error("Wrong type!");
+        throw new Error("Название таблицы должно быть строкой");
       }
 
       const pool = await getPool();
       
-      return pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [this.id]);
+      const [ result ] = await pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [this.id]);
+      
+      return result;
     } catch(err) {
       throw equipError(err);
     }
@@ -153,7 +160,9 @@ export default class Product extends BaseModel {
         `%${searchString}%`
       ];
 
-      return pool.execute(sql, values);
+      const [ results ] = await pool.execute(sql, values);
+
+      return results;
     } catch(err) {
       throw equipError(err);
     }

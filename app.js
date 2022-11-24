@@ -1,6 +1,7 @@
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+// import https from "https";
 import http from "http";
 import express from "express";
 import multer from "multer";
@@ -15,6 +16,7 @@ import userRoutes from "./routes/user.js";
 import errorController from "./middleware/errors.js";
 import morgan from "morgan";
 import fs from "fs";
+import helmet from "helmet";
 
 const MySQLStore = expressSession(session);
 
@@ -32,18 +34,27 @@ dotenv.config({
 // Creating a new app instance
 const app = express();
 
+// Helmet
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    scriptSrc: ["'self'", "https://kit.fontawesome.com/37e07962c3.js"],
+    connectSrc: ["'self'", "https://ka-f.fontawesome.com"],
+    scriptSrcAttr: ["'unsafe-inline'"]
+  }
+}));
+
 // CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, OPTIONS, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, csrf-token");
   next();
 });
 
 // Logs
 let accessLogStream = fs.createWriteStream(path.join(__dirname, "logs", "access.log"), { flags: "a" });
 
-app.use(morgan("short", { 
+app.use(morgan("combined", { 
   immediate: true,
   stream: accessLogStream
 }));
@@ -128,21 +139,14 @@ app.use("/error/:statusCode", errorController.getError);
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
-  console.log(error);
   const statusCode = error.httpStatusCode;
 
   return res.redirect("/error/" + statusCode);
 });
 
 // Launching the server
-const MODE = process.env.NODE_ENV;
-const PORT = (MODE === "production") ? process.env.PORT : 8080;
-
 const server = http.createServer(app);
 
 poolConnect(function() {
-  server.listen(
-    PORT, 
-    console.log(`The app is running in the ${MODE} mode on port ${PORT}`)
-  );
+  server.listen(process.env.PORT || 3000);
 });

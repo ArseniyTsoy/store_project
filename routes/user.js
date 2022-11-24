@@ -1,10 +1,11 @@
 import express from "express";
-const router = express.Router();
 import userController from "../controllers/user.js";
 import isAuth from "../middleware/is-auth.js";
 import { body } from "express-validator";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+
+const router = express.Router();
 
 // User profile
 router.get("/edit-profile/:id", isAuth, userController.getEditProfile);
@@ -45,6 +46,10 @@ router.post("/edit-profile", isAuth, [
 
       try {
         const user = await User.findById(req.body.id);
+
+        if (!user) {
+          return Promise.reject("Пользователь с таким ID не обнаружен");
+        }
 
         compareResult = await bcrypt.compare(value, user.password);
       } catch(err) {

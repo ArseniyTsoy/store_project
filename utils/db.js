@@ -13,7 +13,7 @@ export async function poolConnect(cb) {
       connectionLimit: 10,
       queueLimit: 0
     });
-    console.log("Pool is ready!");
+
     _pool = newPool;
     cb();
   } catch(err) {

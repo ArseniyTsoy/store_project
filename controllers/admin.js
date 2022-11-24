@@ -6,11 +6,15 @@ import { validationResult } from "express-validator";
 import equipError from "../utils/equipError.js";
 import deleteFile from "../utils/deleteFile.js";
 
-// Products
+// Admin Products
 async function getCreateProduct(req, res, next) {
   try {
     let categories = [];
     const rawCats = await Category.findAll();
+
+    if (!rawCats) {
+      throw new Error("Не удалось получить доступ к списку категорий");
+    }
 
     for (let cat of rawCats) {
       categories.push({
@@ -34,7 +38,6 @@ async function postCreateProduct(req, res, next) {
   try {
     const { title, price, description }  = req.body;
     const categoryId = parseInt(req.body.categoryId);
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -69,7 +72,11 @@ async function postCreateProduct(req, res, next) {
       categoryId
     );
 
-    await newProduct.create();
+    const result = await newProduct.create();
+
+    if (!result) {
+      throw new Error("Не удалось создать новый товар");
+    }
 
     return res.status(201).redirect("/admin/catalog");
   } catch (err) {
@@ -85,6 +92,10 @@ async function getEditProduct(req, res, next) {
 
     let categories = [];
     const rawCats = await Category.findAll();
+
+    if (!rawCats) {
+      throw new Error("Не удалось получить доступ к списку категорий");
+    }
 
     for (let cat of rawCats) {
       categories.push({
@@ -106,41 +117,39 @@ async function getEditProduct(req, res, next) {
 }
 
 async function postEditProduct(req, res, next) {
-  const { id, title, price, description, oldImageUrl } = req.body;
-  const categoryId = parseInt(req.body.categoryId);
+  try {
+    const { id, title, price, description, oldImageUrl } = req.body;
+    const categoryId = parseInt(req.body.categoryId);
+    const errors = validationResult(req);
 
-  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      if (req.file) {
+        deleteFile(req.file.path);
+      }
 
-  if (!errors.isEmpty()) {
-    if (req.file) {
-      deleteFile(req.file.path);
+      const categories = JSON.parse(req.body.categories);
+
+      return res.status(422).render("admin/products/edit", {
+        pageTitle: "Редактирование товара",
+        hasProduct: true,
+        product: {
+          id,
+          title,
+          price,
+          imageUrl: oldImageUrl,
+          description,
+          categoryId        
+        },
+        categories,
+        errors: errors.mapped()
+      });
     }
 
-    const categories = JSON.parse(req.body.categories);
-
-    return res.status(422).render("admin/products/edit", {
-      pageTitle: "Редактирование товара",
-      hasProduct: true,
-      product: {
-        id,
-        title,
-        price,
-        imageUrl: oldImageUrl,
-        description,
-        categoryId        
-      },
-      categories,
-      errors: errors.mapped()
-    });
-  }
-
-  const imageUrl = req.file ? req.file.path : oldImageUrl;
-
-  try {
+    const imageUrl = req.file ? req.file.path : oldImageUrl;
     const product = await Product.findById(id);
 
     if (!product) {
-      throw new Error("Товар не обнаружен!");
+      throw new Error("Не удалось получить доступ к выбранному товару");
     } 
 
     const editedProduct = new Product(id, title, price, imageUrl, description, categoryId);
@@ -148,7 +157,7 @@ async function postEditProduct(req, res, next) {
     const result = await editedProduct.update();
 
     if (!result) {
-      throw new Error("Product editing failed!");
+      throw new Error("Не удалось обновить выбранный товар");
     }
 
     if (req.file) {
@@ -162,13 +171,12 @@ async function postEditProduct(req, res, next) {
 }
 
 async function postRemoveProduct(req, res, next) {
-  const { productId, imageUrl } = req.body;
-
   try {
+    const { productId, imageUrl } = req.body;
     const result = await Product.deleteById(productId);
 
     if (!result) {
-      throw new Error("Deletion failed!");
+      throw new Error("Не удалось удалить выбранный товар");
     }
     
     deleteFile(imageUrl);
@@ -182,12 +190,16 @@ async function postRemoveProduct(req, res, next) {
 async function getShowProduct(req, res, next) {
   try {
     const productId = req.params.productId;
-
     const product = await Product.findById(productId);
 
     const hasProduct = product ? true : false;
 
     const rawCat = await Category.findById(product.categoryId);
+
+    if (!rawCat) {
+      throw new Error("Не удалось получить доступ к категории");
+    }
+
     const category = rawCat.title;
 
     return res.render("admin/products/show", {
@@ -206,6 +218,7 @@ async function getProducts(req, res, next) {
     let products;
     let totalProducts;
 
+    // Pagination
     const filteredBy = parseInt(req.query.filteredBy) || null;
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
@@ -215,10 +228,8 @@ async function getProducts(req, res, next) {
       totalProducts = await Product.countByField("categoryId", filteredBy);
 
       products = await Product.findByField("categoryId", filteredBy, limit, offset);
-
     } else {
-      totalProducts = await Product.count();
-      
+      totalProducts = await Product.count();   
       products = await Product.findAll(limit, offset);
     }
 
@@ -226,8 +237,11 @@ async function getProducts(req, res, next) {
 
     let categories = [];
     const rawCats = await Category.findAll();
+
+    if (!rawCats) {
+      throw new Error("Не удалось получить доступ к списку категорий");
+    }
     
-    // Add check
     for (let item of rawCats) {
       categories.push({
         id: item.id,
@@ -257,7 +271,7 @@ async function getProducts(req, res, next) {
   }
 }
 
-// Categories
+// Admin Categories
 function getCreateCategory(req, res) {
   return res.render("admin/categories/form", {
     pageTitle: "Добавить новую категорию",
@@ -271,10 +285,10 @@ function getCreateCategory(req, res) {
 async function postCreateCategory(req, res, next) {
   try {
     const { title, description } = req.body;
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+
       if (req.file) {
         deleteFile(req.file.path);
       }
@@ -300,7 +314,11 @@ async function postCreateCategory(req, res, next) {
       imageUrl
     );
 
-    await newCategory.create();
+    const result = await newCategory.create();
+    
+    if (!result) {
+      throw new Error("Не удалось создать новую категорию");
+    }
 
     return res.status(201).redirect("/admin/categories");
   } catch (err) {
@@ -312,6 +330,10 @@ async function getEditCategory(req, res, next) {
   try {
     const catId = req.params.catId;
     const category = await Category.findById(catId);
+
+    if (!category) {
+      throw new Error("Не удалось получить доступ к выбранной категории");
+    }
 
     return res.render("admin/categories/form", {
       pageTitle: "Редактировать категорию",
@@ -328,7 +350,6 @@ async function getEditCategory(req, res, next) {
 async function postEditCategory(req, res, next) {
   try {
     const { title, description, catId, oldImageUrl } = req.body;
-
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
@@ -357,14 +378,13 @@ async function postEditCategory(req, res, next) {
     const result = await editedCategory.update();
 
     if (!result) {
-      throw new Error("Failed to update category!");
+      throw new Error("Не удалось обновить категорию");
     }
 
     if (req.file) {
       deleteFile(oldImageUrl);
     }
 
-    // Show category
     return res.redirect("/admin/categories");
   } catch(err) {
     return next(equipError(err));
@@ -377,7 +397,7 @@ async function postDeleteCategory(req, res, next) {
     const result = await Category.deleteById(catId);
 
     if (!result) {
-      throw new Error("Failed to delete category!");
+      throw new Error("Не удалось удалить выбранную категорию");
     }
 
     deleteFile(imageUrl);
@@ -390,12 +410,12 @@ async function postDeleteCategory(req, res, next) {
 
 async function getCategories(req, res, next) {
   try {
+    // Pagination
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
     
     const totalCats = await Category.count();
-
     const categories = await Category.findAll(limit, offset);
 
     const hasCategories = (categories && categories.length > 0) ? true : false;
@@ -417,15 +437,15 @@ async function getCategories(req, res, next) {
   }
 }
 
-// Administer user accounts
+// Admin Users
 async function getUsers(req, res, next) {
   try {
+    // Pagination
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
     const offset = currentPage > 1 ? limit * (currentPage - 1) : null;
 
     const totalUsers = await User.count();
-
     const users = await User.findAll(limit, offset);
 
     const hasUsers = users ? true : false;
@@ -448,28 +468,28 @@ async function getUsers(req, res, next) {
 }
 
 async function postDeleteUser(req, res, next) {
-  const { userId, imageUrl } = req.body;
-
   try {
+    const { userId, imageUrl } = req.body;
     const result = await User.deleteById(userId);
     
-    if (result && result.length > 0) {
-      deleteFile(imageUrl);
-      return res.redirect("/admin/users");
-    } else {
-      throw new Error("Failed to delete the user!");
+    if (!result) {
+      throw new Error("Не удалось удалить выбранного пользователя");
     }
+
+    deleteFile(imageUrl);
+    return res.redirect("/admin/users");
   } catch(err) {
     return next(equipError(err));
   }
 }
 
-// Admin orders
+// Admin Orders
 async function getOrders(req, res, next) {
   try {
     let orders;
     let totalOrders;
     
+    // Pagination
     const filteredBy = req.query.filteredBy || null;
     const currentPage = parseInt(req.query.page) || 1;
     const limit = 3;
@@ -481,7 +501,6 @@ async function getOrders(req, res, next) {
       totalOrders = await Order.countByField("status", filteredBy);
     } else {
       orders = await Order.findAll(limit, offset);
-
       totalOrders = await Order.count();
     }
 
@@ -518,7 +537,7 @@ async function postSetOrderStatus(req, res, next) {
     const result = await order.setStatus(newStatus);
 
     if (!result) {
-
+      throw new Error("Не удалось обновить статус товара");
     }
 
     return res.redirect("back");
@@ -528,13 +547,12 @@ async function postSetOrderStatus(req, res, next) {
 }
 
 async function postDeleteOrder(req, res, next) {
-  const orderId = req.body.orderId;
-
   try {
+    const orderId = req.body.orderId;
     const result = await Order.deleteById(orderId);
 
     if (!result) {
-      throw new Error("Failed to delete the order!");
+      throw new Error("Не удалось удалить выбранный товар");
     }
 
     return res.redirect("back");
@@ -545,9 +563,8 @@ async function postDeleteOrder(req, res, next) {
 
 // Admin dashboard
 async function getDashboard(req, res) {
-  let total = {};
-
   try {
+    let total = {};
 
     total.orders = await Order.count();
     total.products = await Product.count();
