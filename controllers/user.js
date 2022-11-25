@@ -335,9 +335,7 @@ async function getCheckout(req, res, next) {
 
 async function postCreateOrder(req, res, next) {
   try {
-    const { name, phone, email, method, country, city, street, house, flat, postalCode, totalPrice } = req.body;
-
-    const orderContent = JSON.parse(req.body.orderContent);
+    const { name, phone, email, method, country, city, street, house, flat, postalCode, totalPrice, orderContent } = req.body;
 
     let address = { country, city, street, house, flat, postalCode };
 
@@ -348,12 +346,14 @@ async function postCreateOrder(req, res, next) {
         edit: false,
         cartHasItems: true,
         oldInput: { name, phone, email, method, address },
-        orderContent,
+        orderContent: JSON.parse(orderContent),
         totalPrice, 
         hasError: true,
         errors: errors.mapped()
       });
     }
+
+    address = JSON.stringify(address);
 
     const dateCreated = (new Date()).toLocaleDateString("ru", {
       year: "2-digit",
@@ -363,7 +363,18 @@ async function postCreateOrder(req, res, next) {
 
     const currentUser = new User(req.session.user.id);
 
-    const newOrder = new Order(null, currentUser.id, name, phone, email, method, address, orderContent, totalPrice, dateCreated);
+    const newOrder = new Order(
+      null, 
+      currentUser.id, 
+      name, 
+      phone, 
+      email, 
+      method, 
+      address, 
+      orderContent, 
+      totalPrice, 
+      dateCreated
+      );
 
     const result = await newOrder.create();
 
@@ -389,7 +400,7 @@ async function getEditOrder(req, res, next) {
       throw new Error("Не удалось найти выбранный заказ");
     }
 
-    if (order.userId !== req.session.user.id) {
+    if (parseInt(order.userId) !== parseInt(req.session.user.id)) {
       throw new Error("Профили не совпадают");
     }
 

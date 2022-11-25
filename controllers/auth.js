@@ -213,8 +213,8 @@ async function postResetPassword(req, res, next) {
       to: providedEmail,
       subject: "Ссылка для изменения пароля! Link for resetting your password!",
       html: `<h3>Вы запросили сброс пароля! You requested a password reset!</h3>
-      <p>Пожалуйста, перейдите по этой <a href="http://${process.env.HOST}:${process.env.PORT}/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>
-      <p>Please, follow this <a href="http://${process.env.HOST}:${process.env.PORT}/auth/new-password/${resetToken}/${providedEmail}">link</a> to change your password. Ignore this message, if you haven't requested any password reset.</p>`
+      <p>Пожалуйста, перейдите по этой <a href="http://${process.env.DBHOST}:${process.env.APP_PORT}/auth/new-password/${resetToken}/${providedEmail}">ссылке</a>, чтобы изменить пароль. Если сброс пароля был запрошен не вами, просто проигнорируйте данное сообщение.</p>
+      <p>Please, follow this <a href="http://${process.env.DBHOST}:${process.env.APP_PORT}/auth/new-password/${resetToken}/${providedEmail}">link</a> to change your password. Ignore this message, if you haven't requested any password reset.</p>`
     });
 
     if (!sendMailCheck) {

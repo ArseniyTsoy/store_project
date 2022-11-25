@@ -1,8 +1,6 @@
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-// import https from "https";
-import http from "http";
 import express from "express";
 import multer from "multer";
 import csrf from "csurf";
@@ -88,10 +86,10 @@ app.use(multer({
 
 // Sessions + session store
 const options = {
-  host: process.env.HOST,
-  user: process.env.DB_USER,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD
+  host: process.env.DBHOST,
+  user: process.env.DBUSER,
+  database: process.env.DBNAME,
+  password: process.env.DBPASS
 };
 const sessionStore = new MySQLStore(options);
 
@@ -145,8 +143,6 @@ app.use((error, req, res, next) => {
 });
 
 // Launching the server
-const server = http.createServer(app);
-
 poolConnect(function() {
-  server.listen(process.env.PORT || 3000);
+  app.listen(process.env.APP_PORT || 3000);
 });
